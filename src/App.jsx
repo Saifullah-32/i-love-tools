@@ -44,7 +44,48 @@ export default function App() {
   const [arW1, setArW1] = useState(1920); const [arH1, setArH1] = useState(1080); const [arW2, setArW2] = useState(1280); const arH2 = Math.round((arH1 / arW1) * arW2) || 0;
   const [seoTitle, setSeoTitle] = useState('My Awesome Page'); const [seoDesc, setSeoDesc] = useState('A brief description.'); const [seoImg, setSeoImg] = useState('https://example.com/image.jpg'); const seoTags = `<title>${seoTitle}</title>\n<meta name="description" content="${seoDesc}">\n<meta property="og:title" content="${seoTitle}">\n<meta property="og:description" content="${seoDesc}">\n<meta property="og:image" content="${seoImg}">\n<meta name="twitter:card" content="summary_large_image">`;
   const [utmUrl, setUtmUrl] = useState('https://example.com'); const [utmSrc, setUtmSrc] = useState('newsletter'); const [utmMed, setUtmMed] = useState('email'); const [utmCamp, setUtmCamp] = useState('summer_sale'); const utmResult = `${utmUrl}?utm_source=${encodeURIComponent(utmSrc)}&utm_medium=${encodeURIComponent(utmMed)}&utm_campaign=${encodeURIComponent(utmCamp)}`;
-  const [originalImage, setOriginalImage] = useState(null); const [compressedImage, setCompressedImage] = useState(null); const [compressing, setCompressing] = useState(false); const handleImageUpload = async (e) => { const file = e.target.files[0]; if (!file) return; setOriginalImage(file); setCompressing(true); try { setCompressedImage(await imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true })); } catch (error) {} finally { setCompressing(false); } };
+  
+  // --- PRECISE PHOTO COMPRESSOR STATE & LOGIC ---
+  const [originalImage, setOriginalImage] = useState(null); 
+  const [compressedImage, setCompressedImage] = useState(null); 
+  const [compressing, setCompressing] = useState(false);
+  const [targetSize, setTargetSize] = useState('');
+  const [targetUnit, setTargetUnit] = useState('KB');
+  const [compressError, setCompressError] = useState('');
+
+  const handleImageUpload = (e) => { 
+    const file = e.target.files[0]; 
+    if (file) {
+      setOriginalImage(file); 
+      setCompressedImage(null);
+      setCompressError('');
+    }
+  };
+
+  const handleCompressImage = async () => {
+    if (!originalImage || !targetSize || targetSize <= 0) {
+      setCompressError('Please upload an image and enter a valid target size.');
+      return;
+    }
+    setCompressing(true);
+    setCompressError('');
+    try {
+      const sizeInMB = targetUnit === 'KB' ? targetSize / 1024 : Number(targetSize);
+      const options = {
+        maxSizeMB: sizeInMB,
+        maxWidthOrHeight: 4000,
+        useWebWorker: true,
+      };
+      const compressedFile = await imageCompression(originalImage, options);
+      setCompressedImage(compressedFile);
+    } catch (error) {
+      console.error(error);
+      setCompressError('Failed to compress image. Try a slightly larger target size.');
+    } finally {
+      setCompressing(false);
+    }
+  };
+
   const [text, setText] = useState(''); const words = text.trim() ? text.trim().split(/\s+/).length : 0; const chars = text.length;
   const [caseText, setCaseText] = useState('');
   const [password, setPassword] = useState(''); const [length, setLength] = useState(16); const generatePassword = () => { const c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()'; let r = ''; for (let i = 0; i < length; i++) r += c.charAt(Math.floor(Math.random() * c.length)); setPassword(r); };
@@ -208,7 +249,58 @@ export default function App() {
             {activeTab === 'ratio' && ( <div> <h2>Aspect Ratio Calculator</h2> <div className="stats"> <div className="stat-box"> <label>Original Width</label> <input type="number" className="text-input" value={arW1} onChange={(e) => setArW1(e.target.value)} /> </div> <div className="stat-box"> <label>Original Height</label> <input type="number" className="text-input" value={arH1} onChange={(e) => setArH1(e.target.value)} /> </div> </div> <div className="stats"> <div className="stat-box"> <label>New Width</label> <input type="number" className="text-input" value={arW2} onChange={(e) => setArW2(e.target.value)} /> </div> <div className="stat-box" style={{background: '#f8fafc'}}> <label>New Height (Calculated)</label> <h3 style={{marginTop: '10px'}}>{arH2} px</h3> </div> </div> </div> )}
             {activeTab === 'seo' && ( <div> <h2>SEO Meta Tag Generator</h2> <input type="text" className="text-input" placeholder="Page Title" value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} /> <textarea rows="2" placeholder="Page Description" value={seoDesc} onChange={(e) => setSeoDesc(e.target.value)} /> <input type="text" className="text-input" placeholder="Image URL (e.g. https://...)" value={seoImg} onChange={(e) => setSeoImg(e.target.value)} /> <h4 style={{marginBottom: '10px'}}>Generated HTML Tags:</h4> <textarea rows="7" readOnly className="readonly-area" value={seoTags} /> </div> )}
             {activeTab === 'utm' && ( <div> <h2>UTM Link Builder</h2> <input type="text" className="text-input" placeholder="Website URL" value={utmUrl} onChange={(e) => setUtmUrl(e.target.value)} /> <div className="stats" style={{marginTop: 0, marginBottom: '20px'}}> <input type="text" className="text-input" placeholder="Source (e.g. google)" value={utmSrc} onChange={(e) => setUtmSrc(e.target.value)} /> <input type="text" className="text-input" placeholder="Medium (e.g. cpc)" value={utmMed} onChange={(e) => setUtmMed(e.target.value)} /> <input type="text" className="text-input" placeholder="Campaign (e.g. sale)" value={utmCamp} onChange={(e) => setUtmCamp(e.target.value)} /> </div> <h4 style={{marginBottom: '10px'}}>Generated UTM Link:</h4> <div className="output-box" style={{fontSize: '1.1rem', padding: '15px'}}>{utmResult}</div> </div> )}
-            {activeTab === 'image' && ( <div> <h2>Client-Side Image Compressor</h2> <input type="file" accept="image/*" onChange={handleImageUpload} className="file-input" /> {compressing && <p>Compressing...</p>} {originalImage && compressedImage && ( <div className="results-grid"> <div><h4>Original</h4><p>{(originalImage.size / 1024 / 1024).toFixed(2)} MB</p></div> <div><h4>Compressed</h4><p>{(compressedImage.size / 1024 / 1024).toFixed(2)} MB</p> <a href={URL.createObjectURL(compressedImage)} download={`compressed-${originalImage.name}`} className="btn"><Download size={16} /> Download</a> </div> </div> )} </div> )}
+            
+            {/* UPDATED PRECISE PHOTO COMPRESSOR TAB */}
+            {activeTab === 'image' && ( 
+              <div> 
+                <h2>Precise Photo Compressor</h2> 
+                <input type="file" accept="image/*" onChange={handleImageUpload} className="file-input" /> 
+                {originalImage && (
+                  <p style={{ fontSize: '0.9rem', margin: '10px 0', color: '#64748b' }}>
+                    Original Size: {(originalImage.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                )}
+                <div style={{ display: 'flex', gap: '10px', margin: '15px 0' }}>
+                  <input 
+                    type="number" 
+                    className="text-input" 
+                    style={{ flex: 1, marginBottom: 0 }} 
+                    placeholder="Target size (e.g. 500)" 
+                    value={targetSize} 
+                    onChange={(e) => setTargetSize(e.target.value)} 
+                  />
+                  <select 
+                    className="text-input" 
+                    style={{ width: '100px', marginBottom: 0 }} 
+                    value={targetUnit} 
+                    onChange={(e) => setTargetUnit(e.target.value)}
+                  >
+                    <option value="KB">KB</option>
+                    <option value="MB">MB</option>
+                  </select>
+                </div>
+                {compressError && <p style={{ color: '#ef4444', marginBottom: '15px' }}>{compressError}</p>}
+                <button 
+                  onClick={handleCompressImage} 
+                  disabled={compressing || !originalImage} 
+                  className="btn" 
+                  style={{ marginBottom: '15px' }}
+                >
+                  {compressing ? 'Compressing...' : 'Compress Image'}
+                </button>
+                {compressedImage && ( 
+                  <div className="results-grid"> 
+                    <div><h4>Original</h4><p>{(originalImage.size / 1024 / 1024).toFixed(2)} MB</p></div> 
+                    <div><h4>Compressed</h4><p>{(compressedImage.size / 1024 / 1024).toFixed(2)} MB</p> 
+                      <a href={URL.createObjectURL(compressedImage)} download={`compressed-${originalImage.name}`} className="btn">
+                        <Download size={16} /> Download
+                      </a> 
+                    </div> 
+                  </div> 
+                )} 
+              </div> 
+            )}
+
             {activeTab === 'counter' && ( <div> <h2>Word & Character Counter</h2> <textarea rows="6" value={text} onChange={(e) => setText(e.target.value)} /> <div className="stats"> <div className="stat-box"><h3>{words}</h3><p>Words</p></div> <div className="stat-box"><h3>{chars}</h3><p>Characters</p></div> </div> </div> )}
             {activeTab === 'case' && ( <div> <h2>Text Case Converter</h2> <textarea rows="5" value={caseText} onChange={(e) => setCaseText(e.target.value)} /> <div className="button-group"> <button onClick={() => setCaseText(caseText.toUpperCase())}>UPPERCASE</button> <button onClick={() => setCaseText(caseText.toLowerCase())}>lowercase</button> <button onClick={() => setCaseText(caseText.replace(/\b\w/g, c => c.toUpperCase()))}>Title Case</button> </div> </div> )}
             {activeTab === 'password' && ( <div> <h2>Secure Password Generator</h2> <div className="controls"> <label>Length: {length}</label> <input type="range" min="8" max="32" value={length} onChange={(e) => setLength(e.target.value)} /> </div> <button onClick={generatePassword} className="btn"><RefreshCw size={16} /> Generate</button> {password && <div className="output-box"><code>{password}</code></div>} </div> )}
