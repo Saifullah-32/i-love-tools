@@ -350,7 +350,7 @@ export default function App() {
         <p style={{ marginBottom: '8px' }}>Engineered for developers and designers.</p>
         <p style={{ marginBottom: '20px' }}>
           Have a suggestion for a new tool or found a bug? Let us know! <br/>
-          Email: <a href="mailto:software.index.si@gmail.com" style={{ color: '#e94057', textDecoration: 'none', fontWeight: '600' }}>software.index.si@gmail.com</a>
+          Email: <a href="https://mail.google.com/mail/?view=cm&fs=1&to=software.index.si@gmail.com" target="_blank" rel="noopener noreferrer" style={{ color: '#e94057', textDecoration: 'none', fontWeight: '600' }}>software.index.si@gmail.com</a>
         </p>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap' }}>
           <button onClick={() => setActiveModal('privacy')} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>Privacy Policy</button>
