@@ -22,6 +22,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('image');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [activeModal, setActiveModal] = useState(null); // State for Legal Pop-ups
 
   // --- HOVER & CLICK LOGIC FOR DROPDOWNS ---
   const handleMouseEnter = (category) => {
@@ -250,7 +251,6 @@ export default function App() {
             {activeTab === 'seo' && ( <div> <h2>SEO Meta Tag Generator</h2> <input type="text" className="text-input" placeholder="Page Title" value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} /> <textarea rows="2" placeholder="Page Description" value={seoDesc} onChange={(e) => setSeoDesc(e.target.value)} /> <input type="text" className="text-input" placeholder="Image URL (e.g. https://...)" value={seoImg} onChange={(e) => setSeoImg(e.target.value)} /> <h4 style={{marginBottom: '10px'}}>Generated HTML Tags:</h4> <textarea rows="7" readOnly className="readonly-area" value={seoTags} /> </div> )}
             {activeTab === 'utm' && ( <div> <h2>UTM Link Builder</h2> <input type="text" className="text-input" placeholder="Website URL" value={utmUrl} onChange={(e) => setUtmUrl(e.target.value)} /> <div className="stats" style={{marginTop: 0, marginBottom: '20px'}}> <input type="text" className="text-input" placeholder="Source (e.g. google)" value={utmSrc} onChange={(e) => setUtmSrc(e.target.value)} /> <input type="text" className="text-input" placeholder="Medium (e.g. cpc)" value={utmMed} onChange={(e) => setUtmMed(e.target.value)} /> <input type="text" className="text-input" placeholder="Campaign (e.g. sale)" value={utmCamp} onChange={(e) => setUtmCamp(e.target.value)} /> </div> <h4 style={{marginBottom: '10px'}}>Generated UTM Link:</h4> <div className="output-box" style={{fontSize: '1.1rem', padding: '15px'}}>{utmResult}</div> </div> )}
             
-            {/* UPDATED PRECISE PHOTO COMPRESSOR TAB */}
             {activeTab === 'image' && ( 
               <div> 
                 <h2>Precise Photo Compressor</h2> 
@@ -329,8 +329,87 @@ export default function App() {
             {activeTab === 'svg' && ( <div> <h2>SVG to PNG</h2> <textarea rows="6" value={svgInput} onChange={(e) => setSvgInput(e.target.value)} /> <button onClick={convertSvg} className="btn" style={{marginBottom:'15px'}}><RefreshCw size={16}/> Convert</button> {pngUrl && <div><img src={pngUrl} alt="Converted PNG" style={{display:'block', marginBottom:'15px', borderRadius:'8px'}}/><a href={pngUrl} download="converted.png" className="btn"><Download size={16}/> Download PNG</a></div>} </div> )}
 
           </div>
+
+          {/* AdSense SEO Content Block */}
+          <div className="seo-content" style={{ marginTop: '40px', padding: '30px', borderTop: '2px solid rgba(233, 64, 87, 0.1)', color: '#334155' }}>
+            <h3 style={{ fontSize: '1.5rem', color: '#1e293b', marginBottom: '15px' }}>Why Use Client-Side Web Tools?</h3>
+            <p style={{ lineHeight: '1.6', marginBottom: '15px' }}>
+              When working with code, formatting data, or compressing personal images, privacy and speed are the two most important factors. Traditional online utilities force you to upload your files to remote, third-party servers. This not only risks exposing your sensitive data but also wastes time waiting for uploads and downloads.
+            </p>
+            <p style={{ lineHeight: '1.6' }}>
+              <strong>I Love Tools</strong> is engineered differently. By utilizing modern web technologies, all 34 of our utilities run 100% locally in your browser. Whether you are generating a complex Glassmorphism CSS layout, parsing a large JSON file into TypeScript, or compressing a high-resolution photo, the processing happens directly on your device CPU. Your data is never collected, stored, or transmitted across the internet, ensuring maximum security and zero latency.
+            </p>
+          </div>
+
         </main>
       </div>
+
+      {/* Modern Custom Footer */}
+      <footer style={{ textAlign: 'center', padding: '40px 20px', color: '#64748b', fontSize: '0.95rem' }}>
+        <p style={{ fontWeight: '600', color: '#1e293b', marginBottom: '8px' }}>I Love Tools &copy; {new Date().getFullYear()}</p>
+        <p style={{ marginBottom: '8px' }}>Engineered for developers and designers.</p>
+        <p style={{ marginBottom: '20px' }}>
+          Have a suggestion for a new tool or found a bug? Let us know! <br/>
+          Email: <a href="mailto:software.index.si@gmail.com" style={{ color: '#e94057', textDecoration: 'none', fontWeight: '600' }}>software.index.si@gmail.com</a>
+        </p>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap' }}>
+          <button onClick={() => setActiveModal('privacy')} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>Privacy Policy</button>
+          <span>•</span>
+          <button onClick={() => setActiveModal('terms')} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>Terms of Service</button>
+          <span>•</span>
+          <button onClick={() => setActiveModal('about')} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>About Us</button>
+        </div>
+      </footer>
+
+      {/* AdSense Legal Pop-Up Modal */}
+      {activeModal && (
+        <div 
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: '20px' }} 
+          onClick={() => setActiveModal(null)}
+        >
+          <div 
+            style={{ background: '#ffffff', padding: '40px', borderRadius: '24px', maxWidth: '600px', width: '100%', maxHeight: '85vh', overflowY: 'auto', position: 'relative', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }} 
+            onClick={e => e.stopPropagation()}
+          >
+            <button 
+              onClick={() => setActiveModal(null)} 
+              style={{ position: 'absolute', top: '20px', right: '20px', background: '#f1f5f9', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#64748b', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              &times;
+            </button>
+            
+            {activeModal === 'privacy' && (
+              <>
+                <h2 style={{ marginBottom: '20px', color: '#1e293b', fontSize: '2rem' }}>Privacy Policy</h2>
+                <p style={{ marginBottom: '15px', lineHeight: '1.6', color: '#475569' }}>At I Love Tools (ilovetools.dev), the privacy of our visitors is our extreme priority. This Privacy Policy document outlines the types of personal information that is received and collected and how it is used.</p>
+                <h3 style={{ margin: '20px 0 10px', fontSize: '1.2rem', color: '#1e293b' }}>Data Processing & Privacy</h3>
+                <p style={{ marginBottom: '15px', lineHeight: '1.6', color: '#475569' }}>All tools and utilities provided on this website operate 100% client-side. We do not upload, process, or store any of your files, images, code, or text on external servers. Everything stays on your local device.</p>
+                <h3 style={{ margin: '20px 0 10px', fontSize: '1.2rem', color: '#1e293b' }}>Cookies and Web Beacons</h3>
+                <p style={{ marginBottom: '15px', lineHeight: '1.6', color: '#475569' }}>We use third-party services, including Google Analytics and Google AdSense, which may use cookies to serve ads based on a user's prior visits to this website or other websites. Google's use of advertising cookies enables it and its partners to serve ads to our users based on their visit to our sites and/or other sites on the Internet.</p>
+                <p style={{ lineHeight: '1.6', color: '#475569' }}>Users may opt-out of personalized advertising by visiting Google's Ads Settings.</p>
+              </>
+            )}
+
+            {activeModal === 'terms' && (
+              <>
+                <h2 style={{ marginBottom: '20px', color: '#1e293b', fontSize: '2rem' }}>Terms of Service</h2>
+                <p style={{ marginBottom: '15px', lineHeight: '1.6', color: '#475569' }}>By accessing and using I Love Tools, you accept and agree to be bound by the terms and provision of this agreement.</p>
+                <p style={{ marginBottom: '15px', lineHeight: '1.6', color: '#475569' }}>All tools provided on this website are free to use and run entirely locally in your browser. We provide these utilities "as is" without any warranties of any kind. We are not responsible for any data loss, miscalculations, or issues that arise from using these tools.</p>
+                <p style={{ lineHeight: '1.6', color: '#475569' }}>You agree not to use this service for any illegal or unauthorized purpose.</p>
+              </>
+            )}
+
+            {activeModal === 'about' && (
+              <>
+                <h2 style={{ marginBottom: '20px', color: '#1e293b', fontSize: '2rem' }}>About Us</h2>
+                <p style={{ marginBottom: '15px', lineHeight: '1.6', color: '#475569' }}>I Love Tools is a centralized hub designed to help developers, designers, and everyday web users perform quick tasks without sacrificing privacy.</p>
+                <p style={{ marginBottom: '15px', lineHeight: '1.6', color: '#475569' }}>Built with modern web technologies, our mission is to eliminate the need to upload sensitive files to third-party servers just to compress an image, format some code, or generate a hash.</p>
+                <p style={{ lineHeight: '1.6', color: '#475569' }}>If you have feedback or want to request a new tool, reach out to us at <strong style={{ color: '#e94057' }}>software.index.si@gmail.com</strong>.</p>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       <Analytics />
       <SpeedInsights />
