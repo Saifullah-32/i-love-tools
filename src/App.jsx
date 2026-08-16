@@ -12,7 +12,7 @@ import {
   FileCode2, Droplet, FileSpreadsheet, Calculator, Clock, Video, 
   Monitor, RefreshCw, Brackets, Calendar, FileSearch, Keyboard, 
   Crop, Globe, Link, Search, ChevronDown, ShieldCheck, Layers, 
-  Sparkles, Sliders
+  Sparkles, Film
 } from 'lucide-react';
 import AdBanner from './AdBanner';
 import { Analytics } from '@vercel/analytics/react';
@@ -383,7 +383,7 @@ export default function App() {
     img.src = URL.createObjectURL(blob); 
   };
 
-  // --- STATE & LOGIC FOR 7 NEW TOOLS ---
+  // --- LOGIC FOR NEW TOOLS ---
 
   // 1. SQL Formatter
   const [sqlInput, setSqlInput] = useState('SELECT id, name, email FROM users WHERE active = 1 AND age > 21 ORDER BY created_at DESC;');
@@ -467,7 +467,7 @@ export default function App() {
     setSvgSavings(`Reduced from ${originalLength} bytes to ${minified.length} bytes (${Math.max(0, saved)}% reduction)`);
   };
 
-  // 6. AES Text Encrypt / Decrypt (Web Crypto API)
+  // 6. AES Text Encrypt / Decrypt
   const [aesText, setAesText] = useState('My Top Secret Message');
   const [aesPass, setAesPass] = useState('securePassword123');
   const [aesMode, setAesMode] = useState('encrypt');
@@ -548,10 +548,97 @@ export default function App() {
     }
   };
 
-  // --- CATEGORY STRUCTURE (41 UTILITIES) ---
+  // 8. Video Compressor (Native HTML5)
+  const [videoFile, setVideoFile] = useState(null);
+  const [videoQuality, setVideoQuality] = useState('medium');
+  const [videoCompressing, setVideoCompressing] = useState(false);
+  const [videoProgress, setVideoProgress] = useState(0);
+  const [compressedVideoUrl, setCompressedVideoUrl] = useState(null);
+  const [compressedVideoSize, setCompressedVideoSize] = useState(0);
+  const videoRef = useRef(null);
+
+  const handleVideoCompress = () => {
+    if (!videoFile || !videoRef.current) return;
+    setVideoCompressing(true);
+    setVideoProgress(0);
+    setCompressedVideoUrl(null);
+
+    const video = videoRef.current;
+    video.currentTime = 0;
+    video.muted = false; 
+
+    const ratio = video.videoWidth / video.videoHeight;
+    let targetW = 854; // medium 480p default
+    if (videoQuality === 'high') targetW = 1280; // 720p
+    if (videoQuality === 'low') targetW = 640; // 360p
+    let targetH = Math.round(targetW / ratio);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = targetW;
+    canvas.height = targetH;
+    const ctx = canvas.getContext('2d');
+
+    let combinedStream;
+    const canvasStream = canvas.captureStream(30);
+    
+    try {
+        const origStream = video.captureStream ? video.captureStream() : video.mozCaptureStream ? video.mozCaptureStream() : null;
+        if (origStream && origStream.getAudioTracks().length > 0) {
+            combinedStream = new MediaStream([canvasStream.getVideoTracks()[0], origStream.getAudioTracks()[0]]);
+        } else {
+            combinedStream = canvasStream;
+        }
+    } catch(e) {
+        combinedStream = canvasStream;
+    }
+
+    let bps = 1200000;
+    if (videoQuality === 'high') bps = 2500000;
+    if (videoQuality === 'low') bps = 600000;
+
+    let recorder;
+    try {
+        recorder = new MediaRecorder(combinedStream, { mimeType: 'video/webm; codecs=vp9', videoBitsPerSecond: bps });
+    } catch(e) {
+        recorder = new MediaRecorder(combinedStream, { videoBitsPerSecond: bps });
+    }
+    
+    const chunks = [];
+    recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+    recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        setCompressedVideoUrl(URL.createObjectURL(blob));
+        setCompressedVideoSize(blob.size);
+        setVideoCompressing(false);
+    };
+
+    const drawFrame = () => {
+        if (video.paused || video.ended) return;
+        ctx.drawImage(video, 0, 0, targetW, targetH);
+        setVideoProgress(Math.round((video.currentTime / video.duration) * 100));
+        requestAnimationFrame(drawFrame);
+    };
+
+    video.onplay = () => {
+        recorder.start();
+        drawFrame();
+    };
+    
+    video.onended = () => {
+        recorder.stop();
+    };
+
+    video.play().catch(e => {
+        console.error(e);
+        setVideoCompressing(false);
+    });
+  };
+
+  // --- CATEGORY STRUCTURE (42 UTILITIES) ---
   const categories = {
     "Media & Graphics": [
       { id: 'image', name: 'Compress Image', icon: Image },
+      { id: 'vidcompress', name: 'Compress Video', icon: Film },
       { id: 'resize', name: 'Resize Image', icon: Maximize },
       { id: 'pdfgen', name: 'Photos to PDF', icon: FileUp },
       { id: 'audio', name: 'Extract Audio', icon: Music },
@@ -628,7 +715,7 @@ export default function App() {
           <Search className="search-icon" size={20} />
           <input 
             type="text" 
-            placeholder="Search for a tool (e.g. SQL, AES, UUID, SVG)..." 
+            placeholder="Search for a tool (e.g. Video, SQL, AES, UUID, SVG)..." 
             className="search-bar"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -682,6 +769,46 @@ export default function App() {
           <AdBanner />
           
           <div className="tool-card">
+
+            {/* --- NATIVE VIDEO COMPRESSOR --- */}
+            {activeTab === 'vidcompress' && (
+              <div>
+                <h2>Video Compressor (WebM Output)</h2>
+                <p className="subtitle" style={{marginBottom: '15px'}}>Locally scale down and compress video files. (Audio is preserved on supported browsers).</p>
+                <input type="file" accept="video/*" onChange={(e) => { setVideoFile(e.target.files[0]); setCompressedVideoUrl(null); setVideoProgress(0); }} className="file-input" />
+                
+                {videoFile && (
+                  <p style={{ fontSize: '0.9rem', margin: '10px 0', color: '#64748b', fontWeight: '600' }}>
+                    Original Size: {(videoFile.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                )}
+                
+                <div style={{ display: 'flex', gap: '10px', margin: '15px 0' }}>
+                  <select className="text-input" value={videoQuality} onChange={(e) => setVideoQuality(e.target.value)}>
+                    <option value="high">High Quality (720p)</option>
+                    <option value="medium">Medium Quality (480p)</option>
+                    <option value="low">Low Quality (360p)</option>
+                  </select>
+                </div>
+                
+                <button onClick={handleVideoCompress} disabled={videoCompressing || !videoFile} className="btn" style={{ marginBottom: '15px' }}>
+                  <Film size={16}/> {videoCompressing ? `Compressing... ${videoProgress}%` : 'Compress Video'}
+                </button>
+
+                {videoFile && <video ref={videoRef} src={URL.createObjectURL(videoFile)} style={{ display: 'none' }} playsInline />}
+
+                {compressedVideoUrl && (
+                  <div className="results-grid"> 
+                    <div><h4>Original</h4><p>{(videoFile.size / 1024 / 1024).toFixed(2)} MB</p></div> 
+                    <div><h4>Compressed</h4><p>{(compressedVideoSize / 1024 / 1024).toFixed(2)} MB</p> 
+                      <a href={compressedVideoUrl} download={`compressed-${videoFile.name.split('.')[0]}.webm`} className="btn">
+                        <Download size={16} /> Download
+                      </a> 
+                    </div> 
+                  </div> 
+                )}
+              </div>
+            )}
 
             {/* --- SQL FORMATTER --- */}
             {activeTab === 'sql-format' && (
@@ -881,7 +1008,7 @@ export default function App() {
               When working with code, formatting data, or compressing personal images, privacy and speed are the two most important factors. Traditional online utilities force you to upload your files to remote, third-party servers. This not only risks exposing your sensitive data but also wastes time waiting for uploads and downloads.
             </p>
             <p style={{ lineHeight: '1.6' }}>
-              <strong>I Love Tools</strong> is engineered differently. By utilizing modern web technologies, all 41 of our utilities run 100% locally in your browser. Whether you are generating a complex Glassmorphism CSS layout, parsing a large JSON file into TypeScript, encrypting sensitive text with AES, or compressing a high-resolution photo, the processing happens directly on your device CPU. Your data is never collected, stored, or transmitted across the internet, ensuring maximum security and zero latency.
+              <strong>I Love Tools</strong> is engineered differently. By utilizing modern web technologies, all 42 of our utilities run 100% locally in your browser. Whether you are generating a complex Glassmorphism CSS layout, parsing a large JSON file into TypeScript, encrypting sensitive text with AES, or compressing a high-resolution video, the processing happens directly on your device CPU. Your data is never collected, stored, or transmitted across the internet, ensuring maximum security and zero latency.
             </p>
           </div>
 
