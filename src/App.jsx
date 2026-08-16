@@ -11,7 +11,8 @@ import {
   Maximize, Hash, Timer, Play, Pause, Square, LockOpen, Database, 
   FileCode2, Droplet, FileSpreadsheet, Calculator, Clock, Video, 
   Monitor, RefreshCw, Brackets, Calendar, FileSearch, Keyboard, 
-  Crop, Globe, Link, Search, ChevronDown
+  Crop, Globe, Link, Search, ChevronDown, ShieldCheck, Layers, 
+  Sparkles, Sliders
 } from 'lucide-react';
 import AdBanner from './AdBanner';
 import { Analytics } from '@vercel/analytics/react';
@@ -22,7 +23,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('image');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const [activeModal, setActiveModal] = useState(null); // State for Legal Pop-ups
+  const [activeModal, setActiveModal] = useState(null);
 
   // --- HOVER & CLICK LOGIC FOR DROPDOWNS ---
   const handleMouseEnter = (category) => {
@@ -37,16 +38,66 @@ export default function App() {
     }
   };
 
-  // --- STATE LOGIC FOR ALL 34 TOOLS ---
-  const [jsonToTsInput, setJsonToTsInput] = useState('{"id": 1, "name": "Tool", "active": true}'); const [tsOutput, setTsOutput] = useState(''); const convertJsonToTs = () => { try { const obj = JSON.parse(jsonToTsInput); let ts = 'export interface GeneratedInterface {\n'; for (let k in obj) ts += `  ${k}: ${Array.isArray(obj[k]) ? 'any[]' : typeof obj[k]};\n`; setTsOutput(ts + '}'); } catch (e) { setTsOutput('Error: Invalid JSON format'); } };
-  const [cronInput, setCronInput] = useState('0 12 * * 1-5'); const [cronResult, setCronResult] = useState(''); const translateCron = () => { try { setCronResult(cronstrue.toString(cronInput)); } catch (e) { setCronResult('Error: Invalid Cron Expression'); } };
-  const [regexPattern, setRegexPattern] = useState('[a-zA-Z]+'); const [regexText, setRegexText] = useState('Test 123 string'); const [regexResult, setRegexResult] = useState(''); const testRegex = () => { try { const re = new RegExp(regexPattern, 'g'); const matches = regexText.match(re); setRegexResult(matches ? matches.join(', ') : 'No matches found.'); } catch(e) { setRegexResult('Error: Invalid Regex Pattern'); } };
-  const [keyData, setKeyData] = useState({ key: '-', code: '-', keyCode: '-' }); const handleKeyDown = (e) => { e.preventDefault(); setKeyData({ key: e.key === ' ' ? 'Space' : e.key, code: e.code, keyCode: e.keyCode }); };
-  const [arW1, setArW1] = useState(1920); const [arH1, setArH1] = useState(1080); const [arW2, setArW2] = useState(1280); const arH2 = Math.round((arH1 / arW1) * arW2) || 0;
-  const [seoTitle, setSeoTitle] = useState('My Awesome Page'); const [seoDesc, setSeoDesc] = useState('A brief description.'); const [seoImg, setSeoImg] = useState('https://example.com/image.jpg'); const seoTags = `<title>${seoTitle}</title>\n<meta name="description" content="${seoDesc}">\n<meta property="og:title" content="${seoTitle}">\n<meta property="og:description" content="${seoDesc}">\n<meta property="og:image" content="${seoImg}">\n<meta name="twitter:card" content="summary_large_image">`;
-  const [utmUrl, setUtmUrl] = useState('https://example.com'); const [utmSrc, setUtmSrc] = useState('newsletter'); const [utmMed, setUtmMed] = useState('email'); const [utmCamp, setUtmCamp] = useState('summer_sale'); const utmResult = `${utmUrl}?utm_source=${encodeURIComponent(utmSrc)}&utm_medium=${encodeURIComponent(utmMed)}&utm_campaign=${encodeURIComponent(utmCamp)}`;
+  // --- STATE LOGIC FOR ORIGINAL TOOLS ---
+  const [jsonToTsInput, setJsonToTsInput] = useState('{"id": 1, "name": "Tool", "active": true}'); 
+  const [tsOutput, setTsOutput] = useState(''); 
+  const convertJsonToTs = () => { 
+    try { 
+      const obj = JSON.parse(jsonToTsInput); 
+      let ts = 'export interface GeneratedInterface {\n'; 
+      for (let k in obj) ts += `  ${k}: ${Array.isArray(obj[k]) ? 'any[]' : typeof obj[k]};\n`; 
+      setTsOutput(ts + '}'); 
+    } catch (e) { 
+      setTsOutput('Error: Invalid JSON format'); 
+    } 
+  };
+
+  const [cronInput, setCronInput] = useState('0 12 * * 1-5'); 
+  const [cronResult, setCronResult] = useState(''); 
+  const translateCron = () => { 
+    try { 
+      setCronResult(cronstrue.toString(cronInput)); 
+    } catch (e) { 
+      setCronResult('Error: Invalid Cron Expression'); 
+    } 
+  };
+
+  const [regexPattern, setRegexPattern] = useState('[a-zA-Z]+'); 
+  const [regexText, setRegexText] = useState('Test 123 string'); 
+  const [regexResult, setRegexResult] = useState(''); 
+  const testRegex = () => { 
+    try { 
+      const re = new RegExp(regexPattern, 'g'); 
+      const matches = regexText.match(re); 
+      setRegexResult(matches ? matches.join(', ') : 'No matches found.'); 
+    } catch(e) { 
+      setRegexResult('Error: Invalid Regex Pattern'); 
+    } 
+  };
+
+  const [keyData, setKeyData] = useState({ key: '-', code: '-', keyCode: '-' }); 
+  const handleKeyDown = (e) => { 
+    e.preventDefault(); 
+    setKeyData({ key: e.key === ' ' ? 'Space' : e.key, code: e.code, keyCode: e.keyCode }); 
+  };
+
+  const [arW1, setArW1] = useState(1920); 
+  const [arH1, setArH1] = useState(1080); 
+  const [arW2, setArW2] = useState(1280); 
+  const arH2 = Math.round((arH1 / arW1) * arW2) || 0;
+
+  const [seoTitle, setSeoTitle] = useState('My Awesome Page'); 
+  const [seoDesc, setSeoDesc] = useState('A brief description.'); 
+  const [seoImg, setSeoImg] = useState('https://example.com/image.jpg'); 
+  const seoTags = `<title>${seoTitle}</title>\n<meta name="description" content="${seoDesc}">\n<meta property="og:title" content="${seoTitle}">\n<meta property="og:description" content="${seoDesc}">\n<meta property="og:image" content="${seoImg}">\n<meta name="twitter:card" content="summary_large_image">`;
+
+  const [utmUrl, setUtmUrl] = useState('https://example.com'); 
+  const [utmSrc, setUtmSrc] = useState('newsletter'); 
+  const [utmMed, setUtmMed] = useState('email'); 
+  const [utmCamp, setUtmCamp] = useState('summer_sale'); 
+  const utmResult = `${utmUrl}?utm_source=${encodeURIComponent(utmSrc)}&utm_medium=${encodeURIComponent(utmMed)}&utm_campaign=${encodeURIComponent(utmCamp)}`;
   
-  // --- PRECISE PHOTO COMPRESSOR STATE & LOGIC ---
+  // --- PRECISE PHOTO COMPRESSOR ---
   const [originalImage, setOriginalImage] = useState(null); 
   const [compressedImage, setCompressedImage] = useState(null); 
   const [compressing, setCompressing] = useState(false);
@@ -87,33 +138,417 @@ export default function App() {
     }
   };
 
-  const [text, setText] = useState(''); const words = text.trim() ? text.trim().split(/\s+/).length : 0; const chars = text.length;
+  const [text, setText] = useState(''); 
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0; 
+  const chars = text.length;
   const [caseText, setCaseText] = useState('');
-  const [password, setPassword] = useState(''); const [length, setLength] = useState(16); const generatePassword = () => { const c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()'; let r = ''; for (let i = 0; i < length; i++) r += c.charAt(Math.floor(Math.random() * c.length)); setPassword(r); };
-  const [qrText, setQrText] = useState('https://example.com');
-  const [baseInput, setBaseInput] = useState(''); const [baseMode, setBaseMode] = useState('encode'); const getBase64Result = () => { if (!baseInput) return ''; try { return baseMode === 'encode' ? btoa(baseInput) : atob(baseInput); } catch (e) { return 'Error: Invalid String'; } };
-  const [paragraphs, setParagraphs] = useState(3); const loremText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."; const generatedLorem = Array(Number(paragraphs)).fill(loremText).join('\n\n');
-  const [spellText, setSpellText] = useState(''); const cleanSpaces = () => setSpellText(spellText.replace(/\s+/g, ' ').trim());
-  const [jsonInput, setJsonInput] = useState(''); const [jsonOutput, setJsonOutput] = useState(''); const formatJson = () => { try { setJsonOutput(JSON.stringify(JSON.parse(jsonInput), null, 2)); } catch (e) { setJsonOutput('Error: Invalid JSON structure'); } };
-  const [colorInput, setColorInput] = useState('#2563eb'); const [rgbOutput, setRgbOutput] = useState('rgb(37, 99, 235)'); const handleColorChange = (e) => { const hex = e.target.value; setColorInput(hex); let r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); if (r) setRgbOutput(`rgb(${parseInt(r[1], 16)}, ${parseInt(r[2], 16)}, ${parseInt(r[3], 16)})`); else setRgbOutput('Invalid HEX'); };
-  const [pdfImages, setPdfImages] = useState([]); const [generatingPdf, setGeneratingPdf] = useState(false); const generatePdf = async () => { if (pdfImages.length === 0) return; setGeneratingPdf(true); const doc = new jsPDF(); for (let i = 0; i < pdfImages.length; i++) { const imgData = await new Promise((res) => { const reader = new FileReader(); reader.onload = (e) => res(e.target.result); reader.readAsDataURL(pdfImages[i]); }); if (i > 0) doc.addPage(); const imgProps = doc.getImageProperties(imgData); const pdfW = doc.internal.pageSize.getWidth(); doc.addImage(imgData, 'JPEG', 0, 0, pdfW, (imgProps.height * pdfW) / imgProps.width); } doc.save('Generated.pdf'); setGeneratingPdf(false); };
-  const [zipFiles, setZipFiles] = useState([]); const [zipping, setZipping] = useState(false); const [zipUrl, setZipUrl] = useState(null); const compressDocs = async () => { if (zipFiles.length === 0) return; setZipping(true); const zip = new JSZip(); zipFiles.forEach(file => zip.file(file.name, file)); const content = await zip.generateAsync({ type: 'blob' }); setZipUrl(URL.createObjectURL(content)); setZipping(false); };
-  const [audioFile, setAudioFile] = useState(null);
-  const [messyCode, setMessyCode] = useState(`#include <iostream>\nusing namespace std;int main(){cout<<"Hello";return 0;}`); const [cleanCode, setCleanCode] = useState(''); const formatSnippet = () => { let indent = 0; let result = ''; const lines = messyCode.replace(/{/g, '{\n').replace(/}/g, '\n}\n').replace(/;/g, ';\n').split('\n'); lines.forEach(line => { let trimmed = line.trim(); if (!trimmed) return; if (trimmed.includes('}')) indent = Math.max(0, indent - 1); result += '  '.repeat(indent) + trimmed + '\n'; if (trimmed.includes('{')) indent++; }); setCleanCode(result); };
-  const [resizeSource, setResizeSource] = useState(null); const [targetWidth, setTargetWidth] = useState(800); const [resizedDataUrl, setResizedDataUrl] = useState(null); const handleResize = () => { if (!resizeSource) return; const img = new window.Image(); img.onload = () => { const canvas = document.createElement('canvas'); canvas.width = targetWidth; canvas.height = img.height * (targetWidth / img.width); canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height); setResizedDataUrl(canvas.toDataURL('image/jpeg', 0.9)); }; img.src = URL.createObjectURL(resizeSource); };
-  const [hashData, setHashData] = useState(''); const [hashResult, setHashResult] = useState(''); const generateHash = async () => { const msgBuffer = new TextEncoder().encode(hashData); const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer); setHashResult(Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('')); };
-  const [time, setTime] = useState(0); const [timerOn, setTimerOn] = useState(false); useEffect(() => { let interval = null; if (timerOn) interval = setInterval(() => setTime(prev => prev + 10), 10); else clearInterval(interval); return () => clearInterval(interval); }, [timerOn]); const formatTime = (t) => { const ms = ("0" + ((t / 10) % 100)).slice(-2); const s = ("0" + Math.floor((t / 1000) % 60)).slice(-2); const m = ("0" + Math.floor((t / 60000) % 60)).slice(-2); return `${m}:${s}.${ms}`; };
-  const [mongoId, setMongoId] = useState(''); const [mongoResult, setMongoResult] = useState(''); const extractMongoDate = () => { if (mongoId.length === 24) setMongoResult(new Date(parseInt(mongoId.substring(0, 8), 16) * 1000).toLocaleString()); else setMongoResult('Invalid ObjectId length.'); };
-  const [jwt, setJwt] = useState(''); const [jwtData, setJwtData] = useState(''); const decodeJwt = () => { try { setJwtData(JSON.stringify(JSON.parse(atob(jwt.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))), null, 2)); } catch (e) { setJwtData('Invalid JWT Format'); } };
-  const [mdInput, setMdInput] = useState('# Hello World\n\n**Bold Text**'); const mdOutput = marked.parse(mdInput);
-  const [blur, setBlur] = useState(10); const [opacity, setOpacity] = useState(0.5); const glassCss = `background: rgba(255, 255, 255, ${opacity});\nbackdrop-filter: blur(${blur}px);\n-webkit-backdrop-filter: blur(${blur}px);\nborder: 1px solid rgba(255, 255, 255, 0.3);`;
-  const [hours, setHours] = useState(10); const [rate, setRate] = useState(50); const [tax, setTax] = useState(20); const [client, setClient] = useState(''); const gross = hours * rate; const net = gross - (gross * (tax / 100)); const generateInvoice = () => { const doc = new jsPDF(); doc.setFontSize(22); doc.text('INVOICE', 20, 20); doc.setFontSize(12); doc.text(`Client: ${client}`, 20, 40); doc.text(`Total Hours: ${hours}`, 20, 50); doc.text(`Hourly Rate: $${rate}`, 20, 60); doc.text(`Gross Total: $${gross}`, 20, 70); doc.text(`Net (After ${tax}% Tax): $${net}`, 20, 80); doc.save(`Invoice-${client || 'Client'}.pdf`); };
-  const [pomoTime, setPomoTime] = useState(25 * 60); const [pomoActive, setPomoActive] = useState(false); useEffect(() => { let int = null; if (pomoActive && pomoTime > 0) int = setInterval(() => setPomoTime(p => p - 1), 1000); else clearInterval(int); return () => clearInterval(int); }, [pomoActive, pomoTime]); const formatPomo = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
-  const [recordedChunks, setRecordedChunks] = useState([]); const [isRecording, setIsRecording] = useState(false); const mediaRecorderRef = useRef(null); const startRecording = async () => { try { const stream = await navigator.mediaDevices.getDisplayMedia({ video: true }); mediaRecorderRef.current = new MediaRecorder(stream); mediaRecorderRef.current.ondataavailable = (e) => { if (e.data.size > 0) setRecordedChunks(prev => [...prev, e.data]); }; mediaRecorderRef.current.start(); setIsRecording(true); stream.getVideoTracks()[0].onended = () => stopRecording(); } catch (err) {} }; const stopRecording = () => { if (mediaRecorderRef.current) mediaRecorderRef.current.stop(); setIsRecording(false); }; const downloadVideo = () => { const blob = new Blob(recordedChunks, { type: 'video/webm' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'screen-recording.webm'; a.click(); setRecordedChunks([]); };
-  const [viewport, setViewport] = useState({ w: window.innerWidth, h: window.innerHeight, ratio: window.devicePixelRatio }); useEffect(() => { const handleResize = () => setViewport({ w: window.innerWidth, h: window.innerHeight, ratio: window.devicePixelRatio }); window.addEventListener('resize', handleResize); return () => window.removeEventListener('resize', handleResize); }, []);
-  const [svgInput, setSvgInput] = useState('<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" stroke="green" stroke-width="4" fill="yellow" /></svg>'); const [pngUrl, setPngUrl] = useState(null); const convertSvg = () => { const blob = new Blob([svgInput], { type: 'image/svg+xml;charset=utf-8' }); const img = new window.Image(); img.onload = () => { const canvas = document.createElement('canvas'); canvas.width = img.width; canvas.height = img.height; canvas.getContext('2d').drawImage(img, 0, 0); setPngUrl(canvas.toDataURL('image/png')); }; img.src = URL.createObjectURL(blob); };
+  const [password, setPassword] = useState(''); 
+  const [length, setLength] = useState(16); 
+  const generatePassword = () => { 
+    const c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()'; 
+    let r = ''; 
+    for (let i = 0; i < length; i++) r += c.charAt(Math.floor(Math.random() * c.length)); 
+    setPassword(r); 
+  };
 
-  // --- CATEGORY STRUCTURE ---
+  const [qrText, setQrText] = useState('https://example.com');
+  const [baseInput, setBaseInput] = useState(''); 
+  const [baseMode, setBaseMode] = useState('encode'); 
+  const getBase64Result = () => { 
+    if (!baseInput) return ''; 
+    try { 
+      return baseMode === 'encode' ? btoa(baseInput) : atob(baseInput); 
+    } catch (e) { 
+      return 'Error: Invalid String'; 
+    } 
+  };
+
+  const [paragraphs, setParagraphs] = useState(3); 
+  const loremText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."; 
+  const generatedLorem = Array(Number(paragraphs)).fill(loremText).join('\n\n');
+  const [spellText, setSpellText] = useState(''); 
+  const cleanSpaces = () => setSpellText(spellText.replace(/\s+/g, ' ').trim());
+
+  const [jsonInput, setJsonInput] = useState(''); 
+  const [jsonOutput, setJsonOutput] = useState(''); 
+  const formatJson = () => { 
+    try { 
+      setJsonOutput(JSON.stringify(JSON.parse(jsonInput), null, 2)); 
+    } catch (e) { 
+      setJsonOutput('Error: Invalid JSON structure'); 
+    } 
+  };
+
+  const [colorInput, setColorInput] = useState('#2563eb'); 
+  const [rgbOutput, setRgbOutput] = useState('rgb(37, 99, 235)'); 
+  const handleColorChange = (e) => { 
+    const hex = e.target.value; 
+    setColorInput(hex); 
+    let r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); 
+    if (r) setRgbOutput(`rgb(${parseInt(r[1], 16)}, ${parseInt(r[2], 16)}, ${parseInt(r[3], 16)})`); 
+    else setRgbOutput('Invalid HEX'); 
+  };
+
+  const [pdfImages, setPdfImages] = useState([]); 
+  const [generatingPdf, setGeneratingPdf] = useState(false); 
+  const generatePdf = async () => { 
+    if (pdfImages.length === 0) return; 
+    setGeneratingPdf(true); 
+    const doc = new jsPDF(); 
+    for (let i = 0; i < pdfImages.length; i++) { 
+      const imgData = await new Promise((res) => { 
+        const reader = new FileReader(); 
+        reader.onload = (e) => res(e.target.result); 
+        reader.readAsDataURL(pdfImages[i]); 
+      }); 
+      if (i > 0) doc.addPage(); 
+      const imgProps = doc.getImageProperties(imgData); 
+      const pdfW = doc.internal.pageSize.getWidth(); 
+      doc.addImage(imgData, 'JPEG', 0, 0, pdfW, (imgProps.height * pdfW) / imgProps.width); 
+    } 
+    doc.save('Generated.pdf'); 
+    setGeneratingPdf(false); 
+  };
+
+  const [zipFiles, setZipFiles] = useState([]); 
+  const [zipping, setZipping] = useState(false); 
+  const [zipUrl, setZipUrl] = useState(null); 
+  const compressDocs = async () => { 
+    if (zipFiles.length === 0) return; 
+    setZipping(true); 
+    const zip = new JSZip(); 
+    zipFiles.forEach(file => zip.file(file.name, file)); 
+    const content = await zip.generateAsync({ type: 'blob' }); 
+    setZipUrl(URL.createObjectURL(content)); 
+    setZipping(false); 
+  };
+
+  const [audioFile, setAudioFile] = useState(null);
+  const [messyCode, setMessyCode] = useState(`#include <iostream>\nusing namespace std;int main(){cout<<"Hello";return 0;}`); 
+  const [cleanCode, setCleanCode] = useState(''); 
+  const formatSnippet = () => { 
+    let indent = 0; 
+    let result = ''; 
+    const lines = messyCode.replace(/{/g, '{\n').replace(/}/g, '\n}\n').replace(/;/g, ';\n').split('\n'); 
+    lines.forEach(line => { 
+      let trimmed = line.trim(); 
+      if (!trimmed) return; 
+      if (trimmed.includes('}')) indent = Math.max(0, indent - 1); 
+      result += '  '.repeat(indent) + trimmed + '\n'; 
+      if (trimmed.includes('{')) indent++; 
+    }); 
+    setCleanCode(result); 
+  };
+
+  const [resizeSource, setResizeSource] = useState(null); 
+  const [targetWidth, setTargetWidth] = useState(800); 
+  const [resizedDataUrl, setResizedDataUrl] = useState(null); 
+  const handleResize = () => { 
+    if (!resizeSource) return; 
+    const img = new window.Image(); 
+    img.onload = () => { 
+      const canvas = document.createElement('canvas'); 
+      canvas.width = targetWidth; 
+      canvas.height = img.height * (targetWidth / img.width); 
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height); 
+      setResizedDataUrl(canvas.toDataURL('image/jpeg', 0.9)); 
+    }; 
+    img.src = URL.createObjectURL(resizeSource); 
+  };
+
+  const [hashData, setHashData] = useState(''); 
+  const [hashResult, setHashResult] = useState(''); 
+  const generateHash = async () => { 
+    const msgBuffer = new TextEncoder().encode(hashData); 
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer); 
+    setHashResult(Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('')); 
+  };
+
+  const [time, setTime] = useState(0); 
+  const [timerOn, setTimerOn] = useState(false); 
+  useEffect(() => { 
+    let interval = null; 
+    if (timerOn) interval = setInterval(() => setTime(prev => prev + 10), 10); 
+    else clearInterval(interval); 
+    return () => clearInterval(interval); 
+  }, [timerOn]); 
+  const formatTime = (t) => { 
+    const ms = ("0" + ((t / 10) % 100)).slice(-2); 
+    const s = ("0" + Math.floor((t / 1000) % 60)).slice(-2); 
+    const m = ("0" + Math.floor((t / 60000) % 60)).slice(-2); 
+    return `${m}:${s}.${ms}`; 
+  };
+
+  const [mongoId, setMongoId] = useState(''); 
+  const [mongoResult, setMongoResult] = useState(''); 
+  const extractMongoDate = () => { 
+    if (mongoId.length === 24) setMongoResult(new Date(parseInt(mongoId.substring(0, 8), 16) * 1000).toLocaleString()); 
+    else setMongoResult('Invalid ObjectId length.'); 
+  };
+
+  const [jwt, setJwt] = useState(''); 
+  const [jwtData, setJwtData] = useState(''); 
+  const decodeJwt = () => { 
+    try { 
+      setJwtData(JSON.stringify(JSON.parse(atob(jwt.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))), null, 2)); 
+    } catch (e) { 
+      setJwtData('Invalid JWT Format'); 
+    } 
+  };
+
+  const [mdInput, setMdInput] = useState('# Hello World\n\n**Bold Text**'); 
+  const mdOutput = marked.parse(mdInput);
+
+  const [blur, setBlur] = useState(10); 
+  const [opacity, setOpacity] = useState(0.5); 
+  const glassCss = `background: rgba(255, 255, 255, ${opacity});\nbackdrop-filter: blur(${blur}px);\n-webkit-backdrop-filter: blur(${blur}px);\nborder: 1px solid rgba(255, 255, 255, 0.3);`;
+
+  const [hours, setHours] = useState(10); 
+  const [rate, setRate] = useState(50); 
+  const [tax, setTax] = useState(20); 
+  const [client, setClient] = useState(''); 
+  const gross = hours * rate; 
+  const net = gross - (gross * (tax / 100)); 
+  const generateInvoice = () => { 
+    const doc = new jsPDF(); 
+    doc.setFontSize(22); 
+    doc.text('INVOICE', 20, 20); 
+    doc.setFontSize(12); 
+    doc.text(`Client: ${client}`, 20, 40); 
+    doc.text(`Total Hours: ${hours}`, 20, 50); 
+    doc.text(`Hourly Rate: $${rate}`, 20, 60); 
+    doc.text(`Gross Total: $${gross}`, 20, 70); 
+    doc.text(`Net (After ${tax}% Tax): $${net}`, 20, 80); 
+    doc.save(`Invoice-${client || 'Client'}.pdf`); 
+  };
+
+  const [pomoTime, setPomoTime] = useState(25 * 60); 
+  const [pomoActive, setPomoActive] = useState(false); 
+  useEffect(() => { 
+    let int = null; 
+    if (pomoActive && pomoTime > 0) int = setInterval(() => setPomoTime(p => p - 1), 1000); 
+    else clearInterval(int); 
+    return () => clearInterval(int); 
+  }, [pomoActive, pomoTime]); 
+  const formatPomo = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
+
+  const [recordedChunks, setRecordedChunks] = useState([]); 
+  const [isRecording, setIsRecording] = useState(false); 
+  const mediaRecorderRef = useRef(null); 
+  const startRecording = async () => { 
+    try { 
+      const stream = await navigator.mediaDevices.getDisplayMedia({ video: true }); 
+      mediaRecorderRef.current = new MediaRecorder(stream); 
+      mediaRecorderRef.current.ondataavailable = (e) => { 
+        if (e.data.size > 0) setRecordedChunks(prev => [...prev, e.data]); 
+      }; 
+      mediaRecorderRef.current.start(); 
+      setIsRecording(true); 
+      stream.getVideoTracks()[0].onended = () => stopRecording(); 
+    } catch (err) {} 
+  }; 
+  const stopRecording = () => { 
+    if (mediaRecorderRef.current) mediaRecorderRef.current.stop(); 
+    setIsRecording(false); 
+  }; 
+  const downloadVideo = () => { 
+    const blob = new Blob(recordedChunks, { type: 'video/webm' }); 
+    const url = URL.createObjectURL(blob); 
+    const a = document.createElement('a'); 
+    a.href = url; 
+    a.download = 'screen-recording.webm'; 
+    a.click(); 
+    setRecordedChunks([]); 
+  };
+
+  const [viewport, setViewport] = useState({ w: window.innerWidth, h: window.innerHeight, ratio: window.devicePixelRatio }); 
+  useEffect(() => { 
+    const handleResize = () => setViewport({ w: window.innerWidth, h: window.innerHeight, ratio: window.devicePixelRatio }); 
+    window.addEventListener('resize', handleResize); 
+    return () => window.removeEventListener('resize', handleResize); 
+  }, []);
+
+  const [svgInput, setSvgInput] = useState('<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" stroke="green" stroke-width="4" fill="yellow" /></svg>'); 
+  const [pngUrl, setPngUrl] = useState(null); 
+  const convertSvg = () => { 
+    const blob = new Blob([svgInput], { type: 'image/svg+xml;charset=utf-8' }); 
+    const img = new window.Image(); 
+    img.onload = () => { 
+      const canvas = document.createElement('canvas'); 
+      canvas.width = img.width; 
+      canvas.height = img.height; 
+      canvas.getContext('2d').drawImage(img, 0, 0); 
+      setPngUrl(canvas.toDataURL('image/png')); 
+    }; 
+    img.src = URL.createObjectURL(blob); 
+  };
+
+  // --- STATE & LOGIC FOR 7 NEW TOOLS ---
+
+  // 1. SQL Formatter
+  const [sqlInput, setSqlInput] = useState('SELECT id, name, email FROM users WHERE active = 1 AND age > 21 ORDER BY created_at DESC;');
+  const [sqlOutput, setSqlOutput] = useState('');
+  const formatSql = () => {
+    try {
+      const keywords = ['SELECT', 'FROM', 'WHERE', 'AND', 'OR', 'ORDER BY', 'GROUP BY', 'HAVING', 'LIMIT', 'JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'INNER JOIN', 'INSERT INTO', 'VALUES', 'UPDATE', 'SET', 'DELETE FROM', 'UNION', 'CREATE TABLE'];
+      let formatted = sqlInput.trim();
+      keywords.forEach(kw => {
+        const regex = new RegExp(`\\b${kw}\\b`, 'gi');
+        formatted = formatted.replace(regex, `\n${kw}`);
+      });
+      formatted = formatted.replace(/,/g, ',\n  ');
+      setSqlOutput(formatted.trim());
+    } catch (e) {
+      setSqlOutput('Error formatting SQL');
+    }
+  };
+
+  // 2. Bulk UUID Generator
+  const [uuidCount, setUuidCount] = useState(10);
+  const [uuidOutput, setUuidOutput] = useState('');
+  const generateUuids = () => {
+    const count = Math.min(Math.max(1, Number(uuidCount) || 10), 100);
+    const list = Array.from({ length: count }, () => crypto.randomUUID());
+    setUuidOutput(list.join('\n'));
+  };
+
+  // 3. URL Encoder / Decoder
+  const [urlInput, setUrlInput] = useState('https://ilovetools.dev/search?q=developer tools&category=web dev');
+  const [urlOutput, setUrlOutput] = useState('');
+  const [urlMode, setUrlMode] = useState('encode');
+  const handleUrlTransform = () => {
+    try {
+      if (urlMode === 'encode') setUrlOutput(encodeURIComponent(urlInput));
+      else setUrlOutput(decodeURIComponent(urlInput));
+    } catch (e) {
+      setUrlOutput('Error: Malformed URL sequence');
+    }
+  };
+
+  // 4. Color Palette Extractor
+  const [paletteColors, setPaletteColors] = useState([]);
+  const handlePaletteUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const img = new window.Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = 100;
+      canvas.height = 100;
+      ctx.drawImage(img, 0, 0, 100, 100);
+      const data = ctx.getImageData(0, 0, 100, 100).data;
+      const sampled = [];
+      for (let i = 0; i < data.length; i += 400) {
+        const r = data[i].toString(16).padStart(2, '0');
+        const g = data[i+1].toString(16).padStart(2, '0');
+        const b = data[i+2].toString(16).padStart(2, '0');
+        sampled.push(`#${r}${g}${b}`);
+      }
+      const unique = [...new Set(sampled)].slice(0, 6);
+      setPaletteColors(unique);
+    };
+    img.src = URL.createObjectURL(file);
+  };
+
+  // 5. SVG Minifier
+  const [svgMinInput, setSvgMinInput] = useState('<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">\n  <!-- Circle Graphic -->\n  <circle cx="50" cy="50" r="40" fill="#e94057" />\n</svg>');
+  const [svgMinOutput, setSvgMinOutput] = useState('');
+  const [svgSavings, setSvgSavings] = useState('');
+  const minifySvg = () => {
+    const originalLength = svgMinInput.length;
+    let minified = svgMinInput
+      .replace(/<!--[\s\S]*?-->/g, '') // remove comments
+      .replace(/>\s+</g, '><') // remove whitespace between tags
+      .replace(/\s+/g, ' ') // collapse multi-spaces
+      .trim();
+    setSvgMinOutput(minified);
+    const saved = Math.round(((originalLength - minified.length) / (originalLength || 1)) * 100);
+    setSvgSavings(`Reduced from ${originalLength} bytes to ${minified.length} bytes (${Math.max(0, saved)}% reduction)`);
+  };
+
+  // 6. AES Text Encrypt / Decrypt (Web Crypto API)
+  const [aesText, setAesText] = useState('My Top Secret Message');
+  const [aesPass, setAesPass] = useState('securePassword123');
+  const [aesMode, setAesMode] = useState('encrypt');
+  const [aesResult, setAesResult] = useState('');
+  const [aesError, setAesError] = useState('');
+
+  const handleAesProcess = async () => {
+    setAesError('');
+    try {
+      const enc = new TextEncoder();
+      if (aesMode === 'encrypt') {
+        const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(aesPass), { name: "PBKDF2" }, false, ["deriveKey"]);
+        const salt = crypto.getRandomValues(new Uint8Array(16));
+        const key = await crypto.subtle.deriveKey(
+          { name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" },
+          keyMaterial,
+          { name: "AES-GCM", length: 256 },
+          false,
+          ["encrypt"]
+        );
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, enc.encode(aesText));
+        const combined = new Uint8Array(salt.length + iv.length + encrypted.byteLength);
+        combined.set(salt, 0);
+        combined.set(iv, salt.length);
+        combined.set(new Uint8Array(encrypted), salt.length + iv.length);
+        setAesResult(btoa(String.fromCharCode(...combined)));
+      } else {
+        const combined = Uint8Array.from(atob(aesText), c => c.charCodeAt(0));
+        const salt = combined.slice(0, 16);
+        const iv = combined.slice(16, 28);
+        const data = combined.slice(28);
+        const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(aesPass), { name: "PBKDF2" }, false, ["deriveKey"]);
+        const key = await crypto.subtle.deriveKey(
+          { name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" },
+          keyMaterial,
+          { name: "AES-GCM", length: 256 },
+          false,
+          ["decrypt"]
+        );
+        const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, data);
+        setAesResult(new TextDecoder().decode(decrypted));
+      }
+    } catch (e) {
+      setAesError('Decryption failed. Please verify your ciphertext and passphrase.');
+    }
+  };
+
+  // 7. Mock Data Generator
+  const [dummyCount, setDummyCount] = useState(5);
+  const [dummyFormat, setDummyFormat] = useState('json');
+  const [dummyOutput, setDummyOutput] = useState('');
+  const generateMockData = () => {
+    const firstNames = ['Alex', 'Sam', 'Jordan', 'Taylor', 'Morgan', 'Casey', 'Riley', 'Avery', 'Saif', 'Elena'];
+    const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Miller', 'Davis', 'Wilson', 'Khan', 'Taylor'];
+    const roles = ['Frontend Developer', 'UI/UX Designer', 'Backend Engineer', 'Product Manager', 'DevOps Engineer'];
+    const countries = ['United States', 'Pakistan', 'United Kingdom', 'Canada', 'Germany', 'Australia'];
+
+    const count = Math.min(Math.max(1, Number(dummyCount) || 5), 50);
+    const rows = Array.from({ length: count }, (_, i) => {
+      const fn = firstNames[Math.floor(Math.random() * firstNames.length)];
+      const ln = lastNames[Math.floor(Math.random() * lastNames.length)];
+      return {
+        id: i + 1,
+        fullName: `${fn} ${ln}`,
+        email: `${fn.toLowerCase()}.${ln.toLowerCase()}@example.com`,
+        role: roles[Math.floor(Math.random() * roles.length)],
+        country: countries[Math.floor(Math.random() * countries.length)]
+      };
+    });
+
+    if (dummyFormat === 'json') {
+      setDummyOutput(JSON.stringify(rows, null, 2));
+    } else {
+      const csvHeaders = 'id,fullName,email,role,country\n';
+      const csvRows = rows.map(r => `${r.id},"${r.fullName}","${r.email}","${r.role}","${r.country}"`).join('\n');
+      setDummyOutput(csvHeaders + csvRows);
+    }
+  };
+
+  // --- CATEGORY STRUCTURE (41 UTILITIES) ---
   const categories = {
     "Media & Graphics": [
       { id: 'image', name: 'Compress Image', icon: Image },
@@ -121,20 +556,25 @@ export default function App() {
       { id: 'pdfgen', name: 'Photos to PDF', icon: FileUp },
       { id: 'audio', name: 'Extract Audio', icon: Music },
       { id: 'screen', name: 'Screen Record', icon: Video },
+      { id: 'palette-extract', name: 'Color Palette', icon: Palette },
       { id: 'svg', name: 'SVG to PNG', icon: Image },
+      { id: 'svg-minify', name: 'SVG Minifier', icon: FileCode2 },
       { id: 'ratio', name: 'Aspect Ratio', icon: Crop },
-      { id: 'color', name: 'Color Pick', icon: Palette },
+      { id: 'color', name: 'Color Pick', icon: Droplet },
     ],
     "Developer & Code": [
       { id: 'json-ts', name: 'JSON to TS', icon: Brackets },
       { id: 'json', name: 'JSON Format', icon: Code },
+      { id: 'sql-format', name: 'SQL Format', icon: Database },
       { id: 'beautify', name: 'Code Beautify', icon: Code2 },
+      { id: 'url-encode', name: 'URL Encoder', icon: Link },
+      { id: 'uuid-gen', name: 'UUID Generator', icon: Key },
       { id: 'mongo', name: 'MongoDB ID', icon: Database },
       { id: 'jwt', name: 'JWT Decode', icon: LockOpen },
       { id: 'cron', name: 'Cron Parse', icon: Calendar },
       { id: 'regex', name: 'Regex Test', icon: FileSearch },
       { id: 'keys', name: 'Keycodes', icon: Keyboard },
-      { id: 'glass', name: 'Glass CSS', icon: Droplet },
+      { id: 'glass', name: 'Glass CSS', icon: Sparkles },
       { id: 'viewport', name: 'Viewport', icon: Monitor },
     ],
     "Writing & Text": [
@@ -147,12 +587,14 @@ export default function App() {
     "Marketing & Business": [
       { id: 'freelance', name: 'Freelance Calc', icon: Calculator },
       { id: 'invoice', name: 'PDF Invoice', icon: FileSpreadsheet },
+      { id: 'dummy-data', name: 'Mock Data Gen', icon: Layers },
       { id: 'seo', name: 'SEO Meta', icon: Globe },
       { id: 'utm', name: 'UTM Builder', icon: Link },
       { id: 'qr', name: 'QR Code', icon: QrCode },
     ],
     "General Utilities": [
       { id: 'password', name: 'Passwords', icon: Key },
+      { id: 'aes-encrypt', name: 'AES Encryption', icon: ShieldCheck },
       { id: 'hash', name: 'SHA-256 Hash', icon: Hash },
       { id: 'base64', name: 'Base64', icon: Binary },
       { id: 'zip', name: 'Zip Docs', icon: FileArchive },
@@ -186,7 +628,7 @@ export default function App() {
           <Search className="search-icon" size={20} />
           <input 
             type="text" 
-            placeholder="Search for a tool..." 
+            placeholder="Search for a tool (e.g. SQL, AES, UUID, SVG)..." 
             className="search-bar"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -236,13 +678,115 @@ export default function App() {
 
       {/* APP LAYOUT */}
       <div className="app-layout">
-        
         <main className="main-content">
           <AdBanner />
           
           <div className="tool-card">
 
-            {/* Render 34 Tools */}
+            {/* --- SQL FORMATTER --- */}
+            {activeTab === 'sql-format' && (
+              <div>
+                <h2>SQL Query Formatter</h2>
+                <textarea rows="6" placeholder="Paste unformatted SQL query..." value={sqlInput} onChange={(e) => setSqlInput(e.target.value)} />
+                <button onClick={formatSql} className="btn" style={{ marginBottom: '15px' }}><Code2 size={16}/> Format SQL</button>
+                {sqlOutput && <textarea rows="8" readOnly className="readonly-area" value={sqlOutput} />}
+              </div>
+            )}
+
+            {/* --- BULK UUID GENERATOR --- */}
+            {activeTab === 'uuid-gen' && (
+              <div>
+                <h2>Bulk UUID / GUID Generator</h2>
+                <div className="controls">
+                  <label>Count (1 - 100): {uuidCount}</label>
+                  <input type="range" min="1" max="50" value={uuidCount} onChange={(e) => setUuidCount(e.target.value)} />
+                </div>
+                <button onClick={generateUuids} className="btn" style={{ marginBottom: '15px' }}><Key size={16}/> Generate UUIDs</button>
+                {uuidOutput && <textarea rows="8" readOnly className="readonly-area" value={uuidOutput} />}
+              </div>
+            )}
+
+            {/* --- URL ENCODER / DECODER --- */}
+            {activeTab === 'url-encode' && (
+              <div>
+                <h2>URL Encoder / Decoder</h2>
+                <div className="button-group" style={{ marginBottom: '15px' }}>
+                  <button className={urlMode === 'encode' ? '' : 'inactive-btn'} onClick={() => setUrlMode('encode')}>Encode</button>
+                  <button className={urlMode === 'decode' ? '' : 'inactive-btn'} onClick={() => setUrlMode('decode')}>Decode</button>
+                </div>
+                <textarea rows="4" placeholder="Enter URL or string..." value={urlInput} onChange={(e) => setUrlInput(e.target.value)} />
+                <button onClick={handleUrlTransform} className="btn" style={{ marginBottom: '15px' }}><Link size={16}/> {urlMode === 'encode' ? 'Encode URL' : 'Decode URL'}</button>
+                {urlOutput && <textarea rows="4" readOnly className="readonly-area" value={urlOutput} />}
+              </div>
+            )}
+
+            {/* --- COLOR PALETTE EXTRACTOR --- */}
+            {activeTab === 'palette-extract' && (
+              <div>
+                <h2>Color Palette Extractor</h2>
+                <p className="subtitle">Upload any image to extract its dominant color scheme directly in the browser.</p>
+                <input type="file" accept="image/*" onChange={handlePaletteUpload} className="file-input" />
+                {paletteColors.length > 0 && (
+                  <div>
+                    <h4 style={{ marginBottom: '10px' }}>Extracted Palette:</h4>
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px' }}>
+                      {paletteColors.map((hex, idx) => (
+                        <div key={idx} style={{ textAlign: 'center', flex: 1, minWidth: '80px' }}>
+                          <div style={{ height: '70px', borderRadius: '12px', backgroundColor: hex, marginBottom: '8px', border: '1px solid rgba(0,0,0,0.1)' }}></div>
+                          <code style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>{hex}</code>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* --- SVG MINIFIER --- */}
+            {activeTab === 'svg-minify' && (
+              <div>
+                <h2>SVG Minifier</h2>
+                <textarea rows="6" placeholder="Paste SVG raw code..." value={svgMinInput} onChange={(e) => setSvgMinInput(e.target.value)} />
+                <button onClick={minifySvg} className="btn" style={{ marginBottom: '15px' }}><FileCode2 size={16}/> Minify SVG</button>
+                {svgSavings && <p style={{ color: '#10b981', fontWeight: '600', marginBottom: '10px' }}>{svgSavings}</p>}
+                {svgMinOutput && <textarea rows="6" readOnly className="readonly-area" value={svgMinOutput} />}
+              </div>
+            )}
+
+            {/* --- AES TEXT ENCRYPT / DECRYPT --- */}
+            {activeTab === 'aes-encrypt' && (
+              <div>
+                <h2>Client-Side AES Encryption / Decryption</h2>
+                <div className="button-group" style={{ marginBottom: '15px' }}>
+                  <button className={aesMode === 'encrypt' ? '' : 'inactive-btn'} onClick={() => { setAesMode('encrypt'); setAesResult(''); setAesError(''); }}>Encrypt</button>
+                  <button className={aesMode === 'decrypt' ? '' : 'inactive-btn'} onClick={() => { setAesMode('decrypt'); setAesResult(''); setAesError(''); }}>Decrypt</button>
+                </div>
+                <textarea rows="4" placeholder={aesMode === 'encrypt' ? 'Enter plain text to encrypt...' : 'Enter Base64 ciphertext to decrypt...'} value={aesText} onChange={(e) => setAesText(e.target.value)} />
+                <input type="password" className="text-input" placeholder="Enter Secret Passphrase..." value={aesPass} onChange={(e) => setAesPass(e.target.value)} />
+                {aesError && <p style={{ color: '#ef4444', marginBottom: '10px' }}>{aesError}</p>}
+                <button onClick={handleAesProcess} className="btn" style={{ marginBottom: '15px' }}><ShieldCheck size={16}/> {aesMode === 'encrypt' ? 'Encrypt Text' : 'Decrypt Text'}</button>
+                {aesResult && <textarea rows="4" readOnly className="readonly-area" value={aesResult} />}
+              </div>
+            )}
+
+            {/* --- MOCK DATA GENERATOR --- */}
+            {activeTab === 'dummy-data' && (
+              <div>
+                <h2>Mock / Dummy Data Generator</h2>
+                <div className="controls">
+                  <label>Records Count (1 - 50): {dummyCount}</label>
+                  <input type="range" min="1" max="25" value={dummyCount} onChange={(e) => setDummyCount(e.target.value)} />
+                </div>
+                <div className="button-group" style={{ marginBottom: '15px' }}>
+                  <button className={dummyFormat === 'json' ? '' : 'inactive-btn'} onClick={() => setDummyFormat('json')}>JSON</button>
+                  <button className={dummyFormat === 'csv' ? '' : 'inactive-btn'} onClick={() => setDummyFormat('csv')}>CSV</button>
+                </div>
+                <button onClick={generateMockData} className="btn" style={{ marginBottom: '15px' }}><Layers size={16}/> Generate Records</button>
+                {dummyOutput && <textarea rows="8" readOnly className="readonly-area" value={dummyOutput} />}
+              </div>
+            )}
+
+            {/* --- PRE-EXISTING 34 UTILITIES --- */}
             {activeTab === 'json-ts' && ( <div> <h2>JSON to TypeScript Interface</h2> <textarea rows="5" value={jsonToTsInput} onChange={(e) => setJsonToTsInput(e.target.value)} /> <button onClick={convertJsonToTs} className="btn" style={{marginBottom: '15px'}}><Brackets size={16}/> Convert to TS</button> <textarea rows="7" readOnly className="readonly-area" value={tsOutput} /> </div> )}
             {activeTab === 'cron' && ( <div> <h2>Cron Expression Translator</h2> <input type="text" className="text-input" placeholder="e.g. 0 12 * * 1-5" value={cronInput} onChange={(e) => setCronInput(e.target.value)} /> <button onClick={translateCron} className="btn"><Calendar size={16}/> Translate</button> {cronResult && <div className="output-box" style={{fontSize: '1.2rem'}}>{cronResult}</div>} </div> )}
             {activeTab === 'regex' && ( <div> <h2>Regex Tester</h2> <input type="text" className="text-input" placeholder="Regex pattern (e.g. [a-z]+)" value={regexPattern} onChange={(e) => setRegexPattern(e.target.value)} /> <textarea rows="3" placeholder="Test string..." value={regexText} onChange={(e) => setRegexText(e.target.value)} /> <button onClick={testRegex} className="btn" style={{marginBottom: '15px'}}><FileSearch size={16}/> Test Matches</button> <div className="output-box" style={{fontSize: '1rem', textAlign: 'left', padding: '15px'}}>{regexResult}</div> </div> )}
@@ -337,7 +881,7 @@ export default function App() {
               When working with code, formatting data, or compressing personal images, privacy and speed are the two most important factors. Traditional online utilities force you to upload your files to remote, third-party servers. This not only risks exposing your sensitive data but also wastes time waiting for uploads and downloads.
             </p>
             <p style={{ lineHeight: '1.6' }}>
-              <strong>I Love Tools</strong> is engineered differently. By utilizing modern web technologies, all 34 of our utilities run 100% locally in your browser. Whether you are generating a complex Glassmorphism CSS layout, parsing a large JSON file into TypeScript, or compressing a high-resolution photo, the processing happens directly on your device CPU. Your data is never collected, stored, or transmitted across the internet, ensuring maximum security and zero latency.
+              <strong>I Love Tools</strong> is engineered differently. By utilizing modern web technologies, all 41 of our utilities run 100% locally in your browser. Whether you are generating a complex Glassmorphism CSS layout, parsing a large JSON file into TypeScript, encrypting sensitive text with AES, or compressing a high-resolution photo, the processing happens directly on your device CPU. Your data is never collected, stored, or transmitted across the internet, ensuring maximum security and zero latency.
             </p>
           </div>
 
