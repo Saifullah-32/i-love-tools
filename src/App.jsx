@@ -548,8 +548,9 @@ export default function App() {
     }
   };
 
-  // 8. Mini CapCut Video Editor
+  // 8. Mini CapCut Video Editor (FIXED: Butter Smooth Performance)
   const [videoEditFile, setVideoEditFile] = useState(null);
+  const [videoEditUrl, setVideoEditUrl] = useState(null); // Fix: Stored URL avoids constant reloading
   const [vidDuration, setVidDuration] = useState(0);
   const [trimStart, setTrimStart] = useState(0);
   const [trimEnd, setTrimEnd] = useState(0);
@@ -572,7 +573,11 @@ export default function App() {
       setVideoEditFile(file);
       setExportedVideoUrl(null);
       setVideoProgress(0);
+      
+      // Fix: Generate the object URL exactly ONCE instead of on every render
       const url = URL.createObjectURL(file);
+      setVideoEditUrl(url); 
+
       const tempVid = document.createElement('video');
       tempVid.src = url;
       tempVid.onloadedmetadata = () => {
@@ -582,6 +587,13 @@ export default function App() {
       };
     }
   };
+
+  // Fix: Instantly apply playback speed changes directly to the DOM element 
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = vidSpeed;
+    }
+  }, [vidSpeed]);
 
   const handleVideoExport = () => {
     if (!videoEditFile || !videoRef.current) return;
@@ -800,11 +812,11 @@ export default function App() {
                 <p className="subtitle" style={{marginBottom: '15px'}}>Trim, adjust speed, and apply color grading filters entirely in your browser.</p>
                 <input type="file" accept="video/*" onChange={handleVideoLoad} className="file-input" />
                 
-                {videoEditFile && (
+                {videoEditUrl && ( // Fix: Now using the stored videoEditUrl
                   <>
                     <video 
                       ref={videoRef} 
-                      src={URL.createObjectURL(videoEditFile)} 
+                      src={videoEditUrl} 
                       controls 
                       style={{ 
                         width: '100%', 
