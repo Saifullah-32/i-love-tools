@@ -5,6 +5,9 @@ import { jsPDF } from 'jspdf';
 import JSZip from 'jszip';
 import { marked } from 'marked';
 import cronstrue from 'cronstrue';
+import bcrypt from 'bcryptjs';
+import { diffLines } from 'diff';
+import gifshot from 'gifshot';
 import { 
   Image, FileText, Type, Key, Download, QrCode, Binary, AlignLeft, 
   CheckSquare, Code, Palette, FileUp, FileArchive, Music, Code2, 
@@ -12,7 +15,9 @@ import {
   FileCode2, Droplet, FileSpreadsheet, Calculator, Clock, Video, 
   Monitor, RefreshCw, Brackets, Calendar, FileSearch, Keyboard, 
   Crop, Globe, Link, Search, ChevronDown, ShieldCheck, Layers, 
-  Sparkles, Film, Scissors, Wand2, Mic, Volume2
+  Sparkles, Film, Scissors, Wand2, Mic, Volume2, CameraOff, 
+  KeyRound, Fingerprint, FileJson, GitCompare, ImagePlus, 
+  Clapperboard, AppWindow, MicVocal
 } from 'lucide-react';
 import AdBanner from './AdBanner';
 import { Analytics } from '@vercel/analytics/react';
@@ -82,7 +87,7 @@ export default function App() {
     }
   };
 
-  // --- STATE LOGIC FOR ORIGINAL TOOLS ---
+  // --- PRE-EXISTING STATE LOGIC ---
   const [jsonToTsInput, setJsonToTsInput] = useState('{"id": 1, "name": "Tool", "active": true}'); 
   const [tsOutput, setTsOutput] = useState(''); 
   const convertJsonToTs = () => { 
@@ -141,7 +146,6 @@ export default function App() {
   const [utmCamp, setUtmCamp] = useState('summer_sale'); 
   const utmResult = `${utmUrl}?utm_source=${encodeURIComponent(utmSrc)}&utm_medium=${encodeURIComponent(utmMed)}&utm_campaign=${encodeURIComponent(utmCamp)}`;
   
-  // --- PRECISE PHOTO COMPRESSOR ---
   const [originalImage, setOriginalImage] = useState(null); 
   const [compressedImage, setCompressedImage] = useState(null); 
   const [compressing, setCompressing] = useState(false);
@@ -167,15 +171,10 @@ export default function App() {
     setCompressError('');
     try {
       const sizeInMB = targetUnit === 'KB' ? targetSize / 1024 : Number(targetSize);
-      const options = {
-        maxSizeMB: sizeInMB,
-        maxWidthOrHeight: 4000,
-        useWebWorker: true,
-      };
+      const options = { maxSizeMB: sizeInMB, maxWidthOrHeight: 4000, useWebWorker: true };
       const compressedFile = await imageCompression(originalImage, options);
       setCompressedImage(compressedFile);
     } catch (error) {
-      console.error(error);
       setCompressError('Failed to compress image. Try a slightly larger target size.');
     } finally {
       setCompressing(false);
@@ -200,11 +199,7 @@ export default function App() {
   const [baseMode, setBaseMode] = useState('encode'); 
   const getBase64Result = () => { 
     if (!baseInput) return ''; 
-    try { 
-      return baseMode === 'encode' ? btoa(baseInput) : atob(baseInput); 
-    } catch (e) { 
-      return 'Error: Invalid String'; 
-    } 
+    try { return baseMode === 'encode' ? btoa(baseInput) : atob(baseInput); } catch (e) { return 'Error: Invalid String'; } 
   };
 
   const [paragraphs, setParagraphs] = useState(3); 
@@ -216,11 +211,7 @@ export default function App() {
   const [jsonInput, setJsonInput] = useState(''); 
   const [jsonOutput, setJsonOutput] = useState(''); 
   const formatJson = () => { 
-    try { 
-      setJsonOutput(JSON.stringify(JSON.parse(jsonInput), null, 2)); 
-    } catch (e) { 
-      setJsonOutput('Error: Invalid JSON structure'); 
-    } 
+    try { setJsonOutput(JSON.stringify(JSON.parse(jsonInput), null, 2)); } catch (e) { setJsonOutput('Error: Invalid JSON'); } 
   };
 
   const [colorInput, setColorInput] = useState('#2563eb'); 
@@ -332,11 +323,8 @@ export default function App() {
   const [jwt, setJwt] = useState(''); 
   const [jwtData, setJwtData] = useState(''); 
   const decodeJwt = () => { 
-    try { 
-      setJwtData(JSON.stringify(JSON.parse(atob(jwt.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))), null, 2)); 
-    } catch (e) { 
-      setJwtData('Invalid JWT Format'); 
-    } 
+    try { setJwtData(JSON.stringify(JSON.parse(atob(jwt.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))), null, 2)); } 
+    catch (e) { setJwtData('Invalid JWT Format'); } 
   };
 
   const [mdInput, setMdInput] = useState('# Hello World\n\n**Bold Text**'); 
@@ -426,7 +414,6 @@ export default function App() {
     img.src = URL.createObjectURL(blob); 
   };
 
-  // --- SQL FORMATTER ---
   const [sqlInput, setSqlInput] = useState('SELECT id, name, email FROM users WHERE active = 1 AND age > 21 ORDER BY created_at DESC;');
   const [sqlOutput, setSqlOutput] = useState('');
   const formatSql = () => {
@@ -444,7 +431,6 @@ export default function App() {
     }
   };
 
-  // --- BULK UUID GENERATOR ---
   const [uuidCount, setUuidCount] = useState(10);
   const [uuidOutput, setUuidOutput] = useState('');
   const generateUuids = () => {
@@ -453,7 +439,6 @@ export default function App() {
     setUuidOutput(list.join('\n'));
   };
 
-  // --- URL ENCODER / DECODER ---
   const [urlInput, setUrlInput] = useState('https://ilovetools.dev/search?q=developer tools&category=web dev');
   const [urlOutput, setUrlOutput] = useState('');
   const [urlMode, setUrlMode] = useState('encode');
@@ -466,7 +451,6 @@ export default function App() {
     }
   };
 
-  // --- COLOR PALETTE EXTRACTOR ---
   const [paletteColors, setPaletteColors] = useState([]);
   const handlePaletteUpload = (e) => {
     const file = e.target.files[0];
@@ -492,7 +476,6 @@ export default function App() {
     img.src = URL.createObjectURL(file);
   };
 
-  // --- SVG MINIFIER ---
   const [svgMinInput, setSvgMinInput] = useState('<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">\n  <!-- Circle Graphic -->\n  <circle cx="50" cy="50" r="40" fill="#e94057" />\n</svg>');
   const [svgMinOutput, setSvgMinOutput] = useState('');
   const [svgSavings, setSvgSavings] = useState('');
@@ -508,13 +491,11 @@ export default function App() {
     setSvgSavings(`Reduced from ${originalLength} bytes to ${minified.length} bytes (${Math.max(0, saved)}% reduction)`);
   };
 
-  // --- AES TEXT ENCRYPT / DECRYPT ---
   const [aesText, setAesText] = useState('My Top Secret Message');
   const [aesPass, setAesPass] = useState('securePassword123');
   const [aesMode, setAesMode] = useState('encrypt');
   const [aesResult, setAesResult] = useState('');
   const [aesError, setAesError] = useState('');
-
   const handleAesProcess = async () => {
     setAesError('');
     try {
@@ -522,19 +503,11 @@ export default function App() {
       if (aesMode === 'encrypt') {
         const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(aesPass), { name: "PBKDF2" }, false, ["deriveKey"]);
         const salt = crypto.getRandomValues(new Uint8Array(16));
-        const key = await crypto.subtle.deriveKey(
-          { name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" },
-          keyMaterial,
-          { name: "AES-GCM", length: 256 },
-          false,
-          ["encrypt"]
-        );
+        const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" }, keyMaterial, { name: "AES-GCM", length: 256 }, false, ["encrypt"]);
         const iv = crypto.getRandomValues(new Uint8Array(12));
         const encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, enc.encode(aesText));
         const combined = new Uint8Array(salt.length + iv.length + encrypted.byteLength);
-        combined.set(salt, 0);
-        combined.set(iv, salt.length);
-        combined.set(new Uint8Array(encrypted), salt.length + iv.length);
+        combined.set(salt, 0); combined.set(iv, salt.length); combined.set(new Uint8Array(encrypted), salt.length + iv.length);
         setAesResult(btoa(String.fromCharCode(...combined)));
       } else {
         const combined = Uint8Array.from(atob(aesText), c => c.charCodeAt(0));
@@ -542,13 +515,7 @@ export default function App() {
         const iv = combined.slice(16, 28);
         const data = combined.slice(28);
         const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(aesPass), { name: "PBKDF2" }, false, ["deriveKey"]);
-        const key = await crypto.subtle.deriveKey(
-          { name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" },
-          keyMaterial,
-          { name: "AES-GCM", length: 256 },
-          false,
-          ["decrypt"]
-        );
+        const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" }, keyMaterial, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
         const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, data);
         setAesResult(new TextDecoder().decode(decrypted));
       }
@@ -557,7 +524,6 @@ export default function App() {
     }
   };
 
-  // --- MOCK DATA GENERATOR ---
   const [dummyCount, setDummyCount] = useState(5);
   const [dummyFormat, setDummyFormat] = useState('json');
   const [dummyOutput, setDummyOutput] = useState('');
@@ -566,34 +532,24 @@ export default function App() {
     const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Miller', 'Davis', 'Wilson', 'Khan', 'Taylor'];
     const roles = ['Frontend Developer', 'UI/UX Designer', 'Backend Engineer', 'Product Manager', 'DevOps Engineer'];
     const countries = ['United States', 'Pakistan', 'United Kingdom', 'Canada', 'Germany', 'Australia'];
-
     const count = Math.min(Math.max(1, Number(dummyCount) || 5), 50);
     const rows = Array.from({ length: count }, (_, i) => {
       const fn = firstNames[Math.floor(Math.random() * firstNames.length)];
       const ln = lastNames[Math.floor(Math.random() * lastNames.length)];
-      return {
-        id: i + 1,
-        fullName: `${fn} ${ln}`,
-        email: `${fn.toLowerCase()}.${ln.toLowerCase()}@example.com`,
-        role: roles[Math.floor(Math.random() * roles.length)],
-        country: countries[Math.floor(Math.random() * countries.length)]
-      };
+      return { id: i + 1, fullName: `${fn} ${ln}`, email: `${fn.toLowerCase()}.${ln.toLowerCase()}@example.com`, role: roles[Math.floor(Math.random() * roles.length)], country: countries[Math.floor(Math.random() * countries.length)] };
     });
-
-    if (dummyFormat === 'json') {
-      setDummyOutput(JSON.stringify(rows, null, 2));
-    } else {
+    if (dummyFormat === 'json') { setDummyOutput(JSON.stringify(rows, null, 2)); } 
+    else {
       const csvHeaders = 'id,fullName,email,role,country\n';
       const csvRows = rows.map(r => `${r.id},"${r.fullName}","${r.email}","${r.role}","${r.country}"`).join('\n');
       setDummyOutput(csvHeaders + csvRows);
     }
   };
 
-  // --- NEW: AUDIO EXTRACTOR ---
+  // --- AUDIO EXTRACTOR ---
   const [extractVideo, setExtractVideo] = useState(null);
   const [extractingAudio, setExtractingAudio] = useState(false);
   const [extractedAudioUrl, setExtractedAudioUrl] = useState(null);
-
   const handleExtractAudio = async () => {
     if (!extractVideo) return;
     setExtractingAudio(true);
@@ -605,13 +561,12 @@ export default function App() {
       const wavBlob = encodeWAV(decodedBuffer);
       setExtractedAudioUrl(URL.createObjectURL(wavBlob));
     } catch (e) {
-      console.error(e);
       alert('Error extracting audio. Please ensure the video has an audio track and is a supported format.');
     }
     setExtractingAudio(false);
   };
 
-  // --- NEW: CLIENT-SIDE AUDIO EDITOR ---
+  // --- AUDIO EDITOR ---
   const [audioEditFile, setAudioEditFile] = useState(null);
   const [audioBuffer, setAudioBuffer] = useState(null);
   const [audioStart, setAudioStart] = useState(0);
@@ -637,78 +592,50 @@ export default function App() {
         setAudioBuffer(buffer);
         setAudioStart(0);
         setAudioEnd(buffer.duration);
-      } catch(err) {
-        alert("Failed to decode audio file.");
-      }
+      } catch(err) { alert("Failed to decode audio file."); }
     }
   };
 
   const handleExportAudio = async () => {
     if (!audioBuffer) return;
-    if (audioStart >= audioEnd) {
-      alert("Start time must be before end time.");
-      return;
-    }
+    if (audioStart >= audioEnd) { alert("Start time must be before end time."); return; }
     setProcessingAudio(true);
-    
     try {
         const startOffset = audioStart;
         const endOffset = audioEnd;
         const duration = (endOffset - startOffset) / audioSpeed;
-        
-        const offlineCtx = new OfflineAudioContext(
-          audioBuffer.numberOfChannels, 
-          Math.max(1, duration * audioBuffer.sampleRate), 
-          audioBuffer.sampleRate
-        );
-        
+        const offlineCtx = new OfflineAudioContext(audioBuffer.numberOfChannels, Math.max(1, duration * audioBuffer.sampleRate), audioBuffer.sampleRate);
         const sourceNode = offlineCtx.createBufferSource();
-        
         if (audioReverse) {
             const reversedBuffer = offlineCtx.createBuffer(audioBuffer.numberOfChannels, audioBuffer.length, audioBuffer.sampleRate);
             for (let i = 0; i < audioBuffer.numberOfChannels; i++) {
                 const destData = reversedBuffer.getChannelData(i);
                 const srcData = audioBuffer.getChannelData(i);
-                for (let j = 0; j < audioBuffer.length; j++) {
-                    destData[j] = srcData[audioBuffer.length - 1 - j];
-                }
+                for (let j = 0; j < audioBuffer.length; j++) { destData[j] = srcData[audioBuffer.length - 1 - j]; }
             }
             sourceNode.buffer = reversedBuffer;
         } else {
             sourceNode.buffer = audioBuffer;
         }
-
         sourceNode.playbackRate.value = audioSpeed;
-        
         const gainNode = offlineCtx.createGain();
         gainNode.gain.value = audioVolume / 100;
-
-        if (audioFadeIn > 0) {
-            gainNode.gain.setValueAtTime(0, 0);
-            gainNode.gain.linearRampToValueAtTime(audioVolume / 100, audioFadeIn);
-        }
-        if (audioFadeOut > 0) {
-            gainNode.gain.setValueAtTime(audioVolume / 100, Math.max(0, duration - audioFadeOut));
-            gainNode.gain.linearRampToValueAtTime(0, duration);
-        }
-
+        if (audioFadeIn > 0) { gainNode.gain.setValueAtTime(0, 0); gainNode.gain.linearRampToValueAtTime(audioVolume / 100, audioFadeIn); }
+        if (audioFadeOut > 0) { gainNode.gain.setValueAtTime(audioVolume / 100, Math.max(0, duration - audioFadeOut)); gainNode.gain.linearRampToValueAtTime(0, duration); }
         sourceNode.connect(gainNode);
         gainNode.connect(offlineCtx.destination);
-        
         let actualStart = audioReverse ? (audioBuffer.duration - endOffset) : startOffset;
         sourceNode.start(0, actualStart, duration * audioSpeed); 
-        
         const renderedBuffer = await offlineCtx.startRendering();
         const wavBlob = encodeWAV(renderedBuffer);
         setExportedAudioUrl(URL.createObjectURL(wavBlob));
     } catch (e) {
-        console.error(e);
         alert('Error processing audio layout.');
     }
     setProcessingAudio(false);
   };
 
-  // --- UPGRADED: MINI CAPCUT VIDEO EDITOR ---
+  // --- UPGRADED MINI CAPCUT VIDEO EDITOR ---
   const [videoEditFile, setVideoEditFile] = useState(null);
   const [videoEditUrl, setVideoEditUrl] = useState(null); 
   const [vidDuration, setVidDuration] = useState(0);
@@ -720,15 +647,12 @@ export default function App() {
   const [saturation, setSaturation] = useState(100);
   const [sepia, setSepia] = useState(0);
   const [invert, setInvert] = useState(0);
-  
-  // New Video Editor Features
   const [vidAspect, setVidAspect] = useState('original');
   const [vidMuted, setVidMuted] = useState(false);
   const [vidText, setVidText] = useState('');
   const [vidTextColor, setVidTextColor] = useState('#ffffff');
   const [vidTextSize, setVidTextSize] = useState(48);
   const [vidTextPos, setVidTextPos] = useState('center');
-
   const [videoProcessing, setVideoProcessing] = useState(false);
   const [videoProgress, setVideoProgress] = useState(0);
   const [exportedVideoUrl, setExportedVideoUrl] = useState(null);
@@ -741,25 +665,15 @@ export default function App() {
       setVideoEditFile(file);
       setExportedVideoUrl(null);
       setVideoProgress(0);
-      
       const url = URL.createObjectURL(file);
       setVideoEditUrl(url); 
-
       const tempVid = document.createElement('video');
       tempVid.src = url;
-      tempVid.onloadedmetadata = () => {
-        setVidDuration(tempVid.duration);
-        setTrimStart(0);
-        setTrimEnd(tempVid.duration);
-      };
+      tempVid.onloadedmetadata = () => { setVidDuration(tempVid.duration); setTrimStart(0); setTrimEnd(tempVid.duration); };
     }
   };
 
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.playbackRate = vidSpeed;
-    }
-  }, [vidSpeed]);
+  useEffect(() => { if (videoRef.current) { videoRef.current.playbackRate = vidSpeed; } }, [vidSpeed]);
 
   const handleVideoExport = () => {
     if (!videoEditFile || !videoRef.current) return;
@@ -770,11 +684,10 @@ export default function App() {
     const video = videoRef.current;
     video.currentTime = trimStart;
     video.playbackRate = vidSpeed;
-    video.muted = true; // Canvas handles capturing frames silently
+    video.muted = true; 
 
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-
     let sourceW = video.videoWidth;
     let sourceH = video.videoHeight;
     let sX = 0, sY = 0, sW = sourceW, sH = sourceH;
@@ -782,17 +695,11 @@ export default function App() {
     if (vidAspect !== 'original') {
       let targetRatio = vidAspect === '16:9' ? 16/9 : (vidAspect === '9:16' ? 9/16 : 1);
       let vidRatio = sourceW / sourceH;
-      if (vidRatio > targetRatio) {
-        sW = sourceH * targetRatio;
-        sX = (sourceW - sW) / 2;
-      } else {
-        sH = sourceW / targetRatio;
-        sY = (sourceH - sH) / 2;
-      }
+      if (vidRatio > targetRatio) { sW = sourceH * targetRatio; sX = (sourceW - sW) / 2; } 
+      else { sH = sourceW / targetRatio; sY = (sourceH - sH) / 2; }
     }
 
-    let targetCanvasW = 1280;
-    let targetCanvasH = 720;
+    let targetCanvasW = 1280; let targetCanvasH = 720;
     if (vidAspect === 'original') { targetCanvasW = sourceW; targetCanvasH = sourceH; }
     else if (vidAspect === '16:9') { targetCanvasW = 1280; targetCanvasH = 720; }
     else if (vidAspect === '9:16') { targetCanvasW = 720; targetCanvasH = 1280; }
@@ -803,24 +710,16 @@ export default function App() {
 
     let combinedStream;
     const canvasStream = canvas.captureStream(30);
-    
     try {
         const origStream = video.captureStream ? video.captureStream() : video.mozCaptureStream ? video.mozCaptureStream() : null;
         if (!vidMuted && origStream && origStream.getAudioTracks().length > 0) {
             combinedStream = new MediaStream([canvasStream.getVideoTracks()[0], origStream.getAudioTracks()[0]]);
-        } else {
-            combinedStream = canvasStream;
-        }
-    } catch(e) {
-        combinedStream = canvasStream;
-    }
+        } else { combinedStream = canvasStream; }
+    } catch(e) { combinedStream = canvasStream; }
 
     let recorder;
-    try {
-        recorder = new MediaRecorder(combinedStream, { mimeType: 'video/webm; codecs=vp9', videoBitsPerSecond: 2500000 });
-    } catch(e) {
-        recorder = new MediaRecorder(combinedStream, { videoBitsPerSecond: 2500000 });
-    }
+    try { recorder = new MediaRecorder(combinedStream, { mimeType: 'video/webm; codecs=vp9', videoBitsPerSecond: 2500000 }); } 
+    catch(e) { recorder = new MediaRecorder(combinedStream, { videoBitsPerSecond: 2500000 }); }
     
     const chunks = [];
     recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
@@ -832,23 +731,14 @@ export default function App() {
     };
 
     const drawFrame = () => {
-        if (video.paused || video.ended || video.currentTime >= trimEnd) {
-            recorder.stop();
-            video.pause();
-            return;
-        }
-        
+        if (video.paused || video.ended || video.currentTime >= trimEnd) { recorder.stop(); video.pause(); return; }
         ctx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%) sepia(${sepia}%) invert(${invert}%)`;
         ctx.drawImage(video, sX, sY, sW, sH, 0, 0, canvas.width, canvas.height);
         ctx.filter = 'none';
 
         if (vidText) {
-          ctx.fillStyle = vidTextColor;
-          ctx.font = `bold ${vidTextSize}px Arial`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          let tx = canvas.width / 2;
-          let ty = canvas.height / 2;
+          ctx.fillStyle = vidTextColor; ctx.font = `bold ${vidTextSize}px Arial`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          let tx = canvas.width / 2; let ty = canvas.height / 2;
           if (vidTextPos === 'top') ty = 50 + vidTextSize;
           if (vidTextPos === 'bottom') ty = canvas.height - 50 - vidTextSize;
           ctx.fillText(vidText, tx, ty);
@@ -857,50 +747,211 @@ export default function App() {
         const totalDuration = trimEnd - trimStart;
         const currentProgress = video.currentTime - trimStart;
         setVideoProgress(Math.max(0, Math.min(100, Math.round((currentProgress / totalDuration) * 100))));
-        
         requestAnimationFrame(drawFrame);
     };
 
-    video.onplay = () => {
-        recorder.start();
-        drawFrame();
-    };
-    
-    video.play().catch(e => {
-        console.error(e);
-        setVideoProcessing(false);
+    video.onplay = () => { recorder.start(); drawFrame(); };
+    video.play().catch(e => { setVideoProcessing(false); });
+  };
+
+  // --- NEW 9 TOOLS LOGIC ---
+
+  // 1. RSA Gen
+  const [rsaPublic, setRsaPublic] = useState('');
+  const [rsaPrivate, setRsaPrivate] = useState('');
+  const generateRSA = async () => {
+    try {
+      const keyPair = await window.crypto.subtle.generateKey({ name: "RSA-OAEP", modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: "SHA-256" }, true, ["encrypt", "decrypt"]);
+      const exportedPubKey = await window.crypto.subtle.exportKey("spki", keyPair.publicKey);
+      const exportedPrivKey = await window.crypto.subtle.exportKey("pkcs8", keyPair.privateKey);
+      const exportToPem = (buffer, type) => {
+        const b64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
+        return `-----BEGIN ${type}-----\n${b64.match(/.{1,64}/g).join('\n')}\n-----END ${type}-----\n`;
+      }
+      setRsaPublic(exportToPem(exportedPubKey, "PUBLIC KEY"));
+      setRsaPrivate(exportToPem(exportedPrivKey, "PRIVATE KEY"));
+    } catch(e) { setRsaPublic('Error generating keys.'); }
+  };
+
+  // 2. EXIF Stripper
+  const [exifImgSrc, setExifImgSrc] = useState(null);
+  const [strippedImgUrl, setStrippedImgUrl] = useState(null);
+  const handleExifUpload = (e) => {
+    const file = e.target.files[0];
+    if(file){
+       const img = new window.Image();
+       img.onload = () => {
+         const canvas = document.createElement('canvas');
+         canvas.width = img.width; canvas.height = img.height;
+         const ctx = canvas.getContext('2d');
+         ctx.drawImage(img, 0, 0);
+         setStrippedImgUrl(canvas.toDataURL('image/jpeg', 1.0));
+       };
+       img.src = URL.createObjectURL(file);
+       setExifImgSrc(img.src);
+    }
+  };
+
+  // 3. Bcrypt Hash
+  const [bcryptPassInput, setBcryptPassInput] = useState('');
+  const [bcryptHashOut, setBcryptHashOut] = useState('');
+  const generateBcrypt = () => {
+    if(!bcryptPassInput) return;
+    const salt = bcrypt.genSaltSync(10);
+    setBcryptHashOut(bcrypt.hashSync(bcryptPassInput, salt));
+  };
+
+  // 4. JSON <-> CSV
+  const [j2cInput, setJ2cInput] = useState('[{"name":"John","age":30}]');
+  const [j2cOutput, setJ2cOutput] = useState('');
+  const [j2cMode, setJ2cMode] = useState('json2csv');
+  const runJ2c = () => {
+    try {
+      if (j2cMode === 'json2csv') {
+        const obj = JSON.parse(j2cInput);
+        const array = Array.isArray(obj) ? obj : [obj];
+        if(array.length === 0) return setJ2cOutput('');
+        const keys = Object.keys(array[0]);
+        const csv = [keys.join(','), ...array.map(item => keys.map(k => `"${(item[k]||'').toString().replace(/"/g, '""')}"`).join(','))].join('\n');
+        setJ2cOutput(csv);
+      } else {
+        const lines = j2cInput.split('\n').filter(l => l.trim());
+        const headers = lines[0].split(',').map(h => h.replace(/(^"|"$)/g, '').trim());
+        const result = lines.slice(1).map(line => {
+          const values = line.split(',');
+          const obj = {};
+          headers.forEach((h, i) => { obj[h] = values[i] ? values[i].replace(/(^"|"$)/g, '') : ''; });
+          return obj;
+        });
+        setJ2cOutput(JSON.stringify(result, null, 2));
+      }
+    } catch (e) { setJ2cOutput('Error formatting data.'); }
+  };
+
+  // 5. Code Diff Checker
+  const [diffA, setDiffA] = useState('Line 1\nLine 2');
+  const [diffB, setDiffB] = useState('Line 1\nLine 2 changed');
+  const [diffResult, setDiffResult] = useState([]);
+  const runDiff = () => { setDiffResult(diffLines(diffA, diffB)); };
+
+  // 6. Dummy Image Generator
+  const [dummyW, setDummyW] = useState(800);
+  const [dummyH, setDummyH] = useState(600);
+  const [dummyBg, setDummyBg] = useState('#cccccc');
+  const [dummyColor, setDummyColor] = useState('#666666');
+  const [dummyText, setDummyText] = useState('');
+  const [dummyImgUrl, setDummyImgUrl] = useState('');
+  const genDummy = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = dummyW; canvas.height = dummyH;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = dummyBg; ctx.fillRect(0, 0, dummyW, dummyH);
+    ctx.fillStyle = dummyColor; ctx.font = `bold ${Math.max(20, Math.floor(dummyW/10))}px Arial`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(dummyText || `${dummyW} x ${dummyH}`, dummyW/2, dummyH/2);
+    setDummyImgUrl(canvas.toDataURL('image/png'));
+  };
+
+  // 7. Video to GIF
+  const [gifVideo, setGifVideo] = useState(null);
+  const [gifGenerating, setGifGenerating] = useState(false);
+  const [gifResult, setGifResult] = useState(null);
+  const [gifW, setGifW] = useState(320);
+  const [gifFrames, setGifFrames] = useState(30);
+  const createGif = () => {
+    if(!gifVideo) return;
+    setGifGenerating(true);
+    gifshot.createGIF({ 'video': [URL.createObjectURL(gifVideo)], 'numFrames': gifFrames, 'gifWidth': gifW }, function(obj) {
+      if(!obj.error) { setGifResult(obj.image); }
+      setGifGenerating(false);
     });
   };
 
-  // --- CATEGORY STRUCTURE (43 UTILITIES) ---
+  // 8. CSS Box Shadow
+  const [boxH, setBoxH] = useState(10);
+  const [boxV, setBoxV] = useState(10);
+  const [boxBlur, setBoxBlur] = useState(15);
+  const [boxSpread, setBoxSpread] = useState(0);
+  const [boxColor, setBoxColor] = useState('#000000');
+  const [boxOpacity, setBoxOpacity] = useState(0.25);
+  
+  const hexToRgba = (hex, opacity) => {
+    const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+  };
+  const boxShadowCSS = `box-shadow: ${boxH}px ${boxV}px ${boxBlur}px ${boxSpread}px ${hexToRgba(boxColor, boxOpacity)};`;
+
+  // 9. Voice Memo
+  const [memoStream, setMemoStream] = useState(null);
+  const [isRecordingMemo, setIsRecordingMemo] = useState(false);
+  const memoChunks = useRef([]);
+  const [memoUrl, setMemoUrl] = useState(null);
+  const memoRecorderRef = useRef(null);
+  const startMemo = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      setMemoStream(stream);
+      memoRecorderRef.current = new MediaRecorder(stream);
+      memoChunks.current = [];
+      memoRecorderRef.current.ondataavailable = (e) => { if (e.data.size > 0) memoChunks.current.push(e.data); };
+      memoRecorderRef.current.onstop = () => {
+        const blob = new Blob(memoChunks.current, { type: 'audio/webm' });
+        setMemoUrl(URL.createObjectURL(blob));
+      };
+      memoRecorderRef.current.start();
+      setIsRecordingMemo(true);
+    } catch (err) { alert('Microphone access denied.'); }
+  };
+  const stopMemo = () => {
+    if(memoRecorderRef.current) {
+      memoRecorderRef.current.stop();
+      if (memoStream) { memoStream.getTracks().forEach(track => track.stop()); }
+    }
+    setIsRecordingMemo(false);
+  };
+
+  // --- CATEGORY STRUCTURE (52 UTILITIES) ---
   const categories = {
+    "Security & Privacy": [
+      { id: 'aes-encrypt', name: 'AES Encryption', icon: ShieldCheck },
+      { id: 'rsa-gen', name: 'RSA Key Generator', icon: KeyRound },
+      { id: 'hash', name: 'SHA-256 Hash', icon: Hash },
+      { id: 'bcrypt', name: 'Bcrypt Hash', icon: Fingerprint },
+      { id: 'base64', name: 'Base64 Encode', icon: Binary },
+      { id: 'password', name: 'Password Gen', icon: Key },
+      { id: 'exif-strip', name: 'EXIF Stripper', icon: CameraOff },
+    ],
     "Media & Graphics": [
       { id: 'image', name: 'Compress Image', icon: Image },
-      { id: 'videditor', name: 'Mini Video Editor', icon: Film },
+      { id: 'videditor', name: 'Video Editor', icon: Film },
       { id: 'audioedit', name: 'Audio Editor', icon: Mic },
       { id: 'resize', name: 'Resize Image', icon: Maximize },
       { id: 'pdfgen', name: 'Photos to PDF', icon: FileUp },
       { id: 'audio', name: 'Extract Audio', icon: Music },
       { id: 'screen', name: 'Screen Record', icon: Video },
+      { id: 'vid2gif', name: 'Video to GIF', icon: Clapperboard },
       { id: 'palette-extract', name: 'Color Palette', icon: Palette },
       { id: 'svg', name: 'SVG to PNG', icon: Image },
       { id: 'svg-minify', name: 'SVG Minifier', icon: FileCode2 },
       { id: 'ratio', name: 'Aspect Ratio', icon: Crop },
       { id: 'color', name: 'Color Pick', icon: Droplet },
+      { id: 'dummyimg', name: 'Dummy Image', icon: ImagePlus },
     ],
     "Developer & Code": [
       { id: 'json-ts', name: 'JSON to TS', icon: Brackets },
       { id: 'json', name: 'JSON Format', icon: Code },
+      { id: 'json-csv', name: 'JSON ↔ CSV', icon: FileJson },
       { id: 'sql-format', name: 'SQL Format', icon: Database },
       { id: 'beautify', name: 'Code Beautify', icon: Code2 },
+      { id: 'diff-check', name: 'Diff Checker', icon: GitCompare },
       { id: 'url-encode', name: 'URL Encoder', icon: Link },
       { id: 'uuid-gen', name: 'UUID Generator', icon: Key },
       { id: 'mongo', name: 'MongoDB ID', icon: Database },
       { id: 'jwt', name: 'JWT Decode', icon: LockOpen },
+      { id: 'box-shadow', name: 'CSS Shadow Gen', icon: AppWindow },
+      { id: 'glass', name: 'Glass CSS', icon: Sparkles },
       { id: 'cron', name: 'Cron Parse', icon: Calendar },
       { id: 'regex', name: 'Regex Test', icon: FileSearch },
       { id: 'keys', name: 'Keycodes', icon: Keyboard },
-      { id: 'glass', name: 'Glass CSS', icon: Sparkles },
       { id: 'viewport', name: 'Viewport', icon: Monitor },
     ],
     "Writing & Text": [
@@ -919,11 +970,8 @@ export default function App() {
       { id: 'qr', name: 'QR Code', icon: QrCode },
     ],
     "General Utilities": [
-      { id: 'password', name: 'Passwords', icon: Key },
-      { id: 'aes-encrypt', name: 'AES Encryption', icon: ShieldCheck },
-      { id: 'hash', name: 'SHA-256 Hash', icon: Hash },
-      { id: 'base64', name: 'Base64', icon: Binary },
       { id: 'zip', name: 'Zip Docs', icon: FileArchive },
+      { id: 'voicememo', name: 'Voice Memo', icon: MicVocal },
       { id: 'timer', name: 'Stopwatch', icon: Timer },
       { id: 'pomo', name: 'Pomodoro', icon: Clock },
     ]
@@ -954,7 +1002,7 @@ export default function App() {
           <Search className="search-icon" size={20} />
           <input 
             type="text" 
-            placeholder="Search for a tool (e.g. Video Editor, Audio, AES, SVG)..." 
+            placeholder="Search for a tool (e.g. Video Editor, RSA, Diff, CSV)..." 
             className="search-bar"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -1009,7 +1057,206 @@ export default function App() {
           
           <div className="tool-card">
 
-            {/* --- UPGRADED MINI CAPCUT VIDEO EDITOR --- */}
+            {/* --- NEW SECURITY & PRIVACY TOOLS --- */}
+            {activeTab === 'rsa-gen' && (
+              <div>
+                <h2>RSA Key Pair Generator</h2>
+                <button onClick={generateRSA} className="btn" style={{ marginBottom: '15px' }}><KeyRound size={16}/> Generate Secure Keys</button>
+                {rsaPublic && (
+                  <div style={{ display: 'flex', gap: '15px', flexDirection: 'column' }}>
+                    <div>
+                      <h4 style={{ marginBottom: '5px' }}>Public Key</h4>
+                      <textarea rows="6" readOnly className="readonly-area" value={rsaPublic} />
+                    </div>
+                    <div>
+                      <h4 style={{ marginBottom: '5px' }}>Private Key</h4>
+                      <textarea rows="6" readOnly className="readonly-area" value={rsaPrivate} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'bcrypt' && (
+              <div>
+                <h2>Bcrypt Password Hasher</h2>
+                <input type="text" className="text-input" placeholder="Enter string to hash..." value={bcryptPassInput} onChange={(e) => setBcryptPassInput(e.target.value)} />
+                <button onClick={generateBcrypt} className="btn" style={{ marginBottom: '15px' }}><Fingerprint size={16}/> Hash Password</button>
+                {bcryptHashOut && <textarea rows="3" readOnly className="readonly-area" value={bcryptHashOut} />}
+              </div>
+            )}
+
+            {activeTab === 'exif-strip' && (
+              <div>
+                <h2>EXIF Metadata Stripper</h2>
+                <p className="subtitle">Remove hidden GPS coordinates, camera models, and timestamps from your photos before sharing them online.</p>
+                <input type="file" accept="image/*" onChange={handleExifUpload} className="file-input" />
+                {strippedImgUrl && (
+                  <div className="results-grid" style={{ marginTop: '20px' }}> 
+                    <div><h4>Status</h4><p>Metadata stripped successfully.</p></div> 
+                    <div><h4>Safe Image</h4><p>Ready to share</p> 
+                      <a href={strippedImgUrl} download="clean-image.jpg" className="btn">
+                        <Download size={16} /> Download
+                      </a> 
+                    </div> 
+                  </div> 
+                )}
+              </div>
+            )}
+
+            {/* --- NEW DEVELOPER TOOLS --- */}
+            {activeTab === 'json-csv' && (
+              <div>
+                <h2>JSON ↔ CSV Bi-directional Converter</h2>
+                <div className="button-group" style={{ marginBottom: '15px' }}>
+                  <button className={j2cMode === 'json2csv' ? '' : 'inactive-btn'} onClick={() => setJ2cMode('json2csv')}>JSON to CSV</button>
+                  <button className={j2cMode === 'csv2json' ? '' : 'inactive-btn'} onClick={() => setJ2cMode('csv2json')}>CSV to JSON</button>
+                </div>
+                <textarea rows="6" placeholder={j2cMode === 'json2csv' ? 'Paste JSON array here...' : 'Paste CSV text here...'} value={j2cInput} onChange={(e) => setJ2cInput(e.target.value)} />
+                <button onClick={runJ2c} className="btn" style={{ marginBottom: '15px' }}><FileJson size={16}/> Convert Format</button>
+                {j2cOutput && <textarea rows="8" readOnly className="readonly-area" value={j2cOutput} />}
+              </div>
+            )}
+
+            {activeTab === 'diff-check' && (
+              <div>
+                <h2>Code / Text Diff Checker</h2>
+                <div style={{ display: 'flex', gap: '15px', marginBottom: '15px', flexDirection: window.innerWidth > 768 ? 'row' : 'column' }}>
+                  <textarea style={{flex: 1}} rows="6" placeholder="Original Text..." value={diffA} onChange={(e) => setDiffA(e.target.value)} />
+                  <textarea style={{flex: 1}} rows="6" placeholder="New Text..." value={diffB} onChange={(e) => setDiffB(e.target.value)} />
+                </div>
+                <button onClick={runDiff} className="btn" style={{ marginBottom: '15px' }}><GitCompare size={16}/> Compare Differences</button>
+                {diffResult.length > 0 && (
+                  <div style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1px solid #e2e8f0', textAlign: 'left' }}>
+                    {diffResult.map((part, i) => (
+                      <span key={i} style={{ backgroundColor: part.added ? '#dcfce7' : part.removed ? '#fee2e2' : 'transparent', color: part.added ? '#166534' : part.removed ? '#991b1b' : '#334155' }}>
+                        {part.value}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'box-shadow' && (
+              <div>
+                <h2>CSS Box Shadow Generator</h2>
+                <div className="controls">
+                  <label>Horizontal Offset ({boxH}px)</label>
+                  <input type="range" min="-50" max="50" value={boxH} onChange={(e) => setBoxH(Number(e.target.value))} />
+                  <label>Vertical Offset ({boxV}px)</label>
+                  <input type="range" min="-50" max="50" value={boxV} onChange={(e) => setBoxV(Number(e.target.value))} />
+                  <label>Blur Radius ({boxBlur}px)</label>
+                  <input type="range" min="0" max="100" value={boxBlur} onChange={(e) => setBoxBlur(Number(e.target.value))} />
+                  <label>Spread Radius ({boxSpread}px)</label>
+                  <input type="range" min="-50" max="50" value={boxSpread} onChange={(e) => setBoxSpread(Number(e.target.value))} />
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label>Color</label>
+                      <input type="color" className="text-input" style={{ padding: '2px', height: '42px' }} value={boxColor} onChange={(e) => setBoxColor(e.target.value)} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label>Opacity ({boxOpacity})</label>
+                      <input type="range" min="0" max="1" step="0.05" value={boxOpacity} onChange={(e) => setBoxOpacity(Number(e.target.value))} />
+                    </div>
+                  </div>
+                </div>
+                <div style={{ padding: '40px', background: '#f1f5f9', borderRadius: '14px', marginBottom: '20px', display: 'flex', justifyContent: 'center' }}>
+                  <div style={{ width: '150px', height: '150px', background: '#fff', borderRadius: '12px', boxShadow: `${boxH}px ${boxV}px ${boxBlur}px ${boxSpread}px ${hexToRgba(boxColor, boxOpacity)}` }}></div>
+                </div>
+                <textarea rows="2" readOnly className="readonly-area" value={boxShadowCSS} />
+              </div>
+            )}
+
+            {/* --- NEW MEDIA TOOLS --- */}
+            {activeTab === 'dummyimg' && (
+              <div>
+                <h2>Dummy Image Placeholder</h2>
+                <div className="controls">
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label>Width</label>
+                      <input type="number" className="text-input" value={dummyW} onChange={(e) => setDummyW(Number(e.target.value))} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label>Height</label>
+                      <input type="number" className="text-input" value={dummyH} onChange={(e) => setDummyH(Number(e.target.value))} />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label>Background Color</label>
+                      <input type="color" className="text-input" style={{ padding: '2px', height: '42px' }} value={dummyBg} onChange={(e) => setDummyBg(e.target.value)} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label>Text Color</label>
+                      <input type="color" className="text-input" style={{ padding: '2px', height: '42px' }} value={dummyColor} onChange={(e) => setDummyColor(e.target.value)} />
+                    </div>
+                  </div>
+                  <label>Custom Text (Optional)</label>
+                  <input type="text" className="text-input" value={dummyText} onChange={(e) => setDummyText(e.target.value)} />
+                </div>
+                <button onClick={genDummy} className="btn" style={{ marginBottom: '15px' }}><ImagePlus size={16}/> Generate Image</button>
+                {dummyImgUrl && (
+                  <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                    <img src={dummyImgUrl} alt="Dummy Placeholder" style={{ maxWidth: '100%', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '15px' }} />
+                    <br/><a href={dummyImgUrl} download={`${dummyW}x${dummyH}.png`} className="btn"><Download size={16}/> Download PNG</a>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'vid2gif' && (
+              <div>
+                <h2>Video to GIF Converter</h2>
+                <p className="subtitle" style={{marginBottom: '15px'}}>Convert short video clips into animated GIFs natively in your browser.</p>
+                <input type="file" accept="video/*" onChange={(e) => { setGifVideo(e.target.files[0]); setGifResult(null); }} className="file-input" />
+                <div className="controls">
+                  <label>GIF Width ({gifW}px)</label>
+                  <input type="range" min="100" max="800" step="10" value={gifW} onChange={(e) => setGifW(Number(e.target.value))} />
+                  <label>Max Frames ({gifFrames})</label>
+                  <input type="range" min="10" max="60" value={gifFrames} onChange={(e) => setGifFrames(Number(e.target.value))} />
+                </div>
+                <button onClick={createGif} disabled={gifGenerating || !gifVideo} className="btn" style={{ marginBottom: '15px' }}>
+                  <Clapperboard size={16}/> {gifGenerating ? 'Generating GIF...' : 'Create GIF'}
+                </button>
+                {gifResult && (
+                  <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                    <img src={gifResult} alt="Generated GIF" style={{ maxWidth: '100%', borderRadius: '8px', marginBottom: '15px' }} />
+                    <br/><a href={gifResult} download="animated.gif" className="btn"><Download size={16}/> Download GIF</a>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* --- NEW GENERAL TOOLS --- */}
+            {activeTab === 'voicememo' && (
+              <div>
+                <h2>Voice Memo / Mic Tester</h2>
+                <div className="button-group">
+                  {!isRecordingMemo ? (
+                    <button onClick={startMemo} className="btn"><MicVocal size={16}/> Start Recording</button>
+                  ) : (
+                    <button onClick={stopMemo} className="btn" style={{background:'#ef4444'}}><Square size={16}/> Stop Recording</button>
+                  )}
+                </div>
+                {isRecordingMemo && (
+                  <div style={{ marginTop: '20px', color: '#ef4444', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <div style={{ width: '12px', height: '12px', background: '#ef4444', borderRadius: '50%', animation: 'pulse 1.5s infinite' }}></div>
+                    Recording...
+                  </div>
+                )}
+                {memoUrl && !isRecordingMemo && (
+                  <div style={{ marginTop: '20px' }}>
+                    <audio src={memoUrl} controls style={{ width: '100%', marginBottom: '15px' }} />
+                    <a href={memoUrl} download="voice-memo.webm" className="btn"><Download size={16}/> Download Audio</a>
+                  </div>
+                )}
+              </div>
+            )}
+
+
+            {/* --- PRE-EXISTING UPGRADED VIDEO/AUDIO EDITOR TOOLS --- */}
             {activeTab === 'videditor' && (
               <div>
                 <h2>Mini Video Editor</h2>
@@ -1115,7 +1362,6 @@ export default function App() {
               </div>
             )}
 
-            {/* --- NEW: CLIENT-SIDE AUDIO EDITOR --- */}
             {activeTab === 'audioedit' && (
               <div>
                 <h2>Client-Side Audio Editor</h2>
@@ -1175,7 +1421,6 @@ export default function App() {
               </div>
             )}
 
-            {/* --- NEW: NATIVE AUDIO EXTRACTOR --- */}
             {activeTab === 'audio' && (
               <div>
                 <h2>Extract Audio from Video</h2>
@@ -1199,110 +1444,7 @@ export default function App() {
               </div>
             )}
 
-            {/* --- SQL FORMATTER --- */}
-            {activeTab === 'sql-format' && (
-              <div>
-                <h2>SQL Query Formatter</h2>
-                <textarea rows="6" placeholder="Paste unformatted SQL query..." value={sqlInput} onChange={(e) => setSqlInput(e.target.value)} />
-                <button onClick={formatSql} className="btn" style={{ marginBottom: '15px' }}><Code2 size={16}/> Format SQL</button>
-                {sqlOutput && <textarea rows="8" readOnly className="readonly-area" value={sqlOutput} />}
-              </div>
-            )}
-
-            {/* --- BULK UUID GENERATOR --- */}
-            {activeTab === 'uuid-gen' && (
-              <div>
-                <h2>Bulk UUID / GUID Generator</h2>
-                <div className="controls">
-                  <label>Count (1 - 100): {uuidCount}</label>
-                  <input type="range" min="1" max="50" value={uuidCount} onChange={(e) => setUuidCount(e.target.value)} />
-                </div>
-                <button onClick={generateUuids} className="btn" style={{ marginBottom: '15px' }}><Key size={16}/> Generate UUIDs</button>
-                {uuidOutput && <textarea rows="8" readOnly className="readonly-area" value={uuidOutput} />}
-              </div>
-            )}
-
-            {/* --- URL ENCODER / DECODER --- */}
-            {activeTab === 'url-encode' && (
-              <div>
-                <h2>URL Encoder / Decoder</h2>
-                <div className="button-group" style={{ marginBottom: '15px' }}>
-                  <button className={urlMode === 'encode' ? '' : 'inactive-btn'} onClick={() => setUrlMode('encode')}>Encode</button>
-                  <button className={urlMode === 'decode' ? '' : 'inactive-btn'} onClick={() => setUrlMode('decode')}>Decode</button>
-                </div>
-                <textarea rows="4" placeholder="Enter URL or string..." value={urlInput} onChange={(e) => setUrlInput(e.target.value)} />
-                <button onClick={handleUrlTransform} className="btn" style={{ marginBottom: '15px' }}><Link size={16}/> {urlMode === 'encode' ? 'Encode URL' : 'Decode URL'}</button>
-                {urlOutput && <textarea rows="4" readOnly className="readonly-area" value={urlOutput} />}
-              </div>
-            )}
-
-            {/* --- COLOR PALETTE EXTRACTOR --- */}
-            {activeTab === 'palette-extract' && (
-              <div>
-                <h2>Color Palette Extractor</h2>
-                <p className="subtitle">Upload any image to extract its dominant color scheme directly in the browser.</p>
-                <input type="file" accept="image/*" onChange={handlePaletteUpload} className="file-input" />
-                {paletteColors.length > 0 && (
-                  <div>
-                    <h4 style={{ marginBottom: '10px' }}>Extracted Palette:</h4>
-                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px' }}>
-                      {paletteColors.map((hex, idx) => (
-                        <div key={idx} style={{ textAlign: 'center', flex: 1, minWidth: '80px' }}>
-                          <div style={{ height: '70px', borderRadius: '12px', backgroundColor: hex, marginBottom: '8px', border: '1px solid rgba(0,0,0,0.1)' }}></div>
-                          <code style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>{hex}</code>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* --- SVG MINIFIER --- */}
-            {activeTab === 'svg-minify' && (
-              <div>
-                <h2>SVG Minifier</h2>
-                <textarea rows="6" placeholder="Paste SVG raw code..." value={svgMinInput} onChange={(e) => setSvgMinInput(e.target.value)} />
-                <button onClick={minifySvg} className="btn" style={{ marginBottom: '15px' }}><FileCode2 size={16}/> Minify SVG</button>
-                {svgSavings && <p style={{ color: '#10b981', fontWeight: '600', marginBottom: '10px' }}>{svgSavings}</p>}
-                {svgMinOutput && <textarea rows="6" readOnly className="readonly-area" value={svgMinOutput} />}
-              </div>
-            )}
-
-            {/* --- AES TEXT ENCRYPT / DECRYPT --- */}
-            {activeTab === 'aes-encrypt' && (
-              <div>
-                <h2>Client-Side AES Encryption / Decryption</h2>
-                <div className="button-group" style={{ marginBottom: '15px' }}>
-                  <button className={aesMode === 'encrypt' ? '' : 'inactive-btn'} onClick={() => { setAesMode('encrypt'); setAesResult(''); setAesError(''); }}>Encrypt</button>
-                  <button className={aesMode === 'decrypt' ? '' : 'inactive-btn'} onClick={() => { setAesMode('decrypt'); setAesResult(''); setAesError(''); }}>Decrypt</button>
-                </div>
-                <textarea rows="4" placeholder={aesMode === 'encrypt' ? 'Enter plain text to encrypt...' : 'Enter Base64 ciphertext to decrypt...'} value={aesText} onChange={(e) => setAesText(e.target.value)} />
-                <input type="password" className="text-input" placeholder="Enter Secret Passphrase..." value={aesPass} onChange={(e) => setAesPass(e.target.value)} />
-                {aesError && <p style={{ color: '#ef4444', marginBottom: '10px' }}>{aesError}</p>}
-                <button onClick={handleAesProcess} className="btn" style={{ marginBottom: '15px' }}><ShieldCheck size={16}/> {aesMode === 'encrypt' ? 'Encrypt Text' : 'Decrypt Text'}</button>
-                {aesResult && <textarea rows="4" readOnly className="readonly-area" value={aesResult} />}
-              </div>
-            )}
-
-            {/* --- MOCK DATA GENERATOR --- */}
-            {activeTab === 'dummy-data' && (
-              <div>
-                <h2>Mock / Dummy Data Generator</h2>
-                <div className="controls">
-                  <label>Records Count (1 - 50): {dummyCount}</label>
-                  <input type="range" min="1" max="25" value={dummyCount} onChange={(e) => setDummyCount(e.target.value)} />
-                </div>
-                <div className="button-group" style={{ marginBottom: '15px' }}>
-                  <button className={dummyFormat === 'json' ? '' : 'inactive-btn'} onClick={() => setDummyFormat('json')}>JSON</button>
-                  <button className={dummyFormat === 'csv' ? '' : 'inactive-btn'} onClick={() => setDummyFormat('csv')}>CSV</button>
-                </div>
-                <button onClick={generateMockData} className="btn" style={{ marginBottom: '15px' }}><Layers size={16}/> Generate Records</button>
-                {dummyOutput && <textarea rows="8" readOnly className="readonly-area" value={dummyOutput} />}
-              </div>
-            )}
-
-            {/* --- PRE-EXISTING UTILITIES --- */}
+            {/* --- OLD PRE-EXISTING UTILITIES --- */}
             {activeTab === 'json-ts' && ( <div> <h2>JSON to TypeScript Interface</h2> <textarea rows="5" value={jsonToTsInput} onChange={(e) => setJsonToTsInput(e.target.value)} /> <button onClick={convertJsonToTs} className="btn" style={{marginBottom: '15px'}}><Brackets size={16}/> Convert to TS</button> <textarea rows="7" readOnly className="readonly-area" value={tsOutput} /> </div> )}
             {activeTab === 'cron' && ( <div> <h2>Cron Expression Translator</h2> <input type="text" className="text-input" placeholder="e.g. 0 12 * * 1-5" value={cronInput} onChange={(e) => setCronInput(e.target.value)} /> <button onClick={translateCron} className="btn"><Calendar size={16}/> Translate</button> {cronResult && <div className="output-box" style={{fontSize: '1.2rem'}}>{cronResult}</div>} </div> )}
             {activeTab === 'regex' && ( <div> <h2>Regex Tester</h2> <input type="text" className="text-input" placeholder="Regex pattern (e.g. [a-z]+)" value={regexPattern} onChange={(e) => setRegexPattern(e.target.value)} /> <textarea rows="3" placeholder="Test string..." value={regexText} onChange={(e) => setRegexText(e.target.value)} /> <button onClick={testRegex} className="btn" style={{marginBottom: '15px'}}><FileSearch size={16}/> Test Matches</button> <div className="output-box" style={{fontSize: '1rem', textAlign: 'left', padding: '15px'}}>{regexResult}</div> </div> )}
@@ -1396,7 +1538,7 @@ export default function App() {
               When working with code, formatting data, or compressing personal media, privacy and speed are the two most important factors. Traditional online utilities force you to upload your files to remote, third-party servers. This not only risks exposing your sensitive data but also wastes time waiting for uploads and downloads.
             </p>
             <p style={{ lineHeight: '1.6' }}>
-              <strong>I Love Tools</strong> is engineered differently. By utilizing modern web technologies, all 43 of our utilities run 100% locally in your browser. Whether you are extracting audio to WAV natively using the Web Audio API, adding a text watermark to a video, or building complex mock data layers, the processing happens directly on your device CPU. Your data is never collected, stored, or transmitted across the internet, ensuring maximum security and zero latency.
+              <strong>I Love Tools</strong> is engineered differently. By utilizing modern web technologies, all 52 of our utilities run 100% locally in your browser. Whether you are generating RSA key pairs, checking a code diff, or building complex mock data layers, the processing happens directly on your device CPU. Your data is never collected, stored, or transmitted across the internet, ensuring maximum security and zero latency.
             </p>
           </div>
 
