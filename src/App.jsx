@@ -12,12 +12,56 @@ import {
   FileCode2, Droplet, FileSpreadsheet, Calculator, Clock, Video, 
   Monitor, RefreshCw, Brackets, Calendar, FileSearch, Keyboard, 
   Crop, Globe, Link, Search, ChevronDown, ShieldCheck, Layers, 
-  Sparkles, Film, Scissors, Wand2
+  Sparkles, Film, Scissors, Wand2, Mic, Volume2
 } from 'lucide-react';
 import AdBanner from './AdBanner';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import './App.css';
+
+// --- PURE JS WAV ENCODER HELPER ---
+const encodeWAV = (audioBuffer) => {
+  const numOfChan = audioBuffer.numberOfChannels;
+  const length = audioBuffer.length * numOfChan * 2 + 44;
+  const buffer = new ArrayBuffer(length);
+  const view = new DataView(buffer);
+  const channels = [];
+  let sampleRate = audioBuffer.sampleRate;
+  let offset = 0;
+  let pos = 0;
+
+  const setUint16 = (data) => { view.setUint16(pos, data, true); pos += 2; };
+  const setUint32 = (data) => { view.setUint32(pos, data, true); pos += 4; };
+
+  setUint32(0x46464952); // "RIFF"
+  setUint32(length - 8); 
+  setUint32(0x45564157); // "WAVE"
+  setUint32(0x20746d66); // "fmt " chunk
+  setUint32(16); 
+  setUint16(1); 
+  setUint16(numOfChan);
+  setUint32(sampleRate);
+  setUint32(sampleRate * 2 * numOfChan); 
+  setUint16(numOfChan * 2); 
+  setUint16(16); 
+  setUint32(0x61746164); // "data" chunk
+  setUint32(length - pos - 4); 
+
+  for (let i = 0; i < audioBuffer.numberOfChannels; i++) {
+    channels.push(audioBuffer.getChannelData(i));
+  }
+
+  while (pos < length) {
+    for (let i = 0; i < numOfChan; i++) {
+      let sample = Math.max(-1, Math.min(1, channels[i][offset]));
+      sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0;
+      view.setInt16(pos, sample, true);
+      pos += 2;
+    }
+    offset++;
+  }
+  return new Blob([buffer], { type: "audio/wav" });
+};
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('image');
@@ -223,7 +267,6 @@ export default function App() {
     setZipping(false); 
   };
 
-  const [audioFile, setAudioFile] = useState(null);
   const [messyCode, setMessyCode] = useState(`#include <iostream>\nusing namespace std;int main(){cout<<"Hello";return 0;}`); 
   const [cleanCode, setCleanCode] = useState(''); 
   const formatSnippet = () => { 
@@ -383,9 +426,7 @@ export default function App() {
     img.src = URL.createObjectURL(blob); 
   };
 
-  // --- LOGIC FOR NEW TOOLS ---
-
-  // 1. SQL Formatter
+  // --- SQL FORMATTER ---
   const [sqlInput, setSqlInput] = useState('SELECT id, name, email FROM users WHERE active = 1 AND age > 21 ORDER BY created_at DESC;');
   const [sqlOutput, setSqlOutput] = useState('');
   const formatSql = () => {
@@ -403,7 +444,7 @@ export default function App() {
     }
   };
 
-  // 2. Bulk UUID Generator
+  // --- BULK UUID GENERATOR ---
   const [uuidCount, setUuidCount] = useState(10);
   const [uuidOutput, setUuidOutput] = useState('');
   const generateUuids = () => {
@@ -412,7 +453,7 @@ export default function App() {
     setUuidOutput(list.join('\n'));
   };
 
-  // 3. URL Encoder / Decoder
+  // --- URL ENCODER / DECODER ---
   const [urlInput, setUrlInput] = useState('https://ilovetools.dev/search?q=developer tools&category=web dev');
   const [urlOutput, setUrlOutput] = useState('');
   const [urlMode, setUrlMode] = useState('encode');
@@ -425,7 +466,7 @@ export default function App() {
     }
   };
 
-  // 4. Color Palette Extractor
+  // --- COLOR PALETTE EXTRACTOR ---
   const [paletteColors, setPaletteColors] = useState([]);
   const handlePaletteUpload = (e) => {
     const file = e.target.files[0];
@@ -451,7 +492,7 @@ export default function App() {
     img.src = URL.createObjectURL(file);
   };
 
-  // 5. SVG Minifier
+  // --- SVG MINIFIER ---
   const [svgMinInput, setSvgMinInput] = useState('<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">\n  <!-- Circle Graphic -->\n  <circle cx="50" cy="50" r="40" fill="#e94057" />\n</svg>');
   const [svgMinOutput, setSvgMinOutput] = useState('');
   const [svgSavings, setSvgSavings] = useState('');
@@ -467,7 +508,7 @@ export default function App() {
     setSvgSavings(`Reduced from ${originalLength} bytes to ${minified.length} bytes (${Math.max(0, saved)}% reduction)`);
   };
 
-  // 6. AES Text Encrypt / Decrypt
+  // --- AES TEXT ENCRYPT / DECRYPT ---
   const [aesText, setAesText] = useState('My Top Secret Message');
   const [aesPass, setAesPass] = useState('securePassword123');
   const [aesMode, setAesMode] = useState('encrypt');
@@ -516,7 +557,7 @@ export default function App() {
     }
   };
 
-  // 7. Mock Data Generator
+  // --- MOCK DATA GENERATOR ---
   const [dummyCount, setDummyCount] = useState(5);
   const [dummyFormat, setDummyFormat] = useState('json');
   const [dummyOutput, setDummyOutput] = useState('');
@@ -548,9 +589,128 @@ export default function App() {
     }
   };
 
-  // 8. Mini CapCut Video Editor (FIXED: Butter Smooth Performance)
+  // --- NEW: AUDIO EXTRACTOR ---
+  const [extractVideo, setExtractVideo] = useState(null);
+  const [extractingAudio, setExtractingAudio] = useState(false);
+  const [extractedAudioUrl, setExtractedAudioUrl] = useState(null);
+
+  const handleExtractAudio = async () => {
+    if (!extractVideo) return;
+    setExtractingAudio(true);
+    setExtractedAudioUrl(null);
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const arrayBuffer = await extractVideo.arrayBuffer();
+      const decodedBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+      const wavBlob = encodeWAV(decodedBuffer);
+      setExtractedAudioUrl(URL.createObjectURL(wavBlob));
+    } catch (e) {
+      console.error(e);
+      alert('Error extracting audio. Please ensure the video has an audio track and is a supported format.');
+    }
+    setExtractingAudio(false);
+  };
+
+  // --- NEW: CLIENT-SIDE AUDIO EDITOR ---
+  const [audioEditFile, setAudioEditFile] = useState(null);
+  const [audioBuffer, setAudioBuffer] = useState(null);
+  const [audioStart, setAudioStart] = useState(0);
+  const [audioEnd, setAudioEnd] = useState(0);
+  const [audioVolume, setAudioVolume] = useState(100);
+  const [audioFadeIn, setAudioFadeIn] = useState(0);
+  const [audioFadeOut, setAudioFadeOut] = useState(0);
+  const [audioSpeed, setAudioSpeed] = useState(1);
+  const [audioReverse, setAudioReverse] = useState(false);
+  const [processingAudio, setProcessingAudio] = useState(false);
+  const [exportedAudioUrl, setExportedAudioUrl] = useState(null);
+
+  const handleAudioLoad = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAudioEditFile(file);
+      setExportedAudioUrl(null);
+      setAudioBuffer(null);
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = await audioCtx.decodeAudioData(arrayBuffer);
+        setAudioBuffer(buffer);
+        setAudioStart(0);
+        setAudioEnd(buffer.duration);
+      } catch(err) {
+        alert("Failed to decode audio file.");
+      }
+    }
+  };
+
+  const handleExportAudio = async () => {
+    if (!audioBuffer) return;
+    if (audioStart >= audioEnd) {
+      alert("Start time must be before end time.");
+      return;
+    }
+    setProcessingAudio(true);
+    
+    try {
+        const startOffset = audioStart;
+        const endOffset = audioEnd;
+        const duration = (endOffset - startOffset) / audioSpeed;
+        
+        const offlineCtx = new OfflineAudioContext(
+          audioBuffer.numberOfChannels, 
+          Math.max(1, duration * audioBuffer.sampleRate), 
+          audioBuffer.sampleRate
+        );
+        
+        const sourceNode = offlineCtx.createBufferSource();
+        
+        if (audioReverse) {
+            const reversedBuffer = offlineCtx.createBuffer(audioBuffer.numberOfChannels, audioBuffer.length, audioBuffer.sampleRate);
+            for (let i = 0; i < audioBuffer.numberOfChannels; i++) {
+                const destData = reversedBuffer.getChannelData(i);
+                const srcData = audioBuffer.getChannelData(i);
+                for (let j = 0; j < audioBuffer.length; j++) {
+                    destData[j] = srcData[audioBuffer.length - 1 - j];
+                }
+            }
+            sourceNode.buffer = reversedBuffer;
+        } else {
+            sourceNode.buffer = audioBuffer;
+        }
+
+        sourceNode.playbackRate.value = audioSpeed;
+        
+        const gainNode = offlineCtx.createGain();
+        gainNode.gain.value = audioVolume / 100;
+
+        if (audioFadeIn > 0) {
+            gainNode.gain.setValueAtTime(0, 0);
+            gainNode.gain.linearRampToValueAtTime(audioVolume / 100, audioFadeIn);
+        }
+        if (audioFadeOut > 0) {
+            gainNode.gain.setValueAtTime(audioVolume / 100, Math.max(0, duration - audioFadeOut));
+            gainNode.gain.linearRampToValueAtTime(0, duration);
+        }
+
+        sourceNode.connect(gainNode);
+        gainNode.connect(offlineCtx.destination);
+        
+        let actualStart = audioReverse ? (audioBuffer.duration - endOffset) : startOffset;
+        sourceNode.start(0, actualStart, duration * audioSpeed); 
+        
+        const renderedBuffer = await offlineCtx.startRendering();
+        const wavBlob = encodeWAV(renderedBuffer);
+        setExportedAudioUrl(URL.createObjectURL(wavBlob));
+    } catch (e) {
+        console.error(e);
+        alert('Error processing audio layout.');
+    }
+    setProcessingAudio(false);
+  };
+
+  // --- UPGRADED: MINI CAPCUT VIDEO EDITOR ---
   const [videoEditFile, setVideoEditFile] = useState(null);
-  const [videoEditUrl, setVideoEditUrl] = useState(null); // Fix: Stored URL avoids constant reloading
+  const [videoEditUrl, setVideoEditUrl] = useState(null); 
   const [vidDuration, setVidDuration] = useState(0);
   const [trimStart, setTrimStart] = useState(0);
   const [trimEnd, setTrimEnd] = useState(0);
@@ -560,6 +720,14 @@ export default function App() {
   const [saturation, setSaturation] = useState(100);
   const [sepia, setSepia] = useState(0);
   const [invert, setInvert] = useState(0);
+  
+  // New Video Editor Features
+  const [vidAspect, setVidAspect] = useState('original');
+  const [vidMuted, setVidMuted] = useState(false);
+  const [vidText, setVidText] = useState('');
+  const [vidTextColor, setVidTextColor] = useState('#ffffff');
+  const [vidTextSize, setVidTextSize] = useState(48);
+  const [vidTextPos, setVidTextPos] = useState('center');
 
   const [videoProcessing, setVideoProcessing] = useState(false);
   const [videoProgress, setVideoProgress] = useState(0);
@@ -574,7 +742,6 @@ export default function App() {
       setExportedVideoUrl(null);
       setVideoProgress(0);
       
-      // Fix: Generate the object URL exactly ONCE instead of on every render
       const url = URL.createObjectURL(file);
       setVideoEditUrl(url); 
 
@@ -588,7 +755,6 @@ export default function App() {
     }
   };
 
-  // Fix: Instantly apply playback speed changes directly to the DOM element 
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.playbackRate = vidSpeed;
@@ -604,19 +770,43 @@ export default function App() {
     const video = videoRef.current;
     video.currentTime = trimStart;
     video.playbackRate = vidSpeed;
-    video.muted = false; 
+    video.muted = true; // Canvas handles capturing frames silently
 
     const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth || 1280; 
-    canvas.height = video.videoHeight || 720;
     const ctx = canvas.getContext('2d');
+
+    let sourceW = video.videoWidth;
+    let sourceH = video.videoHeight;
+    let sX = 0, sY = 0, sW = sourceW, sH = sourceH;
+
+    if (vidAspect !== 'original') {
+      let targetRatio = vidAspect === '16:9' ? 16/9 : (vidAspect === '9:16' ? 9/16 : 1);
+      let vidRatio = sourceW / sourceH;
+      if (vidRatio > targetRatio) {
+        sW = sourceH * targetRatio;
+        sX = (sourceW - sW) / 2;
+      } else {
+        sH = sourceW / targetRatio;
+        sY = (sourceH - sH) / 2;
+      }
+    }
+
+    let targetCanvasW = 1280;
+    let targetCanvasH = 720;
+    if (vidAspect === 'original') { targetCanvasW = sourceW; targetCanvasH = sourceH; }
+    else if (vidAspect === '16:9') { targetCanvasW = 1280; targetCanvasH = 720; }
+    else if (vidAspect === '9:16') { targetCanvasW = 720; targetCanvasH = 1280; }
+    else if (vidAspect === '1:1') { targetCanvasW = 1080; targetCanvasH = 1080; }
+
+    canvas.width = targetCanvasW;
+    canvas.height = targetCanvasH;
 
     let combinedStream;
     const canvasStream = canvas.captureStream(30);
     
     try {
         const origStream = video.captureStream ? video.captureStream() : video.mozCaptureStream ? video.mozCaptureStream() : null;
-        if (origStream && origStream.getAudioTracks().length > 0) {
+        if (!vidMuted && origStream && origStream.getAudioTracks().length > 0) {
             combinedStream = new MediaStream([canvasStream.getVideoTracks()[0], origStream.getAudioTracks()[0]]);
         } else {
             combinedStream = canvasStream;
@@ -649,7 +839,20 @@ export default function App() {
         }
         
         ctx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%) sepia(${sepia}%) invert(${invert}%)`;
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(video, sX, sY, sW, sH, 0, 0, canvas.width, canvas.height);
+        ctx.filter = 'none';
+
+        if (vidText) {
+          ctx.fillStyle = vidTextColor;
+          ctx.font = `bold ${vidTextSize}px Arial`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          let tx = canvas.width / 2;
+          let ty = canvas.height / 2;
+          if (vidTextPos === 'top') ty = 50 + vidTextSize;
+          if (vidTextPos === 'bottom') ty = canvas.height - 50 - vidTextSize;
+          ctx.fillText(vidText, tx, ty);
+        }
         
         const totalDuration = trimEnd - trimStart;
         const currentProgress = video.currentTime - trimStart;
@@ -669,11 +872,12 @@ export default function App() {
     });
   };
 
-  // --- CATEGORY STRUCTURE (42 UTILITIES) ---
+  // --- CATEGORY STRUCTURE (43 UTILITIES) ---
   const categories = {
     "Media & Graphics": [
       { id: 'image', name: 'Compress Image', icon: Image },
       { id: 'videditor', name: 'Mini Video Editor', icon: Film },
+      { id: 'audioedit', name: 'Audio Editor', icon: Mic },
       { id: 'resize', name: 'Resize Image', icon: Maximize },
       { id: 'pdfgen', name: 'Photos to PDF', icon: FileUp },
       { id: 'audio', name: 'Extract Audio', icon: Music },
@@ -750,7 +954,7 @@ export default function App() {
           <Search className="search-icon" size={20} />
           <input 
             type="text" 
-            placeholder="Search for a tool (e.g. Video Editor, SQL, AES, UUID, SVG)..." 
+            placeholder="Search for a tool (e.g. Video Editor, Audio, AES, SVG)..." 
             className="search-bar"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -805,14 +1009,14 @@ export default function App() {
           
           <div className="tool-card">
 
-            {/* --- MINI CAPCUT VIDEO EDITOR --- */}
+            {/* --- UPGRADED MINI CAPCUT VIDEO EDITOR --- */}
             {activeTab === 'videditor' && (
               <div>
                 <h2>Mini Video Editor</h2>
-                <p className="subtitle" style={{marginBottom: '15px'}}>Trim, adjust speed, and apply color grading filters entirely in your browser.</p>
+                <p className="subtitle" style={{marginBottom: '15px'}}>Trim, adjust speed, crop aspect ratios, add text, and apply color grading entirely in your browser.</p>
                 <input type="file" accept="video/*" onChange={handleVideoLoad} className="file-input" />
                 
-                {videoEditUrl && ( // Fix: Now using the stored videoEditUrl
+                {videoEditUrl && ( 
                   <>
                     <video 
                       ref={videoRef} 
@@ -823,10 +1027,13 @@ export default function App() {
                         maxHeight: '400px',
                         backgroundColor: '#000',
                         borderRadius: '12px', 
-                        marginBottom: '20px', 
+                        marginBottom: '10px', 
                         filter: `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%) sepia(${sepia}%) invert(${invert}%)`
                       }} 
                     />
+                    <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '20px', textAlign: 'center' }}>
+                      * Note: Text overlay and crop aspect ratio will be applied directly to the final exported video.
+                    </p>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '20px' }}>
                       <div className="controls" style={{ margin: 0 }}>
@@ -840,6 +1047,43 @@ export default function App() {
                       </div>
 
                       <div className="controls" style={{ margin: 0 }}>
+                        <h4 style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '5px' }}><Crop size={16}/> Canvas & Audio</h4>
+                        <label>Crop Aspect Ratio Preset</label>
+                        <select className="text-input" value={vidAspect} onChange={(e) => setVidAspect(e.target.value)}>
+                          <option value="original">Original Aspect Ratio</option>
+                          <option value="16:9">Widescreen (16:9)</option>
+                          <option value="9:16">Vertical / Reels (9:16)</option>
+                          <option value="1:1">Square (1:1)</option>
+                        </select>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '15px', cursor: 'pointer', fontWeight: 'bold' }}>
+                          <input type="checkbox" checked={vidMuted} onChange={(e) => setVidMuted(e.target.checked)} style={{ width: '20px', height: '20px' }} />
+                          Mute Video Audio
+                        </label>
+                      </div>
+
+                      <div className="controls" style={{ margin: 0 }}>
+                        <h4 style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '5px' }}><Type size={16}/> Text Overlay</h4>
+                        <label>Watermark Text</label>
+                        <input type="text" className="text-input" placeholder="Enter text..." value={vidText} onChange={(e) => setVidText(e.target.value)} />
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          <div style={{ flex: 1 }}>
+                            <label>Color</label>
+                            <input type="color" className="text-input" style={{ padding: '2px', height: '42px' }} value={vidTextColor} onChange={(e) => setVidTextColor(e.target.value)} />
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <label>Size ({vidTextSize}px)</label>
+                            <input type="range" min="12" max="120" value={vidTextSize} onChange={(e) => setVidTextSize(Number(e.target.value))} />
+                          </div>
+                        </div>
+                        <label>Position</label>
+                        <select className="text-input" value={vidTextPos} onChange={(e) => setVidTextPos(e.target.value)}>
+                          <option value="top">Top</option>
+                          <option value="center">Center</option>
+                          <option value="bottom">Bottom</option>
+                        </select>
+                      </div>
+
+                      <div className="controls" style={{ margin: 0 }}>
                         <h4 style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '5px' }}><Wand2 size={16}/> Color Filters</h4>
                         <label>Brightness ({brightness}%)</label>
                         <input type="range" min="0" max="200" value={brightness} onChange={(e) => setBrightness(e.target.value)} />
@@ -847,11 +1091,13 @@ export default function App() {
                         <input type="range" min="0" max="200" value={contrast} onChange={(e) => setContrast(e.target.value)} />
                         <label>Saturation ({saturation}%)</label>
                         <input type="range" min="0" max="200" value={saturation} onChange={(e) => setSaturation(e.target.value)} />
+                        <label>Sepia ({sepia}%)</label>
+                        <input type="range" min="0" max="100" value={sepia} onChange={(e) => setSepia(e.target.value)} />
                       </div>
                     </div>
 
                     <button onClick={handleVideoExport} disabled={videoProcessing} className="btn" style={{ marginBottom: '15px', width: '100%' }}>
-                      <Film size={16}/> {videoProcessing ? `Exporting... ${videoProgress}%` : 'Export Edited Video'}
+                      <Film size={16}/> {videoProcessing ? `Exporting... ${videoProgress}%` : 'Export Edited Video (WebM)'}
                     </button>
                   </>
                 )}
@@ -862,6 +1108,90 @@ export default function App() {
                     <div><h4>Exported Size</h4><p>{(exportedVideoSize / 1024 / 1024).toFixed(2)} MB</p> 
                       <a href={exportedVideoUrl} download={`edited-${videoEditFile.name.split('.')[0]}.webm`} className="btn">
                         <Download size={16} /> Download Video
+                      </a> 
+                    </div> 
+                  </div> 
+                )}
+              </div>
+            )}
+
+            {/* --- NEW: CLIENT-SIDE AUDIO EDITOR --- */}
+            {activeTab === 'audioedit' && (
+              <div>
+                <h2>Client-Side Audio Editor</h2>
+                <p className="subtitle" style={{marginBottom: '15px'}}>Trim, adjust volume, apply fades, shift speed, and reverse audio to export as a high-quality WAV.</p>
+                <input type="file" accept="audio/*, video/*" onChange={handleAudioLoad} className="file-input" />
+                
+                {audioBuffer && (
+                  <>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '20px', marginTop: '20px' }}>
+                      <div className="controls" style={{ margin: 0 }}>
+                        <h4 style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '5px' }}><Scissors size={16}/> Trimming</h4>
+                        <label>Start Time: {audioStart.toFixed(1)}s</label>
+                        <input type="range" min="0" max={audioBuffer.duration} step="0.1" value={audioStart} onChange={(e) => setAudioStart(Number(e.target.value))} />
+                        <label>End Time: {audioEnd.toFixed(1)}s (Total: {audioBuffer.duration.toFixed(1)}s)</label>
+                        <input type="range" min="0" max={audioBuffer.duration} step="0.1" value={audioEnd} onChange={(e) => setAudioEnd(Number(e.target.value))} />
+                      </div>
+
+                      <div className="controls" style={{ margin: 0 }}>
+                        <h4 style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '5px' }}><Volume2 size={16}/> Volume & Effects</h4>
+                        <label>Volume ({audioVolume}%)</label>
+                        <input type="range" min="0" max="200" value={audioVolume} onChange={(e) => setAudioVolume(Number(e.target.value))} />
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          <div style={{ flex: 1 }}>
+                            <label>Fade In (s)</label>
+                            <input type="number" className="text-input" min="0" step="0.5" value={audioFadeIn} onChange={(e) => setAudioFadeIn(Number(e.target.value))} />
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <label>Fade Out (s)</label>
+                            <input type="number" className="text-input" min="0" step="0.5" value={audioFadeOut} onChange={(e) => setAudioFadeOut(Number(e.target.value))} />
+                          </div>
+                        </div>
+                        <label>Playback Speed ({audioSpeed}x)</label>
+                        <input type="range" min="0.5" max="2" step="0.25" value={audioSpeed} onChange={(e) => setAudioSpeed(Number(e.target.value))} />
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px', cursor: 'pointer' }}>
+                          <input type="checkbox" checked={audioReverse} onChange={(e) => setAudioReverse(e.target.checked)} style={{ width: '20px', height: '20px' }} />
+                          Reverse Audio
+                        </label>
+                      </div>
+                    </div>
+
+                    <button onClick={handleExportAudio} disabled={processingAudio} className="btn" style={{ marginBottom: '15px', width: '100%' }}>
+                      <Mic size={16}/> {processingAudio ? `Processing Audio...` : 'Export Edited Audio (WAV)'}
+                    </button>
+                  </>
+                )}
+
+                {exportedAudioUrl && (
+                  <div className="results-grid" style={{ marginTop: '20px' }}> 
+                    <div><h4>Original Status</h4><p>Loaded successfully.</p></div> 
+                    <div><h4>Export Ready</h4><p>WAV Format</p> 
+                      <a href={exportedAudioUrl} download={`edited-${audioEditFile.name.split('.')[0]}.wav`} className="btn">
+                        <Download size={16} /> Download Audio
+                      </a> 
+                    </div> 
+                  </div> 
+                )}
+              </div>
+            )}
+
+            {/* --- NEW: NATIVE AUDIO EXTRACTOR --- */}
+            {activeTab === 'audio' && (
+              <div>
+                <h2>Extract Audio from Video</h2>
+                <p className="subtitle" style={{marginBottom: '15px'}}>Upload any video file to perfectly rip and extract the raw audio into a high-quality WAV file. 100% Client-Side.</p>
+                <input type="file" accept="video/*" onChange={(e) => { setExtractVideo(e.target.files[0]); setExtractedAudioUrl(null); }} className="file-input" />
+                
+                <button onClick={handleExtractAudio} disabled={extractingAudio || !extractVideo} className="btn" style={{ marginBottom: '15px' }}>
+                  <Music size={16}/> {extractingAudio ? `Extracting...` : 'Extract Audio to WAV'}
+                </button>
+
+                {extractedAudioUrl && (
+                  <div className="results-grid" style={{ marginTop: '20px' }}> 
+                    <div><h4>Original File</h4><p>{extractVideo.name}</p></div> 
+                    <div><h4>Extracted</h4><p>WAV Format</p> 
+                      <a href={extractedAudioUrl} download={`extracted-${extractVideo.name.split('.')[0]}.wav`} className="btn">
+                        <Download size={16} /> Download Audio
                       </a> 
                     </div> 
                   </div> 
@@ -972,7 +1302,7 @@ export default function App() {
               </div>
             )}
 
-            {/* --- PRE-EXISTING 34 UTILITIES --- */}
+            {/* --- PRE-EXISTING UTILITIES --- */}
             {activeTab === 'json-ts' && ( <div> <h2>JSON to TypeScript Interface</h2> <textarea rows="5" value={jsonToTsInput} onChange={(e) => setJsonToTsInput(e.target.value)} /> <button onClick={convertJsonToTs} className="btn" style={{marginBottom: '15px'}}><Brackets size={16}/> Convert to TS</button> <textarea rows="7" readOnly className="readonly-area" value={tsOutput} /> </div> )}
             {activeTab === 'cron' && ( <div> <h2>Cron Expression Translator</h2> <input type="text" className="text-input" placeholder="e.g. 0 12 * * 1-5" value={cronInput} onChange={(e) => setCronInput(e.target.value)} /> <button onClick={translateCron} className="btn"><Calendar size={16}/> Translate</button> {cronResult && <div className="output-box" style={{fontSize: '1.2rem'}}>{cronResult}</div>} </div> )}
             {activeTab === 'regex' && ( <div> <h2>Regex Tester</h2> <input type="text" className="text-input" placeholder="Regex pattern (e.g. [a-z]+)" value={regexPattern} onChange={(e) => setRegexPattern(e.target.value)} /> <textarea rows="3" placeholder="Test string..." value={regexText} onChange={(e) => setRegexText(e.target.value)} /> <button onClick={testRegex} className="btn" style={{marginBottom: '15px'}}><FileSearch size={16}/> Test Matches</button> <div className="output-box" style={{fontSize: '1rem', textAlign: 'left', padding: '15px'}}>{regexResult}</div> </div> )}
@@ -1042,7 +1372,6 @@ export default function App() {
             {activeTab === 'color' && ( <div> <h2>Color Code Converter</h2> <div className="stats"> <div className="stat-box"><input type="text" className="text-input" style={{marginBottom: 0}} value={colorInput} onChange={handleColorChange} placeholder="#000000" /></div> <div className="stat-box"><h3 style={{fontSize: '1.2rem'}}>{rgbOutput}</h3></div> </div> <div style={{ marginTop: '20px', height: '100px', borderRadius: '12px', backgroundColor: rgbOutput !== 'Invalid HEX' ? colorInput : '#f1f5f9' }}></div> </div> )}
             {activeTab === 'pdfgen' && ( <div> <h2>Photos to PDF Generator</h2> <input type="file" accept="image/*" multiple onChange={(e) => setPdfImages(Array.from(e.target.files))} className="file-input" /><br/><button onClick={generatePdf} disabled={pdfImages.length === 0 || generatingPdf} className="btn">{generatingPdf ? 'Generating...' : 'Download PDF'}</button> </div> )}
             {activeTab === 'zip' && ( <div> <h2>Document Zip Compressor</h2> <input type="file" multiple onChange={(e) => { setZipFiles(Array.from(e.target.files)); setZipUrl(null); }} className="file-input" /><br/><button onClick={compressDocs} disabled={zipFiles.length === 0 || zipping} className="btn">{zipping ? 'Compressing...' : 'Create ZIP'}</button> {zipUrl && <div style={{marginTop: '20px'}}><a href={zipUrl} download="archive.zip" className="btn">Download ZIP</a></div>} </div> )}
-            {activeTab === 'audio' && ( <div> <h2>Extract Audio</h2> <p className="subtitle">This tool converts video to audio locally.</p><input type="file" accept="video/*" onChange={(e) => setAudioFile(e.target.files[0])} className="file-input" /> </div> )}
             {activeTab === 'beautify' && ( <div> <h2>Code Beautifier</h2> <textarea rows="4" value={messyCode} onChange={(e) => setMessyCode(e.target.value)} /> <button onClick={formatSnippet} className="btn" style={{marginBottom: '15px'}}><Code2 size={16}/> Format Code</button> <textarea rows="10" readOnly className="readonly-area" value={cleanCode} /> </div> )}
             {activeTab === 'resize' && ( <div> <h2>Image Resizer</h2> <input type="file" accept="image/*" onChange={(e) => { setResizeSource(e.target.files[0]); setResizedDataUrl(null); }} className="file-input" /> <div className="controls"> <label>Width: {targetWidth}px</label> <input type="range" min="100" max="3000" value={targetWidth} onChange={(e) => setTargetWidth(e.target.value)} /> </div> <button onClick={handleResize} disabled={!resizeSource} className="btn">Resize Image</button> {resizedDataUrl && <div style={{marginTop: '20px'}}><a href={resizedDataUrl} download="resized.jpg" className="btn">Download Resized</a></div>} </div> )}
             {activeTab === 'hash' && ( <div> <h2>SHA-256 Hash Generator</h2> <textarea rows="4" value={hashData} onChange={(e) => setHashData(e.target.value)} /> <button onClick={generateHash} className="btn">Generate Hash</button> {hashResult && <div className="output-box" style={{fontSize: '1rem'}}><code>{hashResult}</code></div>} </div> )}
@@ -1064,10 +1393,10 @@ export default function App() {
           <div className="seo-content" style={{ marginTop: '40px', padding: '30px', borderTop: '2px solid rgba(233, 64, 87, 0.1)', color: '#334155' }}>
             <h3 style={{ fontSize: '1.5rem', color: '#1e293b', marginBottom: '15px' }}>Why Use Client-Side Web Tools?</h3>
             <p style={{ lineHeight: '1.6', marginBottom: '15px' }}>
-              When working with code, formatting data, or compressing personal images, privacy and speed are the two most important factors. Traditional online utilities force you to upload your files to remote, third-party servers. This not only risks exposing your sensitive data but also wastes time waiting for uploads and downloads.
+              When working with code, formatting data, or compressing personal media, privacy and speed are the two most important factors. Traditional online utilities force you to upload your files to remote, third-party servers. This not only risks exposing your sensitive data but also wastes time waiting for uploads and downloads.
             </p>
             <p style={{ lineHeight: '1.6' }}>
-              <strong>I Love Tools</strong> is engineered differently. By utilizing modern web technologies, all 42 of our utilities run 100% locally in your browser. Whether you are generating a complex Glassmorphism CSS layout, parsing a large JSON file into TypeScript, encrypting sensitive text with AES, or rendering custom video edits, the processing happens directly on your device CPU. Your data is never collected, stored, or transmitted across the internet, ensuring maximum security and zero latency.
+              <strong>I Love Tools</strong> is engineered differently. By utilizing modern web technologies, all 43 of our utilities run 100% locally in your browser. Whether you are extracting audio to WAV natively using the Web Audio API, adding a text watermark to a video, or building complex mock data layers, the processing happens directly on your device CPU. Your data is never collected, stored, or transmitted across the internet, ensuring maximum security and zero latency.
             </p>
           </div>
 
