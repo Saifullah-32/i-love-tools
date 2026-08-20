@@ -3,6 +3,9 @@
 ========================================= */
 
 :root {
+  /* Force light mode to override Vite's default dark index.css */
+  color-scheme: light;
+  
   /* Brand Colors */
   --primary: #e94057;
   --primary-hover: #d83146;
@@ -44,10 +47,15 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: var(--bg-base);
-  color: var(--text-main);
+  background-color: var(--bg-base) !important;
+  color: var(--text-main) !important;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Explicit text color overrides to prevent Vite index.css bleed */
+h1, h2, h3, h4, h5, p, span, label, input, textarea, select, button {
+  color: var(--text-main);
 }
 
 /* =========================================
@@ -149,6 +157,7 @@ body {
   border-radius: 50px;
   border: 1px solid var(--border);
   background: var(--bg-base);
+  color: var(--text-main) !important;
   font-size: 1rem;
   font-family: inherit;
   transition: all 0.3s ease;

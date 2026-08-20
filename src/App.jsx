@@ -762,7 +762,7 @@ export default function App() {
 
           {/* DYNAMIC SEO TOOL CONTENT BLOCK */}
           {activeTab !== 'home' && currentTool && (
-            <div className="seo-content" style={{ marginTop: '40px', padding: '30px', borderTop: '2px solid var(--border)', color: 'var(--text-main)' }}>
+            <div className="seo-content" style={{ marginTop: '40px', padding: '30px', borderTop: '1px solid var(--border)', color: 'var(--text-main)' }}>
               <h2 style={{ fontSize: '1.5rem', marginBottom: '15px' }}>About the {currentTool.name} Tool</h2>
               <p style={{ marginBottom: '15px', color:'var(--text-muted)' }}>{currentTool.description}</p>
               <h3 style={{ fontSize: '1.25rem', marginBottom: '10px' }}>Privacy First Guarantee</h3>
@@ -778,6 +778,13 @@ export default function App() {
       <footer style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)', fontSize: '0.95rem' }}>
         <p style={{ fontWeight: '600', color: 'var(--text-main)', marginBottom: '8px' }}>I Love Tools &copy; {new Date().getFullYear()}</p>
         <p style={{ marginBottom: '8px' }}>Engineered for developers and designers.</p>
+        
+        {/* Email Resotred Here! */}
+        <p style={{ marginBottom: '20px' }}>
+          Have a suggestion for a new tool or found a bug? Let us know! <br/>
+          Email: <a href="mailto:software.index.si@gmail.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: '600' }}>software.index.si@gmail.com</a>
+        </p>
+
         <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap', marginTop: '20px' }}>
           <button onClick={() => setActiveModal('privacy')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>Privacy Policy</button>
           <span>•</span>
