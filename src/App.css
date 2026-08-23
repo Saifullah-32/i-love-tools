@@ -1,21 +1,23 @@
 /* =========================================
-   I LOVE TOOLS - DESIGN SYSTEM
+   I LOVE TOOLS - MODERN UI SYSTEM
 ========================================= */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
   /* Force light mode to override Vite's default dark index.css */
   color-scheme: light;
   
-  /* Brand Colors */
-  --primary: #e94057;
-  --primary-hover: #d83146;
-  --primary-light: rgba(233, 64, 87, 0.1);
-  --secondary: #3b82f6;
+  /* Vibrant Brand Colors */
+  --primary: #6366f1; /* Indigo */
+  --secondary: #ec4899; /* Pink */
+  --accent: #8b5cf6; /* Purple */
+  --gradient-brand: linear-gradient(135deg, var(--primary), var(--accent), var(--secondary));
+  --primary-light: rgba(99, 102, 241, 0.15);
   
   /* UI Colors */
-  --bg-base: #f4f7f9;
+  --bg-base: #f8fafc;
   --bg-surface: #ffffff;
-  --bg-surface-hover: #f8fafc;
+  --bg-surface-hover: #f1f5f9;
   
   /* Text Colors */
   --text-main: #0f172a;
@@ -30,11 +32,14 @@
   /* Borders & Shadows */
   --border: #e2e8f0;
   --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  
+  /* Animated Colorful Shadows */
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  --shadow-colored: 0 15px 30px -5px rgba(99, 102, 241, 0.25);
   
   /* Spacing */
   --space-2: 0.5rem;
@@ -54,8 +59,27 @@ body {
 }
 
 /* Explicit text color overrides to prevent Vite index.css bleed */
-h1, h2, h3, h4, h5, p, span, label, input, textarea, select, button {
+h1, h2, h3, h4, h5, p, span, label, input, textarea, select {
   color: var(--text-main);
+}
+
+/* =========================================
+   KEYFRAME ANIMATIONS
+========================================= */
+@keyframes fadeUp {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes gradientPan {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes slideInUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 /* =========================================
@@ -87,13 +111,14 @@ h1, h2, h3, h4, h5, p, span, label, input, textarea, select, button {
    HEADER & NAVIGATION
 ========================================= */
 .header {
-  background: var(--bg-surface);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
   padding: var(--space-4) 0;
   position: sticky;
   top: 0;
   z-index: 50;
-  box-shadow: var(--shadow-sm);
 }
 
 .header-content {
@@ -111,17 +136,16 @@ h1, h2, h3, h4, h5, p, span, label, input, textarea, select, button {
   align-items: center;
   gap: var(--space-2);
   text-decoration: none;
-  color: var(--text-main);
   margin-bottom: var(--space-2);
-  transition: opacity 0.2s;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-.site-logo-container:hover { opacity: 0.8; }
+.site-logo-container:hover { transform: scale(1.05); }
 
 .site-logo {
-  font-size: 1.8rem;
+  font-size: 2rem;
   font-weight: 800;
-  letter-spacing: -0.5px;
-  background: linear-gradient(135deg, var(--primary) 0%, #ff7eb3 100%);
+  letter-spacing: -1px;
+  background: var(--gradient-brand);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -141,34 +165,40 @@ h1, h2, h3, h4, h5, p, span, label, input, textarea, select, button {
   width: 100%;
   max-width: 600px;
   margin: 0 auto var(--space-4) auto;
+  animation: fadeUp 0.6s ease-out;
 }
 
 .search-icon {
   position: absolute;
-  left: 16px;
+  left: 20px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-light);
+  transition: color 0.3s;
 }
 
 .search-bar {
   width: 100%;
-  padding: 14px 16px 14px 45px;
+  padding: 16px 20px 16px 50px;
   border-radius: 50px;
-  border: 1px solid var(--border);
-  background: var(--bg-base);
+  border: 2px solid transparent;
+  background: var(--bg-surface);
   color: var(--text-main) !important;
   font-size: 1rem;
+  font-weight: 500;
   font-family: inherit;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-sm);
   box-sizing: border-box;
 }
 
 .search-bar:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 4px var(--primary-light);
-  background: var(--bg-surface);
+  box-shadow: 0 0 0 6px var(--primary-light), var(--shadow-colored);
+}
+.search-bar:focus + .search-icon {
+  color: var(--primary);
 }
 
 /* NAVIGATION DROPDOWNS */
@@ -178,11 +208,10 @@ h1, h2, h3, h4, h5, p, span, label, input, textarea, select, button {
   flex-wrap: wrap;
   gap: var(--space-4);
   width: 100%;
+  animation: fadeUp 0.8s ease-out;
 }
 
-.header-nav-item {
-  position: relative;
-}
+.header-nav-item { position: relative; }
 
 .nav-category-btn {
   background: none;
@@ -200,8 +229,8 @@ h1, h2, h3, h4, h5, p, span, label, input, textarea, select, button {
 }
 
 .nav-category-btn:hover {
-  background: var(--bg-base);
-  color: var(--text-main);
+  background: var(--primary-light);
+  color: var(--primary);
 }
 
 .chevron { transition: transform 0.3s; }
@@ -211,15 +240,16 @@ h1, h2, h3, h4, h5, p, span, label, input, textarea, select, button {
   position: absolute;
   top: 100%;
   left: 50%;
-  transform: translateX(-50%) translateY(10px);
-  background: var(--bg-surface);
+  transform: translateX(-50%) translateY(15px);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
-  min-width: 260px;
+  min-width: 280px;
   opacity: 0;
   visibility: hidden;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   z-index: 100;
   padding: var(--space-2);
   display: flex;
@@ -231,24 +261,25 @@ h1, h2, h3, h4, h5, p, span, label, input, textarea, select, button {
 .header-dropdown.show {
   opacity: 1;
   visibility: visible;
-  transform: translateX(-50%) translateY(0);
+  transform: translateX(-50%) translateY(5px);
 }
 
 .nav-link {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 14px;
+  padding: 12px 14px;
   text-decoration: none;
   color: var(--text-main);
   border-radius: var(--radius-sm);
   font-weight: 500;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .nav-link:hover, .nav-link.active {
   background: var(--bg-base);
   color: var(--primary);
+  transform: translateX(5px);
 }
 
 /* =========================================
@@ -256,24 +287,36 @@ h1, h2, h3, h4, h5, p, span, label, input, textarea, select, button {
 ========================================= */
 .home-hero {
   text-align: center;
-  padding: 3rem 0;
+  padding: 5rem 2rem;
+  background: var(--gradient-brand);
+  background-size: 200% 200%;
+  animation: gradientPan 8s ease infinite, fadeUp 0.5s ease-out;
+  border-radius: var(--radius-lg);
+  margin-top: 2rem;
+  margin-bottom: 3rem;
+  box-shadow: var(--shadow-colored);
 }
 
 .home-hero h2 {
-  font-size: 2.5rem;
+  font-size: 3rem;
   font-weight: 800;
   margin-bottom: 1rem;
+  color: white;
+  letter-spacing: -1px;
+}
+
+.home-hero p {
+  color: rgba(255, 255, 255, 0.9) !important;
 }
 
 .section-heading {
   font-size: 1.5rem;
   font-weight: 700;
   margin: var(--space-8) 0 var(--space-4) 0;
-  border-bottom: 2px solid var(--border);
   padding-bottom: var(--space-2);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .responsive-grid {
@@ -282,6 +325,13 @@ h1, h2, h3, h4, h5, p, span, label, input, textarea, select, button {
   gap: var(--space-4);
 }
 
+/* Staggered entrance animations for cards */
+.responsive-grid a:nth-child(1) { animation-delay: 0.1s; }
+.responsive-grid a:nth-child(2) { animation-delay: 0.15s; }
+.responsive-grid a:nth-child(3) { animation-delay: 0.2s; }
+.responsive-grid a:nth-child(4) { animation-delay: 0.25s; }
+.responsive-grid a:nth-child(n+5) { animation-delay: 0.3s; }
+
 .tool-card {
   background: var(--bg-surface);
   border: 1px solid var(--border);
@@ -289,17 +339,34 @@ h1, h2, h3, h4, h5, p, span, label, input, textarea, select, button {
   padding: var(--space-6);
   text-decoration: none;
   color: inherit;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   height: 100%;
   box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.tool-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 4px;
+  background: var(--gradient-brand);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
 }
 
 .tool-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--primary);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-colored);
+  border-color: transparent;
+}
+
+.tool-card:hover::before {
+  transform: scaleX(1);
 }
 
 .tool-card-header {
@@ -310,17 +377,25 @@ h1, h2, h3, h4, h5, p, span, label, input, textarea, select, button {
 }
 
 .tool-card-icon {
-  background: var(--primary-light);
+  background: var(--bg-base);
   color: var(--primary);
-  padding: 10px;
+  padding: 12px;
   border-radius: var(--radius-sm);
   display: flex;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.tool-card:hover .tool-card-icon {
+  background: var(--primary);
+  color: white;
+  transform: scale(1.15) rotate(-8deg);
 }
 
 .tool-card h3 {
   margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main);
 }
 
 .tool-card p {
@@ -337,26 +412,33 @@ h1, h2, h3, h4, h5, p, span, label, input, textarea, select, button {
 .tool-workspace {
   background: var(--bg-surface);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  padding: var(--space-8);
+  box-shadow: var(--shadow-lg);
+  padding: 3rem;
   margin-top: var(--space-6);
+  animation: fadeUp 0.5s ease-out forwards;
 }
 
 .back-btn {
-  background: none;
-  border: none;
-  color: var(--text-muted);
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  color: var(--text-main);
   font-weight: 600;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 0;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 50px;
   margin-bottom: var(--space-6);
   font-size: 0.9rem;
-  transition: color 0.2s;
+  transition: all 0.2s;
 }
-.back-btn:hover { color: var(--primary); }
+.back-btn:hover { 
+  background: var(--primary); 
+  color: white; 
+  border-color: var(--primary);
+  transform: translateX(-4px);
+}
 
 .tool-header {
   text-align: left;
@@ -364,10 +446,11 @@ h1, h2, h3, h4, h5, p, span, label, input, textarea, select, button {
 }
 
 .tool-header h1 {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 800;
   margin: 0 0 8px 0;
   color: var(--text-main);
+  letter-spacing: -0.5px;
 }
 
 .tool-header p {
@@ -380,33 +463,35 @@ h1, h2, h3, h4, h5, p, span, label, input, textarea, select, button {
    FORMS & CONTROLS
 ========================================= */
 .form-group {
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-6);
+  animation: fadeUp 0.5s ease-out;
 }
 
 label {
   display: block;
   font-weight: 600;
-  margin-bottom: 6px;
-  font-size: 0.9rem;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
   color: var(--text-main);
 }
 
 .form-control {
   width: 100%;
-  padding: 12px 16px;
-  border: 1px solid var(--border);
+  padding: 14px 16px;
+  border: 2px solid var(--border);
   border-radius: var(--radius-sm);
   font-size: 1rem;
   font-family: inherit;
   background: var(--bg-surface);
   box-sizing: border-box;
-  transition: border 0.2s, box-shadow 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .form-control:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--primary-light);
+  box-shadow: 0 0 0 4px var(--primary-light);
+  transform: translateY(-2px);
 }
 
 textarea.form-control {
@@ -418,6 +503,11 @@ textarea.form-control {
   background: var(--bg-base);
   color: var(--text-main);
   cursor: copy;
+  border-style: dashed;
+}
+.readonly-area:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
 }
 
 /* Range Sliders */
@@ -425,19 +515,25 @@ input[type="range"] {
   width: 100%;
   accent-color: var(--primary);
   margin: 10px 0;
+  cursor: grab;
 }
 
 /* File Upload */
 .file-input-wrapper {
   border: 2px dashed var(--border);
   border-radius: var(--radius-md);
-  padding: var(--space-8);
+  padding: 3rem 2rem;
   text-align: center;
   background: var(--bg-base);
-  transition: border 0.2s;
+  transition: all 0.3s ease;
   margin-bottom: var(--space-4);
+  cursor: pointer;
 }
-.file-input-wrapper:hover { border-color: var(--primary); }
+.file-input-wrapper:hover { 
+  border-color: var(--primary); 
+  background: var(--primary-light);
+  transform: scale(1.01);
+}
 .file-input { width: 100%; max-width: 300px; }
 
 /* =========================================
@@ -445,7 +541,7 @@ input[type="range"] {
 ========================================= */
 .btn-group {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--space-4);
   flex-wrap: wrap;
   margin-bottom: var(--space-4);
 }
@@ -455,13 +551,13 @@ input[type="range"] {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 24px;
+  padding: 14px 28px;
   border-radius: var(--radius-sm);
   font-weight: 600;
   font-size: 1rem;
   font-family: inherit;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   border: none;
   box-sizing: border-box;
 }
@@ -469,33 +565,44 @@ input[type="range"] {
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .btn-primary {
-  background: var(--primary);
-  color: white;
-  box-shadow: 0 2px 4px rgba(233, 64, 87, 0.3);
+  background: var(--gradient-brand);
+  background-size: 200% auto;
+  color: white !important;
 }
 .btn-primary:hover:not(:disabled) {
-  background: var(--primary-hover);
-  transform: translateY(-1px);
+  background-position: right center;
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-colored);
+}
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .btn-secondary {
-  background: var(--bg-base);
-  color: var(--text-main);
-  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  color: var(--text-main) !important;
+  border: 2px solid var(--border);
 }
 .btn-secondary:hover:not(:disabled) {
-  background: var(--border);
+  border-color: var(--primary);
+  color: var(--primary) !important;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-danger {
   background: var(--error);
-  color: white;
+  color: white !important;
 }
 .btn-danger:hover:not(:disabled) {
   background: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.3);
 }
 
 /* =========================================
@@ -508,31 +615,26 @@ input[type="range"] {
   z-index: 9999;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .toast {
   background: var(--bg-surface);
   color: var(--text-main);
-  padding: 16px 20px;
+  padding: 16px 24px;
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-lg);
   display: flex;
   align-items: center;
   gap: 12px;
   font-weight: 600;
-  animation: slideInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideInUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   border-left: 4px solid var(--primary);
 }
 
 .toast.success { border-left-color: var(--success); }
 .toast.error { border-left-color: var(--error); }
 .toast.warning { border-left-color: var(--warning); }
-
-@keyframes slideInUp {
-  from { transform: translateY(100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
 
 /* =========================================
    TOOL SPECIFIC LAYOUTS
@@ -542,24 +644,25 @@ input[type="range"] {
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: var(--space-4);
   background: var(--bg-base);
-  padding: var(--space-4);
+  padding: var(--space-6);
   border-radius: var(--radius-md);
   margin-top: var(--space-4);
   border: 1px solid var(--border);
+  animation: fadeUp 0.5s ease-out;
 }
 
 .results-grid div h4 {
-  margin: 0 0 4px 0;
+  margin: 0 0 6px 0;
   color: var(--text-muted);
   font-size: 0.85rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
 }
 
 .results-grid div p {
   margin: 0;
-  font-weight: 700;
-  font-size: 1.2rem;
+  font-weight: 800;
+  font-size: 1.4rem;
   color: var(--text-main);
 }
 
@@ -567,12 +670,18 @@ input[type="range"] {
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: var(--space-4);
+  padding: var(--space-6);
   text-align: center;
+  transition: transform 0.3s;
+}
+.stat-box:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--primary-light);
 }
 
-.stat-box h4 { margin: 0 0 4px 0; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; }
-.stat-box p { margin: 0; font-size: 1.5rem; color: var(--primary); font-weight: 700; }
+.stat-box h4 { margin: 0 0 8px 0; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; }
+.stat-box p { margin: 0; font-size: 2rem; color: var(--primary); font-weight: 800; }
 
 /* =========================================
    MOBILE RESPONSIVENESS
@@ -580,12 +689,19 @@ input[type="range"] {
 @media (max-width: 900px) {
   .header-nav { display: none; } 
   
+  .home-hero {
+    padding: 3rem 1.5rem;
+  }
+  .home-hero h2 {
+    font-size: 2rem;
+  }
+
   .tool-workspace {
     padding: var(--space-4);
   }
   
   .tool-header h1 {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
   }
   
   .responsive-grid {
