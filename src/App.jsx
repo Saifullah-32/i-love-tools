@@ -1533,6 +1533,162 @@ export default function App() {
   const formatPomo = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
 
   // ... (JSX render begins below)
+  // ==========================================
+  // 🚨 MISSING STATE LOGIC FOR FINAL TOOLS 🚨
+  // ==========================================
+
+  const [recordedChunks, setRecordedChunks] = useState([]); 
+  const [isRecording, setIsRecording] = useState(false); 
+  const mediaRecorderRef = useRef(null); 
+  
+  const startRecording = async () => { 
+    try { 
+      const stream = await navigator.mediaDevices.getDisplayMedia({ video: true }); 
+      mediaRecorderRef.current = new MediaRecorder(stream); 
+      mediaRecorderRef.current.ondataavailable = (e) => { 
+        if (e.data.size > 0) setRecordedChunks(prev => [...prev, e.data]); 
+      }; 
+      mediaRecorderRef.current.start(); 
+      setIsRecording(true); 
+      stream.getVideoTracks()[0].onended = () => stopRecording(); 
+    } catch {} 
+  }; 
+  
+  const stopRecording = () => { 
+    if (mediaRecorderRef.current) mediaRecorderRef.current.stop(); 
+    setIsRecording(false); 
+  }; 
+  
+  const downloadVideo = () => { 
+    const blob = new Blob(recordedChunks, { type: 'video/webm' }); 
+    const url = trackUrl(URL.createObjectURL(blob)); 
+    const a = document.createElement('a'); 
+    a.href = url; 
+    a.download = 'screen-recording.webm'; 
+    a.click(); 
+    setRecordedChunks([]); 
+    showToast('Downloaded'); 
+  };
+
+  const [gifVideo, setGifVideo] = useState(null); 
+  const [gifGenerating, setGifGenerating] = useState(false); 
+  const [gifResult, setGifResult] = useState(null); 
+  const [gifW, setGifW] = useState(320); 
+  const [gifFrames, setGifFrames] = useState(30);
+  
+  const createGif = () => { 
+    if (!gifVideo) return; 
+    setGifGenerating(true); 
+    gifshot.createGIF({ 
+      'video': [URL.createObjectURL(gifVideo)], 
+      'numFrames': gifFrames, 
+      'gifWidth': gifW 
+    }, function(obj) { 
+      if (!obj.error) { 
+        setGifResult(trackUrl(obj.image)); 
+        showToast('GIF Generated'); 
+      } else { 
+        showToast('GIF Error', 'error'); 
+      } 
+      setGifGenerating(false); 
+    }); 
+  };
+
+  const [paletteColors, setPaletteColors] = useState([]);
+  const handlePaletteUpload = (e) => { 
+    const file = e.target.files[0]; 
+    if (!validateFile(file, 25)) return; 
+    const img = new window.Image(); 
+    img.onload = () => { 
+      const canvas = document.createElement('canvas'); 
+      const ctx = canvas.getContext('2d'); 
+      canvas.width = 100; 
+      canvas.height = 100; 
+      ctx.drawImage(img, 0, 0, 100, 100); 
+      const data = ctx.getImageData(0, 0, 100, 100).data; 
+      const sampled = []; 
+      for (let i = 0; i < data.length; i += 400) { 
+        const r = data[i].toString(16).padStart(2, '0'); 
+        const g = data[i+1].toString(16).padStart(2, '0'); 
+        const b = data[i+2].toString(16).padStart(2, '0'); 
+        sampled.push(`#${r}${g}${b}`); 
+      } 
+      const unique = [...new Set(sampled)].slice(0, 6); 
+      setPaletteColors(unique); 
+      showToast('Palette Extracted'); 
+    }; 
+    img.src = URL.createObjectURL(file); 
+  };
+
+  const [svgInput, setSvgInput] = useState('<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" stroke="green" stroke-width="4" fill="yellow" /></svg>'); 
+  const [pngUrl, setPngUrl] = useState(null); 
+  const convertSvg = () => { 
+    const blob = new Blob([svgInput], { type: 'image/svg+xml;charset=utf-8' }); 
+    const img = new window.Image(); 
+    img.onload = () => { 
+      const canvas = document.createElement('canvas'); 
+      canvas.width = img.width; 
+      canvas.height = img.height; 
+      canvas.getContext('2d').drawImage(img, 0, 0); 
+      setPngUrl(trackUrl(canvas.toDataURL('image/png'))); 
+      showToast('Converted'); 
+    }; 
+    img.src = URL.createObjectURL(blob); 
+  };
+
+  const [svgMinInput, setSvgMinInput] = useState('<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">\n  <!-- Circle Graphic -->\n  <circle cx="50" cy="50" r="40" fill="#e94057" />\n</svg>'); 
+  const [svgMinOutput, setSvgMinOutput] = useState(''); 
+  const [svgSavings, setSvgSavings] = useState('');
+  const minifySvg = () => { 
+    const originalLength = svgMinInput.length; 
+    let minified = svgMinInput.replace(/<!--[\s\S]*?-->/g, '').replace(/>\s+</g, '><').replace(/\s+/g, ' ').trim(); 
+    setSvgMinOutput(minified); 
+    const saved = Math.round(((originalLength - minified.length) / (originalLength || 1)) * 100); 
+    setSvgSavings(`Reduced from ${originalLength} bytes to ${minified.length} bytes (${Math.max(0, saved)}% reduction)`); 
+    showToast('SVG Minified'); 
+  };
+
+  const [arW1, setArW1] = useState(1920); 
+  const [arH1, setArH1] = useState(1080); 
+  const [arW2, setArW2] = useState(1280); 
+  const arH2 = Math.round((arH1 / arW1) * arW2) || 0;
+  
+  const [colorInput, setColorInput] = useState('#2563eb'); 
+  const [rgbOutput, setRgbOutput] = useState('rgb(37, 99, 235)'); 
+  const handleColorChange = (e) => { 
+    const hex = e.target.value; 
+    setColorInput(hex); 
+    let r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); 
+    if (r) setRgbOutput(`rgb(${parseInt(r[1], 16)}, ${parseInt(r[2], 16)}, ${parseInt(r[3], 16)})`); 
+    else setRgbOutput('Invalid HEX'); 
+  };
+
+  const [dummyW, setDummyW] = useState(800); 
+  const [dummyH, setDummyH] = useState(600); 
+  const [dummyBg, setDummyBg] = useState('#cccccc'); 
+  const [dummyColor, setDummyColor] = useState('#666666'); 
+  const [dummyText, setDummyText] = useState(''); 
+  const [dummyImgUrl, setDummyImgUrl] = useState('');
+  
+  const genDummy = () => { 
+    const canvas = document.createElement('canvas'); 
+    canvas.width = dummyW; 
+    canvas.height = dummyH; 
+    const ctx = canvas.getContext('2d'); 
+    ctx.fillStyle = dummyBg; 
+    ctx.fillRect(0, 0, dummyW, dummyH); 
+    ctx.fillStyle = dummyColor; 
+    ctx.font = `bold ${Math.max(20, Math.floor(dummyW/10))}px Arial`; 
+    ctx.textAlign = 'center'; 
+    ctx.textBaseline = 'middle'; 
+    ctx.fillText(dummyText || `${dummyW} x ${dummyH}`, dummyW/2, dummyH/2); 
+    setDummyImgUrl(trackUrl(canvas.toDataURL('image/png'))); 
+    showToast('Generated'); 
+  };
+
+  // ==========================================
+  // 🚨 END OF MISSING LOGIC 🚨
+  // ==========================================
   return (
     <div className="container">
       <div className="toast-container">
