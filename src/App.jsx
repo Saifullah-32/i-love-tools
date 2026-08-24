@@ -1,79 +1,107 @@
-import React, { useState, useEffect, useRef } from 'react'; import imageCompression from 'browser-image-compression'; import { QRCodeCanvas } from 'qrcode.react'; import { jsPDF } from 'jspdf'; import JSZip from 'jszip'; import { marked } from 'marked'; import DOMPurify from 'dompurify'; import cronstrue from 'cronstrue'; import bcrypt from 'bcryptjs'; import { diffLines } from 'diff'; import gifshot from 'gifshot'; import * as XLSX from 'xlsx'; import * as openpgp from 'openpgp'; import { Image, FileText, Type, Key, Download, QrCode, Binary, AlignLeft, CheckSquare, Code, Palette, FileUp, FileArchive, Music, Code2, Maximize, Hash, Timer, Play, Pause, Square, LockOpen, Database, FileCode2, Droplet, FileSpreadsheet, Calculator, Clock, Video, Monitor, RefreshCw, Brackets, Calendar, FileSearch, Keyboard, Crop, Globe, Link, Search, ChevronDown, ShieldCheck, Layers, Sparkles, Film, Scissors, Wand2, Mic, Volume2, CameraOff, KeyRound, Fingerprint, FileJson, GitCompare, ImagePlus, Clapperboard, AppWindow, MicVocal, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react'; import AdBanner from './AdBanner'; import { Analytics } from '@vercel/analytics/react'; import { SpeedInsights } from '@vercel/speed-insights/react'; import './App.css';
+import React, { useState, useEffect, useRef } from 'react';
+import imageCompression from 'browser-image-compression';
+import { QRCodeCanvas } from 'qrcode.react';
+import { jsPDF } from 'jspdf';
+import JSZip from 'jszip';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
+import cronstrue from 'cronstrue';
+import bcrypt from 'bcryptjs';
+import { diffLines } from 'diff';
+import gifshot from 'gifshot';
+import * as XLSX from 'xlsx';
+import * as openpgp from 'openpgp';
+import { 
+  Image, FileText, Type, Key, Download, QrCode, Binary, AlignLeft, 
+  CheckSquare, Code, Palette, FileUp, FileArchive, Music, Code2, 
+  Maximize, Hash, Timer, Play, Pause, Square, LockOpen, Database, 
+  FileCode2, Droplet, FileSpreadsheet, Calculator, Clock, Video, 
+  Monitor, RefreshCw, Brackets, Calendar, FileSearch, Keyboard, 
+  Crop, Globe, Link, Search, ChevronDown, ShieldCheck, Layers, 
+  Sparkles, Film, Scissors, Wand2, Mic, Volume2, CameraOff, 
+  KeyRound, Fingerprint, FileJson, GitCompare, ImagePlus, 
+  Clapperboard, AppWindow, MicVocal, ArrowLeft, CheckCircle2, AlertCircle,
+  Lock, Eye, FileCheck, Send, Sliders, FileCode /* FIXED: Missing icons are now imported! */
+} from 'lucide-react';
+import AdBanner from './AdBanner';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
+import './App.css';
 
 const encodeWAV = (audioBuffer) => { const numOfChan = audioBuffer.numberOfChannels; const length = audioBuffer.length * numOfChan * 2 + 44; const buffer = new ArrayBuffer(length); const view = new DataView(buffer); const channels = []; let sampleRate = audioBuffer.sampleRate; let offset = 0; let pos = 0; const setUint16 = (data) => { view.setUint16(pos, data, true); pos += 2; }; const setUint32 = (data) => { view.setUint32(pos, data, true); pos += 4; }; setUint32(0x46464952); setUint32(length - 8); setUint32(0x45564157); setUint32(0x20746d66); setUint32(16); setUint16(1); setUint16(numOfChan); setUint32(sampleRate); setUint32(sampleRate * 2 * numOfChan); setUint16(numOfChan * 2); setUint16(16); setUint32(0x61746164); setUint32(length - pos - 4); for (let i = 0; i < audioBuffer.numberOfChannels; i++) channels.push(audioBuffer.getChannelData(i)); while (pos < length) { for (let i = 0; i < numOfChan; i++) { let sample = Math.max(-1, Math.min(1, channels[i][offset])); sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0; view.setInt16(pos, sample, true); pos += 2; } offset++; } return new Blob([buffer], { type: "audio/wav" }); };
 
 const categories = {
   "Security & Privacy": [
     { id: 'aes-encrypt', name: 'AES Encryption', icon: ShieldCheck, description: 'Securely encrypt and decrypt sensitive text using AES-GCM directly in your browser.' },
-    { id: 'rsa-gen', name: 'RSA Key Generator', icon: KeyRound, description: 'Generate secure Public and Private RSA key pairs locally.' },
-    { id: 'pgp-tool', name: 'PGP Encryptor', icon: Lock, description: 'Encrypt and decrypt standard armored PGP messages using passwords.' },
-    { id: 'steganography', name: 'Steganography', icon: Eye, description: 'Visually hide and encode secret encrypted text messages inside any standard image file.' },
+    { id: 'rsa-gen', name: 'RSA Key Generator', icon: KeyRound, description: 'Generate secure Public and Private RSA key pairs locally for SSH or applications.' },
+    { id: 'pgp-tool', name: 'PGP Message Encryptor', icon: Lock, description: 'Encrypt and decrypt standard armored PGP messages using passwords or OpenPGP keys.' },
+    { id: 'steganography', name: 'Steganography Tool', icon: Eye, description: 'Visually hide and encode secret encrypted text messages inside any standard image file.' },
     { id: 'file-hash', name: 'File Hash Check', icon: FileCheck, description: 'Calculate and verify SHA-256, SHA-1, and SHA-512 hashes for any local file.' },
     { id: 'hash', name: 'SHA-256 Hash', icon: Hash, description: 'Instantly generate secure SHA-256 cryptographic hashes from text.' },
     { id: 'bcrypt', name: 'Bcrypt Hash', icon: Fingerprint, description: 'Generate strong Bcrypt hashes securely inside the browser for backend testing.' },
-    { id: 'password', name: 'Password Gen', icon: Key, description: 'Create highly secure, randomized passwords with customizable lengths and characters.' },
-    { id: 'exif-strip', name: 'EXIF Stripper', icon: CameraOff, description: 'Remove hidden GPS coordinates, camera models, and metadata from your photos.' },
+    { id: 'base64', name: 'Base64 Encode', icon: Binary, description: 'Encode or decode standard text to and from Base64 format.' },
+    { id: 'password', name: 'Password Gen', icon: Key, description: 'Create randomized, secure passwords with custom character sets.' },
+    { id: 'exif-strip', name: 'EXIF Stripper', icon: CameraOff, description: 'Remove hidden GPS coordinates, camera models, and timestamps from photos.' },
   ],
   "Media & Graphics": [
-    { id: 'image', name: 'Compress Image', icon: Image, description: 'Compress PNG, JPG, and WebP images locally without losing quality.' },
+    { id: 'image', name: 'Compress Image', icon: Image, description: 'Compress PNG, JPG, and WebP images locally with custom target file size limits.' },
     { id: 'img-converter', name: 'Format Converter', icon: RefreshCw, description: 'Transcode images between PNG, JPG, and modern WebP formats in the browser.' },
     { id: 'favicon-gen', name: 'Favicon Generator', icon: FileArchive, description: 'Upload a logo to generate a complete multi-size favicon package and web manifest.' },
-    { id: 'videditor', name: 'Video Editor', icon: Film, description: 'Trim clips, adjust playback speed, crop aspect ratios, and apply color filters locally.' },
-    { id: 'audioedit', name: 'Audio Editor', icon: Mic, description: 'Trim, adjust volume, apply fades, shift speed, and reverse audio.' },
-    { id: 'audio', name: 'Extract Audio', icon: Music, description: 'Extract raw audio tracks from video into high-quality WAV files.' },
-    { id: 'screen', name: 'Screen Record', icon: Video, description: 'Record your screen natively without external software and download locally.' },
-    { id: 'vid2gif', name: 'Video to GIF', icon: Clapperboard, description: 'Convert short video clips into lightweight, animated GIFs natively in your browser.' },
-    { id: 'voicememo', name: 'Voice Memo', icon: MicVocal, description: 'Record quick voice notes securely in the browser.' },
-    { id: 'resize', name: 'Resize Image', icon: Maximize, description: 'Resize the pixel dimensions of any image instantly right in your browser.' },
-    { id: 'palette-extract', name: 'Color Palette', icon: Palette, description: 'Upload any image to extract its dominant color scheme and hex codes instantly.' },
-    { id: 'svg', name: 'SVG to PNG', icon: Image, description: 'Convert raw SVG code or files into standard, usable PNG images.' },
-    { id: 'svg-minify', name: 'SVG Minifier', icon: FileCode2, description: 'Reduce the file size of your SVG graphics by stripping unnecessary code.' },
+    { id: 'videditor', name: 'Video Editor', icon: Film, description: 'Trim clips, adjust playback speed, crop aspect ratios, and apply filters locally.' },
+    { id: 'audioedit', name: 'Audio Editor', icon: Mic, description: 'Trim, adjust volume, apply fades, shift speed, and reverse audio to WAV.' },
+    { id: 'resize', name: 'Resize Image', icon: Maximize, description: 'Resize the pixel dimensions of any image instantly in your browser.' },
+    { id: 'palette-extract', name: 'Color Palette', icon: Palette, description: 'Extract dominant color palettes and hex codes from any uploaded image.' },
+    { id: 'svg', name: 'SVG to PNG', icon: Image, description: 'Convert raw SVG code or files into standard PNG images.' },
+    { id: 'svg-minify', name: 'SVG Minifier', icon: FileCode2, description: 'Reduce SVG file sizes by stripping whitespace, comments, and redundant nodes.' },
     { id: 'dummyimg', name: 'Dummy Image', icon: ImagePlus, description: 'Generate custom placeholder images with custom dimensions, colors, and text.' },
   ],
   "Developer & Code": [
-    { id: 'api-tester', name: 'API Tester', icon: Send, description: 'Test REST APIs, inspect response headers, and format payloads.' },
+    { id: 'api-tester', name: 'API Request Tester', icon: Send, description: 'Test REST APIs, inspect response headers, and format payloads without desktop clients.' },
     { id: 'code-to-img', name: 'Code to Image', icon: Code, description: 'Convert code snippets into clean, shareable images with customizable styling.' },
-    { id: 'json-ts', name: 'JSON to TS', icon: Brackets, description: 'Instantly convert any JSON object into strict TypeScript interfaces.' },
-    { id: 'json', name: 'JSON Format', icon: Code, description: 'Beautify, format, and validate ugly JSON strings into readable code.' },
-    { id: 'json-csv', name: 'JSON ↔ CSV', icon: FileJson, description: 'Convert JSON arrays to tabular CSVs or parse CSV data back into JSON objects.' },
-    { id: 'sql-format', name: 'SQL Format', icon: Database, description: 'Format and beautify messy, single-line SQL queries into multi-line statements.' },
-    { id: 'beautify', name: 'Code Beautify', icon: Code2, description: 'Format messy C++, Java, or JavaScript code into properly indented blocks.' },
-    { id: 'diff-check', name: 'Diff Checker', icon: GitCompare, description: 'Compare two text blocks side-by-side to highlight exact insertions and deletions.' },
-    { id: 'base64', name: 'Base64 Encode', icon: Binary, description: 'Encode or decode standard text to and from Base64 format instantly.' },
-    { id: 'url-encode', name: 'URL Encoder', icon: Link, description: 'Encode complex strings into URL-safe formats, or decode URL strings.' },
-    { id: 'uuid-gen', name: 'UUID Generator', icon: Key, description: 'Generate secure, randomized bulk UUIDs/GUIDs for your database testing.' },
-    { id: 'mongo', name: 'MongoDB ID', icon: Database, description: 'Extract the exact creation timestamp hidden inside a standard MongoDB ObjectId.' },
-    { id: 'jwt', name: 'JWT Decode', icon: LockOpen, description: 'Decode JSON Web Tokens instantly to view their payload securely.' },
-    { id: 'box-shadow', name: 'CSS Shadow Gen', icon: AppWindow, description: 'Visual UI to tweak complex CSS box-shadow properties and copy the code.' },
-    { id: 'glass', name: 'Glass CSS', icon: Sparkles, description: 'Generate modern Glassmorphism UI CSS using blur and opacity sliders.' },
-    { id: 'data-uri', name: 'Data URI Gen', icon: FileCode, description: 'Convert images and SVGs into base64 Data URIs ready for CSS stylesheets.' },
-    { id: 'regex', name: 'Regex Test', icon: FileSearch, description: 'Test and validate your Regular Expressions against custom text strings.' },
-    { id: 'keys', name: 'Keycodes', icon: Keyboard, description: 'Press any key on your keyboard to reveal its native JavaScript keyCode.' },
-    { id: 'viewport', name: 'Viewport', icon: Monitor, description: 'Instantly check your current screen resolution, viewport size, and pixel ratio.' },
-    { id: 'color', name: 'Color Pick', icon: Droplet, description: 'Convert HEX color codes into standard RGB values for CSS stylesheets.' },
-    { id: 'ratio', name: 'Aspect Ratio', icon: Crop, description: 'Calculate exact pixel dimensions based on standard or custom aspect ratios.' },
+    { id: 'json-ts', name: 'JSON to TS', icon: Brackets, description: 'Convert JSON structures into TypeScript interface declarations.' },
+    { id: 'json', name: 'JSON Format', icon: Code, description: 'Beautify, indent, and validate JSON payloads.' },
+    { id: 'json-csv', name: 'JSON ↔ CSV', icon: FileJson, description: 'Convert JSON arrays to tabular CSVs or parse CSV data back to JSON.' },
+    { id: 'sql-format', name: 'SQL Format', icon: Database, description: 'Format and beautify unindented SQL statements.' },
+    { id: 'beautify', name: 'Code Beautify', icon: Code2, description: 'Format and indent code snippets.' },
+    { id: 'diff-check', name: 'Diff Checker', icon: GitCompare, description: 'Compare two text blocks side-by-side to highlight differences.' },
+    { id: 'url-encode', name: 'URL Encoder', icon: Link, description: 'Encode or decode URL query strings and URI components.' },
+    { id: 'uuid-gen', name: 'UUID Generator', icon: Key, description: 'Generate bulk randomized UUIDs (v4).' },
+    { id: 'mongo', name: 'MongoDB ID', icon: Database, description: 'Extract creation timestamps from MongoDB ObjectIDs.' },
+    { id: 'jwt', name: 'JWT Decode', icon: LockOpen, description: 'Decode JSON Web Tokens to inspect payload and header claims.' },
+    { id: 'box-shadow', name: 'CSS Shadow Gen', icon: AppWindow, description: 'Visually configure multi-layer CSS box-shadow styles.' },
+    { id: 'glass', name: 'Glass CSS', icon: Sparkles, description: 'Generate CSS for Glassmorphism backdrop-blur effects.' },
+    { id: 'data-uri', name: 'Data URI Generator', icon: FileCode, description: 'Convert images and SVGs into base64 Data URIs ready for CSS stylesheets.' },
+    { id: 'regex', name: 'Regex Test', icon: FileSearch, description: 'Test regular expressions against target text.' },
+    { id: 'keys', name: 'Keycodes', icon: Keyboard, description: 'Inspect JavaScript keyboard event properties and keyCodes.' },
+    { id: 'viewport', name: 'Viewport', icon: Monitor, description: 'View current screen resolution, viewport dimensions, and device pixel ratio.' },
+    { id: 'color', name: 'Color Pick', icon: Droplet, description: 'Convert HEX color codes into standard RGB values.' },
+    { id: 'ratio', name: 'Aspect Ratio', icon: Crop, description: 'Calculate pixel dimensions based on aspect ratios.' },
   ],
   "Text & Data": [
     { id: 'excel-json', name: 'Excel to JSON', icon: FileSpreadsheet, description: 'Parse Excel sheets (.xlsx, .xls) and CSVs directly into structured JSON datasets.' },
-    { id: 'counter', name: 'Word Counter', icon: FileText, description: 'Count exact words, characters, and spaces in your essays or articles.' },
-    { id: 'case', name: 'Case Convert', icon: Type, description: 'Easily toggle text blocks between UPPERCASE, lowercase, and Title Case.' },
-    { id: 'spell', name: 'Writing Pad', icon: CheckSquare, description: 'A distraction-free writing pad utilizing your browsers native spellcheck.' },
-    { id: 'lorem', name: 'Lorem Ipsum', icon: AlignLeft, description: 'Generate paragraphs of standard Lorem Ipsum dummy text for your wireframes.' },
-    { id: 'md', name: 'Markdown', icon: FileCode2, description: 'Write Markdown syntax and preview the rendered HTML safely in real-time.' },
-    { id: 'cron', name: 'Cron Parse', icon: Calendar, description: 'Translate complex Cron scheduling expressions into readable human language.' },
+    { id: 'counter', name: 'Word Counter', icon: FileText, description: 'Count words, characters, and spaces in text.' },
+    { id: 'case', name: 'Case Convert', icon: Type, description: 'Switch text between uppercase, lowercase, and title case.' },
+    { id: 'spell', name: 'Writing Pad', icon: CheckSquare, description: 'A writing pad with native browser spellcheck.' },
+    { id: 'lorem', name: 'Lorem Ipsum', icon: AlignLeft, description: 'Generate placeholder Lorem Ipsum text.' },
+    { id: 'md', name: 'Markdown', icon: FileCode2, description: 'Render and preview Markdown syntax safely in real-time.' },
+    { id: 'cron', name: 'Cron Parse', icon: Calendar, description: 'Translate cron schedule expressions into readable text.' },
   ],
-  "Business": [
-    { id: 'pdfgen', name: 'Photos to PDF', icon: FileUp, description: 'Convert multiple images and photos into a single, cohesive PDF document.' },
-    { id: 'invoice', name: 'PDF Invoice', icon: FileSpreadsheet, description: 'Generate a clean, printable PDF client invoice based on your billing hours.' },
-    { id: 'freelance', name: 'Freelance Calc', icon: Calculator, description: 'Calculate gross and net freelance income based on hours and tax.' },
-    { id: 'dummy-data', name: 'Mock Data Gen', icon: Layers, description: 'Generate dozens of realistic dummy user records in JSON or CSV format.' },
-    { id: 'seo', name: 'SEO Meta', icon: Globe, description: 'Input your page details to instantly generate standard SEO HTML meta tags.' },
-    { id: 'contrast-checker', name: 'Contrast Checker', icon: Sliders, description: 'Check color contrast ratios against WCAG accessibility standards.' },
-    { id: 'utm', name: 'UTM Builder', icon: Link, description: 'Build trackable UTM campaign links for your marketing efforts.' },
-    { id: 'qr', name: 'QR Code', icon: QrCode, description: 'Turn any URL or string of text into a scannable QR Code image.' },
-    { id: 'zip', name: 'Zip Docs', icon: FileArchive, description: 'Compress multiple documents and files into a single downloadable .zip archive.' },
-    { id: 'timer', name: 'Stopwatch', icon: Timer, description: 'A highly accurate, client-side browser stopwatch and lap timer.' },
-    { id: 'pomo', name: 'Pomodoro', icon: Clock, description: 'Use the standard 25-minute Pomodoro technique timer to stay focused.' },
+  "Business & Utilities": [
+    { id: 'pdfgen', name: 'Photos to PDF', icon: FileUp, description: 'Convert multiple images and photos into a single PDF document.' },
+    { id: 'invoice', name: 'PDF Invoice', icon: FileSpreadsheet, description: 'Create and download billing invoices as PDFs.' },
+    { id: 'freelance', name: 'Freelance Calc', icon: Calculator, description: 'Calculate gross and net freelance earnings with tax estimates.' },
+    { id: 'dummy-data', name: 'Mock Data Gen', icon: Layers, description: 'Generate randomized mock user records in JSON or CSV.' },
+    { id: 'seo', name: 'SEO Meta', icon: Globe, description: 'Generate standard and Open Graph meta tags for web pages.' },
+    { id: 'contrast-checker', name: 'Contrast Checker', icon: Sliders, description: 'Check color contrast ratios against WCAG 2.1 AA and AAA standards.' },
+    { id: 'utm', name: 'UTM Builder', icon: Link, description: 'Build trackable campaign URLs with UTM parameters.' },
+    { id: 'qr', name: 'QR Code', icon: QrCode, description: 'Generate QR code images from URLs or plain text.' },
+    { id: 'zip', name: 'Zip Docs', icon: FileArchive, description: 'Compress files into a single .zip archive safely.' },
+    { id: 'audio', name: 'Extract Audio', icon: Music, description: 'Extract raw audio tracks from video into high-quality WAV files.' },
+    { id: 'screen', name: 'Screen Record', icon: Video, description: 'Record your screen natively without third-party software.' },
+    { id: 'vid2gif', name: 'Video to GIF', icon: Clapperboard, description: 'Convert short video clips into lightweight, animated GIFs.' },
+    { id: 'voicememo', name: 'Voice Memo', icon: MicVocal, description: 'Record and save audio notes securely in the browser.' },
+    { id: 'timer', name: 'Stopwatch', icon: Timer, description: 'A precision stopwatch and lap timer.' },
+    { id: 'pomo', name: 'Pomodoro', icon: Clock, description: 'Focus interval timer using the Pomodoro technique.' },
   ]
 };
 
@@ -102,7 +130,7 @@ export default function App() {
 
   const [toasts, setToasts] = useState([]);
   const showToast = (message, type = 'success') => { const id = Date.now(); setToasts(prev => [...prev, { id, message, type }]); setTimeout(() => { setToasts(prev => prev.filter(t => t.id !== id)); }, 3500); };
-
+  
   const [searchQuery, setSearchQuery] = useState(''); const [activeDropdown, setActiveDropdown] = useState(null); const [activeModal, setActiveModal] = useState(null);
   const handleMouseEnter = (category) => { if (window.innerWidth > 900) setActiveDropdown(category); }; const handleMouseLeave = () => { if (window.innerWidth > 900) setActiveDropdown(null); }; const handleMobileClick = (category) => { if (window.innerWidth <= 900) setActiveDropdown(activeDropdown === category ? null : category); };
   
@@ -277,7 +305,7 @@ export default function App() {
               {activeTab === 'screen' && ( <div> <div className="btn-group"> {!isRecording ? <button onClick={startRecording} className="btn btn-primary"><Video size={16}/> Start Recording</button> : <button onClick={stopRecording} className="btn btn-danger"><Square size={16}/> Stop Recording</button>} {recordedChunks.length > 0 && !isRecording && <button onClick={downloadVideo} className="btn btn-secondary"><Download size={16}/> Download Video</button>} </div> </div> )}
               {activeTab === 'vid2gif' && ( <div> <div className="file-input-wrapper"><input type="file" accept="video/*" onChange={(e) => { setGifVideo(e.target.files[0]); }} className="file-input" /></div> <div className="responsive-grid form-group"> <div><label>GIF Width ({gifW}px)</label><input type="range" min="100" max="800" step="10" value={gifW} onChange={(e) => setGifW(Number(e.target.value))} /></div> <div><label>Max Frames ({gifFrames})</label><input type="range" min="10" max="60" value={gifFrames} onChange={(e) => setGifFrames(Number(e.target.value))} /></div> </div> <button onClick={createGif} disabled={gifGenerating || !gifVideo} className="btn btn-primary form-group"><Clapperboard size={16}/> {gifGenerating ? 'Generating GIF...' : 'Create GIF'}</button> {gifResult && ( <div style={{ marginTop: '20px', textAlign: 'center' }}> <img src={gifResult} alt="Generated GIF" style={{ maxWidth: '100%', borderRadius: '8px', border: '1px solid var(--border)', marginBottom: '15px' }} /> <br/><a href={gifResult} download="animated.gif" className="btn btn-secondary"><Download size={16}/> Download GIF</a> </div> )} </div> )}
               {activeTab === 'palette-extract' && ( <div> <div className="file-input-wrapper"><input type="file" accept="image/*" onChange={handlePaletteUpload} className="file-input" /></div> {paletteColors.length > 0 && ( <div> <h4 style={{ marginBottom: '10px' }}>Extracted Palette:</h4> <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px' }}> {paletteColors.map((hex, idx) => ( <div key={idx} style={{ textAlign: 'center', flex: 1, minWidth: '80px' }}> <div style={{ height: '70px', borderRadius: '12px', backgroundColor: hex, marginBottom: '8px', border: '1px solid var(--border)' }}></div> <code style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>{hex}</code> </div> ))} </div> </div> )} </div> )}
-              {activeTab === 'svg' && ( <div> <div className="form-group"><label>SVG Code</label><textarea rows="6" className="form-control" value={svgInput} onChange={(e) => setSvgInput(e.target.value)} /></div> <button onClick={convertSvg} className="btn btn-primary form-group"><RefreshCw size={16}/> Convert to PNG</button> {pngUrl && <div><img src={pngUrl} alt="Converted PNG" style={{display:'block', marginBottom:'15px', borderRadius:'8px' }}/><a href={pngUrl} download="converted.png" className="btn btn-secondary"><Download size={16}/> Download PNG</a></div>} </div> )}
+              {activeTab === 'svg' && ( <div> <div className="form-group"><label>SVG Code</label><textarea rows="6" className="form-control" value={svgInput} onChange={(e) => setSvgInput(e.target.value)} /></div> <button onClick={convertSvg} className="btn btn-primary form-group"><RefreshCw size={16}/> Convert to PNG</button> {pngUrl && <div><img src={pngUrl} alt="Converted PNG" style={{display:'block', marginBottom:'15px', borderRadius:'8px'}}/><a href={pngUrl} download="converted.png" className="btn btn-secondary"><Download size={16}/> Download PNG</a></div>} </div> )}
               {activeTab === 'svg-minify' && ( <div> <div className="form-group"><label>Raw SVG</label><textarea rows="6" className="form-control" value={svgMinInput} onChange={(e) => setSvgMinInput(e.target.value)} /></div> <button onClick={minifySvg} className="btn btn-primary form-group"><FileCode2 size={16}/> Minify SVG</button> {svgSavings && <p style={{ color: 'var(--success)', fontWeight: '600', marginBottom: '10px' }}>{svgSavings}</p>} {svgMinOutput && <div className="form-group"><label>Minified SVG</label><textarea rows="6" readOnly className="form-control readonly-area" value={svgMinOutput} /></div>} </div> )}
               {activeTab === 'ratio' && ( <div> <div className="responsive-grid form-group"> <div><label>Original Width</label><input type="number" className="form-control" value={arW1} onChange={(e) => setArW1(e.target.value)} /></div> <div><label>Original Height</label><input type="number" className="form-control" value={arH1} onChange={(e) => setArH1(e.target.value)} /></div> </div> <div className="responsive-grid form-group"> <div><label>New Width</label><input type="number" className="form-control" value={arW2} onChange={(e) => setArW2(e.target.value)} /></div> <div className="stat-box"><h4>New Height</h4><p>{arH2} px</p></div> </div> </div> )}
               {activeTab === 'color' && ( <div> <div className="responsive-grid form-group"> <div><label>HEX Code</label><input type="text" className="form-control" value={colorInput} onChange={handleColorChange} placeholder="#000000" /></div> <div className="stat-box"><p>{rgbOutput}</p></div> </div> <div style={{ height: '100px', borderRadius: '12px', backgroundColor: rgbOutput !== 'Invalid HEX' ? colorInput : 'var(--bg-base)' }}></div> </div> )}
@@ -311,7 +339,7 @@ export default function App() {
               {activeTab === 'case' && ( <div> <div className="form-group"><textarea rows="5" className="form-control" value={caseText} onChange={(e) => setCaseText(e.target.value)} /></div> <div className="btn-group"> <button className="btn btn-secondary" onClick={() => setCaseText(caseText.toUpperCase())}>UPPERCASE</button> <button className="btn btn-secondary" onClick={() => setCaseText(caseText.toLowerCase())}>lowercase</button> <button className="btn btn-secondary" onClick={() => setCaseText(caseText.replace(/\b\w/g, c => c.toUpperCase()))}>Title Case</button> </div> </div> )}
               {activeTab === 'spell' && ( <div> <div className="form-group"><textarea rows="8" className="form-control" value={spellText} onChange={(e) => setSpellText(e.target.value)} spellCheck="true" /></div> <button onClick={cleanSpaces} className="btn btn-secondary">Clean Extra Spaces</button> </div> )}
               {activeTab === 'lorem' && ( <div> <div className="form-group"> <label>Paragraphs: {paragraphs}</label> <input type="range" min="1" max="10" value={paragraphs} onChange={(e) => setParagraphs(e.target.value)} /> </div> <div className="form-group"><textarea rows="8" readOnly className="form-control readonly-area" value={generatedLorem} /></div> </div> )}
-              {activeTab === 'md' && ( <div> <div className="form-group"><label>Markdown Input</label><textarea rows="6" className="form-control" value={mdInput} onChange={(e) => setMdInput(e.target.value)} /></div> <div className="form-group"><label>Live Preview (Sanitized)</label> <div style={{padding:'20px', background:'var(--bg-surface)', border:'1px solid var(--border)', borderRadius:'12px'}} dangerouslySetInnerHTML={{ __html: mdOutput }} /> </div> </div> )}
+              {activeTab === 'md' && ( <div> <div className="form-group"><label>Markdown Input</label><textarea rows="6" className="form-control" value={mdInput} onChange={(e) => setMdInput(e.target.value)} /></div> <div className="form-group"><label>Live Preview (Sanitized for Security)</label> <div style={{padding:'20px', background:'var(--bg-surface)', border:'1px solid var(--border)', borderRadius:'12px'}} dangerouslySetInnerHTML={{ __html: mdOutput }} /> </div> </div> )}
 
               {/* MARKETING & BUSINESS */}
               {activeTab === 'freelance' && ( <div> <div className="responsive-grid form-group"> <div><label>Hours: {hours}</label><input type="range" min="1" max="160" value={hours} onChange={(e) => setHours(e.target.value)} /></div> <div><label>Rate ($): {rate}</label><input type="range" min="10" max="200" value={rate} onChange={(e) => setRate(e.target.value)} /></div> <div><label>Tax (%): {tax}</label><input type="range" min="0" max="50" value={tax} onChange={(e) => setTax(e.target.value)} /></div> </div> <div className="results-grid"> <div className="stat-box"><h4>Gross Total</h4><p style={{color:'var(--primary)'}}>${gross}</p></div> <div className="stat-box"><h4>Net Earnings</h4><p style={{color:'var(--success)'}}>${net.toFixed(2)}</p></div> </div> </div> )}
@@ -323,9 +351,9 @@ export default function App() {
 
               {/* GENERAL UTILITIES */}
               {activeTab === 'zip' && ( <div> <div className="file-input-wrapper"><input type="file" multiple onChange={(e) => { setZipFiles(Array.from(e.target.files)); }} className="file-input" /></div> <button onClick={compressDocs} disabled={zipFiles.length === 0 || zipping} className="btn btn-primary form-group"><FileArchive size={16}/> {zipping ? 'Compressing...' : 'Create Secure ZIP Archive'}</button> {zipUrl && <div style={{marginTop: '20px'}}><a href={zipUrl} download="archive.zip" className="btn btn-secondary"><Download size={16}/> Download ZIP</a></div>} </div> )}
-              {activeTab === 'voicememo' && ( <div> <div className="btn-group"> {!isRecordingMemo ? ( <button onClick={startMemo} className="btn btn-primary"><MicVocal size={16}/> Start Recording</button> ) : ( <button onClick={stopMemo} className="btn btn-danger"><Square size={16}/> Stop Recording</button> )} </div> {isRecordingMemo && ( <div style={{ marginTop: '20px', color: 'var(--error)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}> <div style={{ width: '12px', height: '12px', background: 'var(--error)', borderRadius: '50%', animation: 'pulse 1.5s infinite' }}></div> Recording Audio... </div> )} {memoUrl && !isRecordingMemo && ( <div style={{ marginTop: '20px', background:'var(--bg-surface)', padding:'15px', borderRadius:'12px', border:'1px solid var(--border)' }}> <audio src={memoUrl} controls style={{ width: '100%', marginBottom: '15px' }} /> <a href={memoUrl} download="voice-memo.webm" className="btn btn-secondary"><Download size={16}/> Download Audio</a> </div> )} </div> )}
-              {activeTab === 'timer' && ( <div style={{textAlign: 'center', padding:'40px 0'}}> <div style={{fontSize: '4.5rem', fontWeight: '700', margin: '0 0 30px 0'}}>{formatTime(time)}</div> <div className="btn-group" style={{justifyContent: 'center'}}> {!timerOn && <button onClick={() => setTimerOn(true)} className="btn btn-primary"><Play size={16}/> Start Timer</button>} {timerOn && <button onClick={() => setTimerOn(false)} className="btn btn-danger"><Pause size={16}/> Pause</button>} <button onClick={() => { setTimerOn(false); setTime(0); }} className="btn btn-secondary"><Square size={16}/> Reset</button> </div> </div> )}
-              {activeTab === 'pomo' && ( <div style={{textAlign: 'center', padding:'40px 0'}}> <div style={{fontSize: '5rem', fontWeight: '700', margin: '0 0 30px 0'}}>{formatPomo(pomoTime)}</div> <div className="btn-group" style={{justifyContent: 'center'}}> {!pomoActive ? <button onClick={() => setPomoActive(true)} className="btn btn-primary"><Play size={16}/> Start Focus</button> : <button onClick={() => setPomoActive(false)} className="btn btn-danger"><Pause size={16}/> Pause</button>} <button onClick={() => { setPomoActive(false); setPomoTime(25 * 60); }} className="btn btn-secondary"><Square size={16}/> Reset</button> </div> </div> )}
+              {activeTab === 'voicememo' && ( <div> <div className="btn-group"> {!isRecordingMemo ? ( <button onClick={startMemo} className="btn btn-primary"><MicVocal size={16}/> Start Recording</button> ) : ( <button onClick={stopMemo} className="btn btn-danger"><Square size={16}/> Stop Recording</button> )} </div> {isRecordingMemo && ( <div style={{ marginTop: '20px', color: 'var(--error)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}> <div style={{ width: '12px', height: '12px', background: 'var(--error)', borderRadius: '50%', animation: 'pulse 1.5s infinite' }}></div> Recording... </div> )} {memoUrl && !isRecordingMemo && ( <div style={{ marginTop: '20px' }}> <audio src={memoUrl} controls style={{ width: '100%', marginBottom: '15px' }} /> <a href={memoUrl} download="voice-memo.webm" className="btn btn-secondary"><Download size={16}/> Download Audio</a> </div> )} </div> )}
+              {activeTab === 'timer' && ( <div style={{textAlign: 'center'}}> <div style={{fontSize: '4.5rem', fontWeight: '700', margin: '30px 0'}}>{formatTime(time)}</div> <div className="btn-group" style={{justifyContent: 'center'}}> {!timerOn && <button onClick={() => setTimerOn(true)} className="btn btn-primary"><Play size={16}/> Start</button>} {timerOn && <button onClick={() => setTimerOn(false)} className="btn btn-danger"><Pause size={16}/> Pause</button>} <button onClick={() => { setTimerOn(false); setTime(0); }} className="btn btn-secondary"><Square size={16}/> Reset</button> </div> </div> )}
+              {activeTab === 'pomo' && ( <div style={{textAlign: 'center'}}> <div style={{fontSize: '5rem', fontWeight: '700', margin: '30px 0'}}>{formatPomo(pomoTime)}</div> <div className="btn-group" style={{justifyContent: 'center'}}> {!pomoActive ? <button onClick={() => setPomoActive(true)} className="btn btn-primary"><Play size={16}/> Start</button> : <button onClick={() => setPomoActive(false)} className="btn btn-danger"><Pause size={16}/> Pause</button>} <button onClick={() => { setPomoActive(false); setPomoTime(25 * 60); }} className="btn btn-secondary"><Square size={16}/> Reset</button> </div> </div> )}
 
               <RelatedTools currentTool={currentTool} navigate={navigate} />
             </div>
