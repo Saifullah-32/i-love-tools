@@ -10,7 +10,8 @@ import {
   Sparkles, Film, Scissors, Wand2, Mic, Volume2, CameraOff, 
   KeyRound, Fingerprint, FileJson, GitCompare, ImagePlus, 
   Clapperboard, AppWindow, MicVocal, ArrowLeft, CheckCircle2, AlertCircle,
-  Lock, Eye, FileCheck, Send, Sliders, FileCode 
+  Lock, Eye, FileCheck, Send, Sliders, FileCode, Split, Minimize2,
+  Cpu, FileOutput, ShieldAlert, Laptop, Smartphone, Tablet
 } from 'lucide-react';
 import AdBanner from './AdBanner';
 import { Analytics } from '@vercel/analytics/react';
@@ -21,6 +22,7 @@ const encodeWAV = (audioBuffer) => { const numOfChan = audioBuffer.numberOfChann
 
 const categories = {
   "Security & Privacy": [
+    { id: 'pass-strength', name: 'Password Strength', icon: ShieldAlert, description: 'Analyze password entropy, brute-force crack time, and vulnerabilities offline.' },
     { id: 'aes-encrypt', name: 'AES Encryption', icon: ShieldCheck, description: 'Securely encrypt and decrypt sensitive text using AES-GCM directly in your browser.' },
     { id: 'rsa-gen', name: 'RSA Key Generator', icon: KeyRound, description: 'Generate secure Public and Private RSA key pairs locally for SSH or applications.' },
     { id: 'pgp-tool', name: 'PGP Message Encryptor', icon: Lock, description: 'Encrypt and decrypt standard armored PGP messages using passwords or OpenPGP keys.' },
@@ -33,6 +35,9 @@ const categories = {
     { id: 'exif-strip', name: 'EXIF Stripper', icon: CameraOff, description: 'Remove hidden GPS coordinates, camera models, and timestamps from photos.' },
   ],
   "Media & Graphics": [
+    { id: 'ocr', name: 'Image to Text (OCR)', icon: FileSearch, description: 'Extract text and characters directly from screenshots, photos, and scanned documents.' },
+    { id: 'bg-remover', name: 'Background Remover', icon: Wand2, description: 'Remove or key-out backgrounds from images locally to create transparent PNGs.' },
+    { id: 'mockup-gen', name: 'Device Mockup Gen', icon: Laptop, description: 'Wrap screenshots into realistic MacBook, iPhone, and desktop device frames.' },
     { id: 'image', name: 'Compress Image', icon: Image, description: 'Compress PNG, JPG, and WebP images locally with custom target file size limits.' },
     { id: 'img-converter', name: 'Format Converter', icon: RefreshCw, description: 'Transcode images between PNG, JPG, and modern WebP formats in the browser.' },
     { id: 'favicon-gen', name: 'Favicon Generator', icon: FileArchive, description: 'Upload a logo to generate a complete multi-size favicon package and web manifest.' },
@@ -45,6 +50,8 @@ const categories = {
     { id: 'dummyimg', name: 'Dummy Image', icon: ImagePlus, description: 'Generate custom placeholder images with custom dimensions, colors, and text.' },
   ],
   "Developer & Code": [
+    { id: 'code-minify', name: 'Code Minifier', icon: Minimize2, description: 'Minify JavaScript, HTML, and CSS code directly in the browser to reduce file sizes.' },
+    { id: 'xml-yaml-json', name: 'XML / YAML ↔ JSON', icon: FileJson, description: 'Convert structured data seamlessly between XML, YAML, and JSON formats.' },
     { id: 'api-tester', name: 'API Request Tester', icon: Send, description: 'Test REST APIs, inspect response headers, and format payloads without desktop clients.' },
     { id: 'code-to-img', name: 'Code to Image', icon: Code, description: 'Convert code snippets into clean, shareable images with customizable styling.' },
     { id: 'json-ts', name: 'JSON to TS', icon: Brackets, description: 'Convert JSON structures into TypeScript interface declarations.' },
@@ -67,6 +74,7 @@ const categories = {
     { id: 'ratio', name: 'Aspect Ratio', icon: Crop, description: 'Calculate pixel dimensions based on aspect ratios.' },
   ],
   "Text & Data": [
+    { id: 'tts-reader', name: 'Text to Speech (TTS)', icon: Volume2, description: 'Synthesize spoken speech from written text with selectable browser voices.' },
     { id: 'excel-json', name: 'Excel to JSON', icon: FileSpreadsheet, description: 'Parse Excel sheets (.xlsx, .xls) and CSVs directly into structured JSON datasets.' },
     { id: 'counter', name: 'Word Counter', icon: FileText, description: 'Count words, characters, and spaces in text.' },
     { id: 'case', name: 'Case Convert', icon: Type, description: 'Switch text between uppercase, lowercase, and title case.' },
@@ -76,6 +84,7 @@ const categories = {
     { id: 'cron', name: 'Cron Parse', icon: Calendar, description: 'Translate cron schedule expressions into readable text.' },
   ],
   "Business & Utilities": [
+    { id: 'pdf-merge', name: 'Merge & Split PDF', icon: Split, description: 'Merge multiple PDF documents into one or split specific page ranges locally.' },
     { id: 'pdfgen', name: 'Photos to PDF', icon: FileUp, description: 'Convert multiple images and photos into a single PDF document.' },
     { id: 'invoice', name: 'PDF Invoice', icon: FileSpreadsheet, description: 'Create and download billing invoices as PDFs.' },
     { id: 'freelance', name: 'Freelance Calc', icon: Calculator, description: 'Calculate gross and net freelance earnings with tax estimates.' },
@@ -95,7 +104,7 @@ const categories = {
 };
 
 const flatTools = Object.values(categories).flat();
-const popularToolIds = ['videditor', 'image', 'api-tester', 'excel-json', 'steganography', 'pgp-tool', 'code-to-img', 'json-ts'];
+const popularToolIds = ['videditor', 'image', 'ocr', 'api-tester', 'pdf-merge', 'bg-remover', 'pass-strength', 'excel-json'];
 
 const Toast = ({ message, type }) => ( <div className={`toast ${type}`}> {type === 'success' ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />} <span>{message}</span> </div> );
 const ToolCard = ({ tool, navigate }) => ( <a href={`/tool/${tool.id}`} onClick={(e) => { e.preventDefault(); navigate(`/tool/${tool.id}`); }} className="tool-card"> <div className="tool-card-header"><div className="tool-card-icon"><tool.icon size={24} /></div><h3>{tool.name}</h3></div> <p>{tool.description}</p> </a> );
@@ -110,7 +119,7 @@ export default function App() {
   const currentTool = flatTools.find(t => t.id === activeTab);
 
   useEffect(() => {
-    const isHome = activeTab === 'home'; const siteName = 'I Love Tools'; const title = isHome ? `${siteName} | 100% Free & Private Web Utilities` : `${currentTool?.name} - Free Client-Side Tool | ${siteName}`; const description = isHome ? 'An all-in-one hub of 62+ free, private web utilities. Edit videos, convert audio, format code, and compress images directly in your browser with zero server uploads.' : currentTool?.description || `Use our free ${currentTool?.name} tool directly in your browser. 100% secure, client-side processing.`; const canonical = `https://ilovetools.dev${currentPath}`;
+    const isHome = activeTab === 'home'; const siteName = 'I Love Tools'; const title = isHome ? `${siteName} | 100% Free & Private Web Utilities` : `${currentTool?.name} - Free Client-Side Tool | ${siteName}`; const description = isHome ? 'An all-in-one hub of 70+ free, private web utilities. Edit videos, OCR images, format code, and compress files directly in your browser with zero server uploads.' : currentTool?.description || `Use our free ${currentTool?.name} tool directly in your browser. 100% secure, client-side processing.`; const canonical = `https://ilovetools.dev${currentPath}`;
     document.title = title;
     const setMeta = (name, content, isProperty = false) => { const attr = isProperty ? 'property' : 'name'; let tag = document.querySelector(`meta[${attr}="${name}"]`); if (!tag) { tag = document.createElement('meta'); tag.setAttribute(attr, name); document.head.appendChild(tag); } tag.setAttribute('content', content); };
     setMeta('description', description); setMeta('og:type', isHome ? 'website' : 'WebApplication', true); setMeta('og:title', title, true); setMeta('og:description', description, true); setMeta('og:url', canonical, true); setMeta('og:site_name', siteName, true); setMeta('twitter:card', 'summary_large_image'); setMeta('twitter:title', title); setMeta('twitter:description', description);
@@ -121,7 +130,7 @@ export default function App() {
   const showToast = (message, type = 'success') => { const id = Date.now(); setToasts(prev => [...prev, { id, message, type }]); setTimeout(() => { setToasts(prev => prev.filter(t => t.id !== id)); }, 3500); };
   
   const [searchQuery, setSearchQuery] = useState(''); const [activeDropdown, setActiveDropdown] = useState(null); const [activeModal, setActiveModal] = useState(null);
-  const [showAllCategories, setShowAllCategories] = useState(false); // Mobile performance boost toggle
+  const [showAllCategories, setShowAllCategories] = useState(false);
 
   const handleMouseEnter = (category) => { if (window.innerWidth > 900) setActiveDropdown(category); }; const handleMouseLeave = () => { if (window.innerWidth > 900) setActiveDropdown(null); }; const handleMobileClick = (category) => { if (window.innerWidth <= 900) setActiveDropdown(activeDropdown === category ? null : category); };
 
@@ -129,7 +138,306 @@ export default function App() {
   const [activeObjectUrls, setActiveObjectUrls] = useState([]); const trackUrl = (url) => { if(url) setActiveObjectUrls(prev => [...prev, url]); return url; };
   useEffect(() => { return () => { activeObjectUrls.forEach(url => URL.revokeObjectURL(url)); }; }, [activeObjectUrls]);
 
-  // ALL STATE & LOGIC BUNDLED
+  // --- NEW TOOL 1: OCR IMAGE TO TEXT ---
+  const [ocrFile, setOcrFile] = useState(null); const [ocrText, setOcrText] = useState(''); const [ocrLoading, setOcrLoading] = useState(false); const [ocrProgress, setOcrProgress] = useState(0);
+  const handleOcrProcess = async () => {
+    if (!validateFile(ocrFile, 25)) return; setOcrLoading(true); setOcrProgress(0); setOcrText('');
+    try {
+      const { createWorker } = await import('tesseract.js');
+      const worker = await createWorker('eng', 1, {
+        logger: m => { if (m.status === 'recognizing text') setOcrProgress(Math.round(m.progress * 100)); }
+      });
+      const ret = await worker.recognize(ocrFile);
+      setOcrText(ret.data.text || 'No text recognized.');
+      await worker.terminate();
+      showToast('Text Extracted');
+    } catch { showToast('OCR recognition failed', 'error'); }
+    setOcrLoading(false);
+  };
+
+  // --- NEW TOOL 2: PDF MERGE & SPLIT ---
+  const [pdfMergeMode, setPdfMergeMode] = useState('merge'); const [pdfMergeFiles, setPdfMergeFiles] = useState([]); const [pdfSplitFile, setPdfSplitFile] = useState(null);
+  const [pdfSplitRange, setPdfSplitRange] = useState('1'); const [pdfResultUrl, setPdfResultUrl] = useState(null); const [pdfProcessing, setPdfProcessing] = useState(false);
+  const handlePdfMergeProcess = async () => {
+    setPdfProcessing(true); setPdfResultUrl(null);
+    try {
+      const { PDFDocument } = await import('pdf-lib');
+      if (pdfMergeMode === 'merge') {
+        if (pdfMergeFiles.length < 2) { showToast('Upload at least 2 PDFs to merge', 'error'); setPdfProcessing(false); return; }
+        const mergedPdf = await PDFDocument.create();
+        for (const file of pdfMergeFiles) {
+          const arrayBuffer = await file.arrayBuffer();
+          const doc = await PDFDocument.load(arrayBuffer);
+          const copiedPages = await mergedPdf.copyPages(doc, doc.getPageIndices());
+          copiedPages.forEach((page) => mergedPdf.addPage(page));
+        }
+        const mergedPdfFile = await mergedPdf.save();
+        const blob = new Blob([mergedPdfFile], { type: 'application/pdf' });
+        setPdfResultUrl(trackUrl(URL.createObjectURL(blob)));
+        showToast('PDFs Merged Successfully');
+      } else {
+        if (!pdfSplitFile) { showToast('Upload a PDF to split', 'error'); setPdfProcessing(false); return; }
+        const arrayBuffer = await pdfSplitFile.arrayBuffer();
+        const doc = await PDFDocument.load(arrayBuffer);
+        const totalPages = doc.getPageCount();
+        const newPdf = await PDFDocument.create();
+        const pagesToExtract = pdfSplitRange.split(',').flatMap(range => {
+          if (range.includes('-')) {
+            const [start, end] = range.split('-').map(n => parseInt(n.trim(), 10));
+            if (isNaN(start) || isNaN(end)) return [];
+            return Array.from({ length: Math.max(0, end - start + 1) }, (_, i) => start + i);
+          }
+          const num = parseInt(range.trim(), 10);
+          return isNaN(num) ? [] : [num];
+        }).filter(p => p >= 1 && p <= totalPages).map(p => p - 1);
+        if (pagesToExtract.length === 0) { showToast('Invalid page range', 'error'); setPdfProcessing(false); return; }
+        const copiedPages = await newPdf.copyPages(doc, pagesToExtract);
+        copiedPages.forEach(p => newPdf.addPage(p));
+        const splitBytes = await newPdf.save();
+        const blob = new Blob([splitBytes], { type: 'application/pdf' });
+        setPdfResultUrl(trackUrl(URL.createObjectURL(blob)));
+        showToast(`Extracted ${copiedPages.length} Pages`);
+      }
+    } catch (e) { showToast(`PDF operation failed: ${e.message}`, 'error'); }
+    setPdfProcessing(false);
+  };
+
+  // --- NEW TOOL 3: BACKGROUND REMOVER (CANVAS COLOR-KEY / THRESHOLD) ---
+  const [bgImageFile, setBgImageFile] = useState(null); const [bgTolerance, setBgTolerance] = useState(25); const [bgTargetColor, setBgTargetColor] = useState('#ffffff');
+  const [bgResultUrl, setBgResultUrl] = useState(null);
+  const handleBgRemove = () => {
+    if (!bgImageFile) return;
+    const img = new window.Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width; canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imgData.data;
+      const rMatch = parseInt(bgTargetColor.slice(1, 3), 16);
+      const gMatch = parseInt(bgTargetColor.slice(3, 5), 16);
+      const bMatch = parseInt(bgTargetColor.slice(5, 7), 16);
+      const threshold = (bgTolerance / 100) * 441.67; // max distance between RGB vectors
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i], g = data[i+1], b = data[i+2];
+        const dist = Math.sqrt(Math.pow(r - rMatch, 2) + Math.pow(g - gMatch, 2) + Math.pow(b - bMatch, 2));
+        if (dist <= threshold) {
+          data[i+3] = 0; // Transparent
+        }
+      }
+      ctx.putImageData(imgData, 0, 0);
+      setBgResultUrl(trackUrl(canvas.toDataURL('image/png')));
+      showToast('Background Removed');
+    };
+    img.src = URL.createObjectURL(bgImageFile);
+  };
+
+  // --- NEW TOOL 4: CODE MINIFIER ---
+  const [minifyType, setMinifyType] = useState('js'); const [minifyInput, setMinifyInput] = useState('function calculateSum(a, b) {\n  // Add two numbers\n  const result = a + b;\n  return result;\n}');
+  const [minifyOutput, setMinifyOutput] = useState(''); const [minifyStats, setMinifyStats] = useState('');
+  const handleMinifyCode = () => {
+    if (!minifyInput.trim()) return;
+    let min = minifyInput;
+    if (minifyType === 'js') {
+      min = min.replace(/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/gm, '$1').replace(/\s+/g, ' ').replace(/\s*([=+\-*/{}();,:<>])\s*/g, '$1').trim();
+    } else if (minifyType === 'css') {
+      min = min.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ').replace(/\s*([{}:;,])\s*/g, '$1').replace(/;}/g, '}').trim();
+    } else if (minifyType === 'html') {
+      min = min.replace(/<!--[\s\S]*?-->/g, '').replace(/>\s+</g, '><').replace(/\s+/g, ' ').trim();
+    }
+    setMinifyOutput(min);
+    const saved = Math.round(((minifyInput.length - min.length) / (minifyInput.length || 1)) * 100);
+    setMinifyStats(`Original: ${minifyInput.length} B | Minified: ${min.length} B (Saved ${Math.max(0, saved)}%)`);
+    showToast('Code Minified');
+  };
+
+  // --- NEW TOOL 5: XML / YAML ↔ JSON ---
+  const [convMode, setConvMode] = useState('xml2json'); const [convInputText, setConvInputText] = useState('<user>\n  <id>1</id>\n  <name>Alex</name>\n  <role>Developer</role>\n</user>');
+  const [convOutputText, setConvOutputText] = useState('');
+  const handleConvertDataFormat = () => {
+    try {
+      if (convMode === 'xml2json') {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(convInputText, 'text/xml');
+        const xmlToJson = (node) => {
+          let obj = {};
+          if (node.nodeType === 1) {
+            if (node.attributes.length > 0) {
+              obj["@attributes"] = {};
+              for (let j = 0; j < node.attributes.length; j++) {
+                const attr = node.attributes.item(j);
+                obj["@attributes"][attr.nodeName] = attr.nodeValue;
+              }
+            }
+          } else if (node.nodeType === 3) {
+            obj = node.nodeValue.trim();
+          }
+          if (node.hasChildNodes()) {
+            for (let i = 0; i < node.childNodes.length; i++) {
+              const item = node.childNodes.item(i);
+              const nodeName = item.nodeName;
+              if (item.nodeType === 3 && item.nodeValue.trim() === '') continue;
+              if (typeof(obj[nodeName]) === "undefined") {
+                obj[nodeName] = xmlToJson(item);
+              } else {
+                if (typeof(obj[nodeName].push) === "undefined") {
+                  const old = obj[nodeName];
+                  obj[nodeName] = [];
+                  obj[nodeName].push(old);
+                }
+                obj[nodeName].push(xmlToJson(item));
+              }
+            }
+          }
+          return obj;
+        };
+        const res = xmlToJson(xmlDoc);
+        setConvOutputText(JSON.stringify(res, null, 2));
+      } else if (convMode === 'json2xml') {
+        const json = JSON.parse(convInputText);
+        const json2xml = (o) => {
+          let xml = '';
+          for (let key in o) {
+            if (Array.isArray(o[key])) {
+              for (let el of o[key]) xml += `<${key}>${typeof el === 'object' ? json2xml(el) : el}</${key}>`;
+            } else if (typeof o[key] === 'object') {
+              xml += `<${key}>${json2xml(o[key])}</${key}>`;
+            } else {
+              xml += `<${key}>${o[key]}</${key}>`;
+            }
+          }
+          return xml;
+        };
+        setConvOutputText(`<?xml version="1.0" encoding="UTF-8"?>\n<root>\n${json2xml(json)}\n</root>`);
+      } else if (convMode === 'json2yaml') {
+        const json = JSON.parse(convInputText);
+        const toYaml = (obj, indent = 0) => {
+          let yaml = '';
+          const sp = '  '.repeat(indent);
+          for (let k in obj) {
+            if (typeof obj[k] === 'object' && obj[k] !== null) {
+              yaml += `${sp}${k}:\n${toYaml(obj[k], indent + 1)}`;
+            } else {
+              yaml += `${sp}${k}: ${obj[k]}\n`;
+            }
+          }
+          return yaml;
+        };
+        setConvOutputText(toYaml(json));
+      }
+      showToast('Conversion Complete');
+    } catch (e) { showToast(`Error: ${e.message}`, 'error'); }
+  };
+
+  // --- NEW TOOL 6: DEVICE MOCKUP GENERATOR ---
+  const [mockupImg, setMockupImg] = useState(null); const [mockupDevice, setMockupDevice] = useState('browser'); const [mockupBg, setMockupBg] = useState('#4f46e5');
+  const [mockupPadding, setMockupPadding] = useState(40); const [mockupResultUrl, setMockupResultUrl] = useState(null);
+  const handleRenderMockup = () => {
+    if (!mockupImg) return;
+    const img = new window.Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const pad = Number(mockupPadding);
+      const headerHeight = mockupDevice === 'browser' ? 40 : 0;
+      canvas.width = img.width + pad * 2;
+      canvas.height = img.height + pad * 2 + headerHeight;
+      const ctx = canvas.getContext('2d');
+      // Background
+      ctx.fillStyle = mockupBg;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Card Shadow
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+      ctx.shadowBlur = 30;
+      ctx.shadowOffsetY = 15;
+      // Window container
+      ctx.fillStyle = '#1e1e2e';
+      ctx.beginPath();
+      ctx.roundRect(pad, pad, img.width, img.height + headerHeight, 14);
+      ctx.fill();
+      ctx.shadowColor = 'transparent'; // reset shadow
+      if (mockupDevice === 'browser') {
+        // Window dots
+        ctx.fillStyle = '#ff5f56'; ctx.beginPath(); ctx.arc(pad + 20, pad + 20, 6, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#ffbd2e'; ctx.beginPath(); ctx.arc(pad + 38, pad + 20, 6, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#27c93f'; ctx.beginPath(); ctx.arc(pad + 56, pad + 20, 6, 0, Math.PI * 2); ctx.fill();
+        // Address bar
+        ctx.fillStyle = 'rgba(255,255,255,0.1)';
+        ctx.beginPath();
+        ctx.roundRect(pad + 80, pad + 10, img.width - 160, 20, 6);
+        ctx.fill();
+      }
+      // Draw uploaded screenshot
+      ctx.drawImage(img, pad, pad + headerHeight, img.width, img.height);
+      setMockupResultUrl(trackUrl(canvas.toDataURL('image/png')));
+      showToast('Mockup Rendered');
+    };
+    img.src = URL.createObjectURL(mockupImg);
+  };
+
+  // --- NEW TOOL 7: PASSWORD STRENGTH ANALYZER ---
+  const [passTestInput, setPassTestInput] = useState('Passw0rd123!#'); const [showPassTest, setShowPassTest] = useState(false);
+  const getPasswordAnalysis = (pwd) => {
+    let score = 0;
+    const checks = {
+      length: pwd.length >= 12,
+      upper: /[A-Z]/.test(pwd),
+      lower: /[a-z]/.test(pwd),
+      numbers: /[0-9]/.test(pwd),
+      symbols: /[^A-Za-z0-9]/.test(pwd),
+      noCommon: !/password|123456|qwerty|admin|welcome/i.test(pwd)
+    };
+    if (pwd.length >= 8) score += 20;
+    if (pwd.length >= 14) score += 20;
+    if (checks.upper && checks.lower) score += 20;
+    if (checks.numbers) score += 20;
+    if (checks.symbols) score += 20;
+    if (!checks.noCommon) score = Math.max(10, score - 40);
+    let crackTime = '< 1 millisecond';
+    if (score >= 80) crackTime = '3,000+ Years';
+    else if (score >= 60) crackTime = '2 Months';
+    else if (score >= 40) crackTime = '3 Days';
+    else if (score >= 20) crackTime = '12 Minutes';
+    return { score, checks, crackTime };
+  };
+  const passAnalysis = getPasswordAnalysis(passTestInput);
+
+  // --- NEW TOOL 8: TEXT-TO-SPEECH (TTS) ---
+  const [ttsInput, setTtsInput] = useState('Welcome to I Love Tools. All your private client-side utilities in one clean dashboard.');
+  const [ttsVoices, setTtsVoices] = useState([]); const [ttsSelectedVoice, setTtsSelectedVoice] = useState(0); const [ttsPitch, setTtsPitch] = useState(1);
+  const [ttsRate, setTtsRate] = useState(1); const [ttsSpeaking, setTtsSpeaking] = useState(false);
+  useEffect(() => {
+    const loadVoices = () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        const v = window.speechSynthesis.getVoices();
+        setTtsVoices(v);
+      }
+    };
+    loadVoices();
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+  }, []);
+  const handleTtsSpeak = () => {
+    if (!('speechSynthesis' in window)) { showToast('Speech synthesis not supported on this browser', 'error'); return; }
+    window.speechSynthesis.cancel();
+    if (!ttsInput.trim()) return;
+    const utterance = new SpeechSynthesisUtterance(ttsInput);
+    if (ttsVoices[ttsSelectedVoice]) utterance.voice = ttsVoices[ttsSelectedVoice];
+    utterance.pitch = ttsPitch;
+    utterance.rate = ttsRate;
+    utterance.onend = () => setTtsSpeaking(false);
+    utterance.onerror = () => setTtsSpeaking(false);
+    setTtsSpeaking(true);
+    window.speechSynthesis.speak(utterance);
+    showToast('Speaking...');
+  };
+  const handleTtsStop = () => {
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    setTtsSpeaking(false);
+  };
+
+  // --- ALL PRE-EXISTING STATE & LOGIC PRESERVED ---
   const [aesText, setAesText] = useState(''); const [aesPass, setAesPass] = useState(''); const [aesMode, setAesMode] = useState('encrypt'); const [aesResult, setAesResult] = useState(''); const [aesError, setAesError] = useState(''); const handleAesProcess = async () => { setAesError(''); if (!aesPass) { showToast('Password required', 'error'); return; } try { const enc = new TextEncoder(); if (aesMode === 'encrypt') { const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(aesPass), { name: "PBKDF2" }, false, ["deriveKey"]); const salt = crypto.getRandomValues(new Uint8Array(16)); const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: 250000, hash: "SHA-256" }, keyMaterial, { name: "AES-GCM", length: 256 }, false, ["encrypt"]); const iv = crypto.getRandomValues(new Uint8Array(12)); const encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, enc.encode(aesText)); const combined = new Uint8Array(salt.length + iv.length + encrypted.byteLength); combined.set(salt, 0); combined.set(iv, salt.length); combined.set(new Uint8Array(encrypted), salt.length + iv.length); setAesResult(btoa(String.fromCharCode(...combined))); showToast('Encrypted Successfully'); } else { const combined = Uint8Array.from(atob(aesText), c => c.charCodeAt(0)); const salt = combined.slice(0, 16); const iv = combined.slice(16, 28); const data = combined.slice(28); const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(aesPass), { name: "PBKDF2" }, false, ["deriveKey"]); const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: 250000, hash: "SHA-256" }, keyMaterial, { name: "AES-GCM", length: 256 }, false, ["decrypt"]); const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, data); setAesResult(new TextDecoder().decode(decrypted)); showToast('Decrypted Successfully'); } } catch { setAesError('Decryption failed.'); showToast('Decryption Failed', 'error'); } };
   const [rsaPublic, setRsaPublic] = useState(''); const [rsaPrivate, setRsaPrivate] = useState(''); const generateRSA = async () => { try { const keyPair = await window.crypto.subtle.generateKey({ name: "RSA-OAEP", modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: "SHA-256" }, true, ["encrypt", "decrypt"]); const exportedPubKey = await window.crypto.subtle.exportKey("spki", keyPair.publicKey); const exportedPrivKey = await window.crypto.subtle.exportKey("pkcs8", keyPair.privateKey); const exportToPem = (buffer, type) => { const b64 = btoa(String.fromCharCode(...new Uint8Array(buffer))); return `-----BEGIN ${type}-----\n${b64.match(/.{1,64}/g).join('\n')}\n-----END ${type}-----\n`; }; setRsaPublic(exportToPem(exportedPubKey, "PUBLIC KEY")); setRsaPrivate(exportToPem(exportedPrivKey, "PRIVATE KEY")); showToast('RSA Keys Generated'); } catch { showToast('Error generating keys', 'error'); } };
   const [pgpMode, setPgpMode] = useState('encrypt'); const [pgpMsg, setPgpMsg] = useState(''); const [pgpPass, setPgpPass] = useState(''); const [pgpOutput, setPgpOutput] = useState(''); const [pgpProcessing, setPgpProcessing] = useState(false); const handlePgpProcess = async () => { if (!pgpMsg || !pgpPass) { showToast('Message and Passphrase required', 'error'); return; } setPgpProcessing(true); try { const openpgp = await import('openpgp'); if (pgpMode === 'encrypt') { const message = await openpgp.createMessage({ text: pgpMsg }); const encrypted = await openpgp.encrypt({ message, passwords: [pgpPass], format: 'armored' }); setPgpOutput(encrypted); showToast('PGP Encrypted'); } else { const message = await openpgp.readMessage({ armoredMessage: pgpMsg }); const { data: decrypted } = await openpgp.decrypt({ message, passwords: [pgpPass], format: 'utf8' }); setPgpOutput(decrypted); showToast('PGP Decrypted'); } } catch (err) { setPgpOutput(`Error: ${err.message}`); showToast('PGP Failed', 'error'); } setPgpProcessing(false); };
@@ -191,7 +499,6 @@ export default function App() {
   const [time, setTime] = useState(0); const [timerOn, setTimerOn] = useState(false); useEffect(() => { let interval = null; if (timerOn) interval = setInterval(() => setTime(prev => prev + 10), 10); else clearInterval(interval); return () => clearInterval(interval); }, [timerOn]); const formatTime = (t) => { const ms = ("0" + ((t / 10) % 100)).slice(-2); const s = ("0" + Math.floor((t / 1000) % 60)).slice(-2); const m = ("0" + Math.floor((t / 60000) % 60)).slice(-2); return `${m}:${s}.${ms}`; };
   const [pomoTime, setPomoTime] = useState(25 * 60); const [pomoActive, setPomoActive] = useState(false); useEffect(() => { let int = null; if (pomoActive && pomoTime > 0) int = setInterval(() => setPomoTime(p => p - 1), 1000); else clearInterval(int); return () => clearInterval(int); }, [pomoActive, pomoTime]); const formatPomo = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
 
-  // Find visible categories based on search
   const visibleCategories = Object.keys(categories).filter(cat => 
     !searchQuery || categories[cat].some(t => 
       t.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -199,7 +506,6 @@ export default function App() {
     )
   );
 
-  // If no search and user hasn't clicked "View All", only show the very first category
   const categoriesToRender = (searchQuery || showAllCategories) 
     ? visibleCategories 
     : visibleCategories.slice(0, 1);
@@ -217,7 +523,7 @@ export default function App() {
 
           <div className="search-container">
             <Search className="search-icon" size={20} />
-            <input type="text" placeholder="Search across 62+ tools (e.g. API Tester, JSON)..." className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+            <input type="text" placeholder="Search across 70+ tools (e.g. OCR, PDF, API Tester)..." className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
           </div>
 
           <nav className="header-nav">
@@ -247,7 +553,7 @@ export default function App() {
             <div className="home-dashboard">
               <div className="home-hero">
                 <h2>All the tools you need. None of the privacy risks.</h2>
-                <p style={{color: 'var(--text-muted)', fontSize: '1.2rem'}}>62+ powerful web utilities running entirely on your local device.</p>
+                <p style={{color: 'var(--text-muted)', fontSize: '1.2rem'}}>70+ powerful web utilities running entirely on your local device.</p>
               </div>
 
               {!searchQuery && (
@@ -278,7 +584,6 @@ export default function App() {
                     )
                   })}
 
-                  {/* Show "View All Tools" button if we are limiting categories */}
                   {!searchQuery && !showAllCategories && visibleCategories.length > 1 && (
                     <div style={{textAlign: 'center', marginTop: '20px', marginBottom: '40px'}}>
                       <button 
@@ -286,7 +591,7 @@ export default function App() {
                         onClick={() => setShowAllCategories(true)}
                         style={{padding: '12px 24px', fontSize: '1.1rem'}}
                       >
-                        <Layers size={18} style={{marginRight: '8px'}} /> View All 62+ Tools
+                        <Layers size={18} style={{marginRight: '8px'}} /> View All 70+ Tools
                       </button>
                     </div>
                   )}
@@ -298,6 +603,232 @@ export default function App() {
           {activeTab !== 'home' && currentTool && (
             <div className="tool-workspace">
               <ToolHeader tool={currentTool} navigate={navigate} />
+
+              {/* === 8 NEW TOOLS === */}
+              {activeTab === 'ocr' && (
+                <div>
+                  <div className="file-input-wrapper">
+                    <input type="file" accept="image/*" onChange={(e) => setOcrFile(e.target.files[0])} className="file-input" />
+                  </div>
+                  <button onClick={handleOcrProcess} disabled={!ocrFile || ocrLoading} className="btn btn-primary form-group">
+                    <FileSearch size={16}/> {ocrLoading ? `Recognizing Text (${ocrProgress}%)...` : 'Extract Text from Image'}
+                  </button>
+                  {ocrText && (
+                    <div className="form-group" style={{marginTop:'20px'}}>
+                      <label>Extracted Text</label>
+                      <textarea rows="8" readOnly className="form-control readonly-area" value={ocrText} />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'pdf-merge' && (
+                <div>
+                  <div className="btn-group form-group">
+                    <button className={`btn ${pdfMergeMode === 'merge' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setPdfMergeMode('merge'); setPdfResultUrl(null); }}>Merge PDFs</button>
+                    <button className={`btn ${pdfMergeMode === 'split' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setPdfMergeMode('split'); setPdfResultUrl(null); }}>Split / Extract Pages</button>
+                  </div>
+                  {pdfMergeMode === 'merge' ? (
+                    <div>
+                      <div className="file-input-wrapper">
+                        <input type="file" accept="application/pdf" multiple onChange={(e) => setPdfMergeFiles(Array.from(e.target.files))} className="file-input" />
+                      </div>
+                      <p style={{fontSize:'0.85rem', color:'var(--text-muted)', margin:'10px 0'}}>Selected {pdfMergeFiles.length} PDF files</p>
+                      <button onClick={handlePdfMergeProcess} disabled={pdfProcessing || pdfMergeFiles.length < 2} className="btn btn-primary form-group">
+                        <FileText size={16}/> {pdfProcessing ? 'Merging...' : 'Merge All PDFs'}
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="file-input-wrapper">
+                        <input type="file" accept="application/pdf" onChange={(e) => setPdfSplitFile(e.target.files[0])} className="file-input" />
+                      </div>
+                      <div className="form-group" style={{marginTop:'15px'}}>
+                        <label>Pages to Extract (e.g. 1-3, 5)</label>
+                        <input type="text" className="form-control" value={pdfSplitRange} onChange={(e) => setPdfSplitRange(e.target.value)} placeholder="1-3, 5" />
+                      </div>
+                      <button onClick={handlePdfMergeProcess} disabled={pdfProcessing || !pdfSplitFile} className="btn btn-primary form-group">
+                        <Split size={16}/> {pdfProcessing ? 'Extracting...' : 'Extract Selected Pages'}
+                      </button>
+                    </div>
+                  )}
+                  {pdfResultUrl && (
+                    <div className="results-grid" style={{marginTop:'20px'}}>
+                      <div><h4>Status</h4><p>Ready to download</p></div>
+                      <div><h4>PDF File</h4><a href={pdfResultUrl} download={pdfMergeMode === 'merge' ? 'merged.pdf' : 'split.pdf'} className="btn btn-primary" style={{marginTop:'10px'}}><Download size={16}/> Download PDF</a></div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'bg-remover' && (
+                <div>
+                  <div className="file-input-wrapper">
+                    <input type="file" accept="image/*" onChange={(e) => { setBgImageFile(e.target.files[0]); setBgResultUrl(null); }} className="file-input" />
+                  </div>
+                  <div className="responsive-grid form-group" style={{marginTop:'15px'}}>
+                    <div>
+                      <label>Color to Remove</label>
+                      <input type="color" className="form-control" style={{padding:'2px', height:'42px'}} value={bgTargetColor} onChange={(e) => setBgTargetColor(e.target.value)} />
+                    </div>
+                    <div>
+                      <label>Tolerance ({bgTolerance}%)</label>
+                      <input type="range" min="1" max="80" value={bgTolerance} onChange={(e) => setBgTolerance(Number(e.target.value))} />
+                    </div>
+                  </div>
+                  <button onClick={handleBgRemove} disabled={!bgImageFile} className="btn btn-primary form-group">
+                    <Wand2 size={16}/> Remove Color & Make Transparent
+                  </button>
+                  {bgResultUrl && (
+                    <div style={{textAlign:'center', marginTop:'20px', padding:'30px', background:'repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 20px 20px', borderRadius:'12px'}}>
+                      <img src={bgResultUrl} alt="Transparent Background" style={{maxWidth:'100%', maxHeight:'350px', borderRadius:'8px'}} />
+                      <br/><br/>
+                      <a href={bgResultUrl} download="transparent.png" className="btn btn-primary"><Download size={16}/> Download Transparent PNG</a>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'code-minify' && (
+                <div>
+                  <div className="btn-group form-group">
+                    <button className={`btn ${minifyType === 'js' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setMinifyType('js')}>JavaScript</button>
+                    <button className={`btn ${minifyType === 'css' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setMinifyType('css')}>CSS</button>
+                    <button className={`btn ${minifyType === 'html' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setMinifyType('html')}>HTML</button>
+                  </div>
+                  <div className="form-group">
+                    <label>Unminified Code</label>
+                    <textarea rows="7" className="form-control" style={{fontFamily:'monospace'}} value={minifyInput} onChange={(e) => setMinifyInput(e.target.value)} />
+                  </div>
+                  <button onClick={handleMinifyCode} className="btn btn-primary form-group"><Minimize2 size={16}/> Minify Code</button>
+                  {minifyStats && <p style={{color:'var(--success)', fontWeight:'bold', margin:'10px 0'}}>{minifyStats}</p>}
+                  {minifyOutput && (
+                    <div className="form-group"><label>Minified Result</label><textarea rows="6" readOnly className="form-control readonly-area" value={minifyOutput} /></div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'xml-yaml-json' && (
+                <div>
+                  <div className="btn-group form-group">
+                    <button className={`btn ${convMode === 'xml2json' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setConvMode('xml2json'); setConvInputText('<root><item>Hello</item></root>'); }}>XML to JSON</button>
+                    <button className={`btn ${convMode === 'json2xml' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setConvMode('json2xml'); setConvInputText('{"root": {"item": "Hello"}}'); }}>JSON to XML</button>
+                    <button className={`btn ${convMode === 'json2yaml' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setConvMode('json2yaml'); setConvInputText('{"server": {"port": 8080, "host": "localhost"}}'); }}>JSON to YAML</button>
+                  </div>
+                  <div className="form-group">
+                    <label>Input Data</label>
+                    <textarea rows="6" className="form-control" style={{fontFamily:'monospace'}} value={convInputText} onChange={(e) => setConvInputText(e.target.value)} />
+                  </div>
+                  <button onClick={handleConvertDataFormat} className="btn btn-primary form-group"><FileJson size={16}/> Convert Structure</button>
+                  {convOutputText && (
+                    <div className="form-group"><label>Output Result</label><textarea rows="8" readOnly className="form-control readonly-area" value={convOutputText} /></div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'mockup-gen' && (
+                <div>
+                  <div className="file-input-wrapper">
+                    <input type="file" accept="image/*" onChange={(e) => { setMockupImg(e.target.files[0]); setMockupResultUrl(null); }} className="file-input" />
+                  </div>
+                  <div className="responsive-grid form-group" style={{marginTop:'15px'}}>
+                    <div>
+                      <label>Mockup Style</label>
+                      <select className="form-control" value={mockupDevice} onChange={(e) => setMockupDevice(e.target.value)}>
+                        <option value="browser">Browser Window (macOS)</option>
+                        <option value="clean">Clean Minimal Frame</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label>Background Color</label>
+                      <input type="color" className="form-control" style={{padding:'2px', height:'42px'}} value={mockupBg} onChange={(e) => setMockupBg(e.target.value)} />
+                    </div>
+                    <div>
+                      <label>Padding ({mockupPadding}px)</label>
+                      <input type="range" min="10" max="100" value={mockupPadding} onChange={(e) => setMockupPadding(Number(e.target.value))} />
+                    </div>
+                  </div>
+                  <button onClick={handleRenderMockup} disabled={!mockupImg} className="btn btn-primary form-group">
+                    <Laptop size={16}/> Render Mockup Image
+                  </button>
+                  {mockupResultUrl && (
+                    <div style={{textAlign:'center', marginTop:'20px'}}>
+                      <img src={mockupResultUrl} alt="Device Mockup" style={{maxWidth:'100%', borderRadius:'12px', boxShadow:'var(--shadow-md)', marginBottom:'15px'}} />
+                      <br/><a href={mockupResultUrl} download="mockup.png" className="btn btn-secondary"><Download size={16}/> Download Mockup PNG</a>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'pass-strength' && (
+                <div>
+                  <div className="form-group">
+                    <label>Test Password</label>
+                    <div style={{display:'flex', gap:'10px'}}>
+                      <input type={showPassTest ? "text" : "password"} className="form-control" value={passTestInput} onChange={(e) => setPassTestInput(e.target.value)} />
+                      <button className="btn btn-secondary" onClick={() => setShowPassTest(!showPassTest)}>{showPassTest ? 'Hide' : 'Show'}</button>
+                    </div>
+                  </div>
+                  <div style={{margin:'20px 0'}}>
+                    <div style={{display:'flex', justifyContent:'space-between', marginBottom:'8px'}}>
+                      <strong>Strength: {passAnalysis.score}%</strong>
+                      <span style={{color: passAnalysis.score >= 80 ? 'var(--success)' : passAnalysis.score >= 50 ? 'var(--warning)' : 'var(--error)', fontWeight:'bold'}}>
+                        {passAnalysis.score >= 80 ? 'Strong / Bulletproof' : passAnalysis.score >= 50 ? 'Fair' : 'Weak'}
+                      </span>
+                    </div>
+                    <div style={{height:'10px', width:'100%', background:'var(--border)', borderRadius:'5px', overflow:'hidden'}}>
+                      <div style={{height:'100%', width:`${passAnalysis.score}%`, background: passAnalysis.score >= 80 ? 'var(--success)' : passAnalysis.score >= 50 ? 'var(--warning)' : 'var(--error)', transition:'all 0.3s'}}></div>
+                    </div>
+                  </div>
+                  <div className="results-grid" style={{marginBottom:'20px'}}>
+                    <div className="stat-box"><h4>Crack Time Estimate</h4><p>{passAnalysis.crackTime}</p></div>
+                    <div className="stat-box"><h4>Characters</h4><p>{passTestInput.length}</p></div>
+                  </div>
+                  <div style={{padding:'20px', background:'var(--bg-base)', borderRadius:'12px', border:'1px solid var(--border)'}}>
+                    <h4 style={{marginBottom:'10px'}}>Security Checklist:</h4>
+                    <ul style={{listStyle:'none', padding:0, margin:0, display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(200px, 1fr))', gap:'8px'}}>
+                      <li>{passAnalysis.checks.length ? '✅' : '❌'} At least 12 characters</li>
+                      <li>{passAnalysis.checks.upper ? '✅' : '❌'} Uppercase letters</li>
+                      <li>{passAnalysis.checks.lower ? '✅' : '❌'} Lowercase letters</li>
+                      <li>{passAnalysis.checks.numbers ? '✅' : '❌'} Numbers included</li>
+                      <li>{passAnalysis.checks.symbols ? '✅' : '❌'} Symbols included</li>
+                      <li>{passAnalysis.checks.noCommon ? '✅' : '❌'} No common words</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'tts-reader' && (
+                <div>
+                  <div className="form-group">
+                    <label>Text to Read Aloud</label>
+                    <textarea rows="6" className="form-control" value={ttsInput} onChange={(e) => setTtsInput(e.target.value)} />
+                  </div>
+                  <div className="responsive-grid form-group">
+                    <div>
+                      <label>Select Voice</label>
+                      <select className="form-control" value={ttsSelectedVoice} onChange={(e) => setTtsSelectedVoice(Number(e.target.value))}>
+                        {ttsVoices.map((v, i) => <option key={i} value={i}>{v.name} ({v.lang})</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label>Playback Speed ({ttsRate}x)</label>
+                      <input type="range" min="0.5" max="2" step="0.1" value={ttsRate} onChange={(e) => setTtsRate(Number(e.target.value))} />
+                    </div>
+                    <div>
+                      <label>Pitch ({ttsPitch})</label>
+                      <input type="range" min="0.5" max="1.5" step="0.1" value={ttsPitch} onChange={(e) => setTtsPitch(Number(e.target.value))} />
+                    </div>
+                  </div>
+                  <div className="btn-group">
+                    {!ttsSpeaking ? (
+                      <button onClick={handleTtsSpeak} className="btn btn-primary"><Play size={16}/> Read Aloud</button>
+                    ) : (
+                      <button onClick={handleTtsStop} className="btn btn-danger"><Square size={16}/> Stop Speaking</button>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* SECURITY & PRIVACY */}
               {activeTab === 'aes-encrypt' && ( <div> <div className="btn-group"> <button className={`btn ${aesMode === 'encrypt' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setAesMode('encrypt'); setAesResult(''); setAesError(''); }}>Encrypt</button> <button className={`btn ${aesMode === 'decrypt' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setAesMode('decrypt'); setAesResult(''); setAesError(''); }}>Decrypt</button> </div> <div className="form-group"><label>{aesMode === 'encrypt' ? 'Message' : 'Ciphertext'}</label><textarea rows="4" className="form-control" value={aesText} onChange={(e) => setAesText(e.target.value)} /></div> <div className="form-group"><label>Passphrase</label><input type="password" placeholder="Enter secure passphrase..." className="form-control" value={aesPass} onChange={(e) => setAesPass(e.target.value)} /></div> <button onClick={handleAesProcess} className="btn btn-primary form-group"><ShieldCheck size={16}/> Process Locally</button> {aesResult && <div className="form-group"><label>Result</label><textarea rows="4" readOnly className="form-control readonly-area" value={aesResult} /></div>} </div> )}

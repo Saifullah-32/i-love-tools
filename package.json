@@ -23,9 +23,11 @@
     "lucide-react": "^1.31.0",
     "marked": "^18.0.9",
     "openpgp": "^6.3.1",
+    "pdf-lib": "^1.17.1",
     "qrcode.react": "^4.2.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "tesseract.js": "^7.0.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
