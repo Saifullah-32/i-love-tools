@@ -121,9 +121,9 @@ export default function App() {
   const showToast = (message, type = 'success') => { const id = Date.now(); setToasts(prev => [...prev, { id, message, type }]); setTimeout(() => { setToasts(prev => prev.filter(t => t.id !== id)); }, 3500); };
   
   const [searchQuery, setSearchQuery] = useState(''); const [activeDropdown, setActiveDropdown] = useState(null); const [activeModal, setActiveModal] = useState(null);
+  const [showAllCategories, setShowAllCategories] = useState(false); // Mobile performance boost toggle
+
   const handleMouseEnter = (category) => { if (window.innerWidth > 900) setActiveDropdown(category); }; const handleMouseLeave = () => { if (window.innerWidth > 900) setActiveDropdown(null); }; const handleMobileClick = (category) => { if (window.innerWidth <= 900) setActiveDropdown(activeDropdown === category ? null : category); };
-  
-  const filteredCategories = (() => { if (!searchQuery) return categories; const filtered = {}; const query = searchQuery.toLowerCase(); Object.keys(categories).forEach(cat => { const matchingTools = categories[cat].filter(tool => tool.name.toLowerCase().includes(query) || tool.description.toLowerCase().includes(query)); if (matchingTools.length > 0) filtered[cat] = matchingTools; }); return filtered; })();
 
   const validateFile = (file, maxSizeMB) => { if (!file) return false; if (file.size > maxSizeMB * 1024 * 1024) { showToast(`File too large. Max is ${maxSizeMB}MB.`, 'error'); return false; } return true; };
   const [activeObjectUrls, setActiveObjectUrls] = useState([]); const trackUrl = (url) => { if(url) setActiveObjectUrls(prev => [...prev, url]); return url; };
@@ -191,6 +191,19 @@ export default function App() {
   const [time, setTime] = useState(0); const [timerOn, setTimerOn] = useState(false); useEffect(() => { let interval = null; if (timerOn) interval = setInterval(() => setTime(prev => prev + 10), 10); else clearInterval(interval); return () => clearInterval(interval); }, [timerOn]); const formatTime = (t) => { const ms = ("0" + ((t / 10) % 100)).slice(-2); const s = ("0" + Math.floor((t / 1000) % 60)).slice(-2); const m = ("0" + Math.floor((t / 60000) % 60)).slice(-2); return `${m}:${s}.${ms}`; };
   const [pomoTime, setPomoTime] = useState(25 * 60); const [pomoActive, setPomoActive] = useState(false); useEffect(() => { let int = null; if (pomoActive && pomoTime > 0) int = setInterval(() => setPomoTime(p => p - 1), 1000); else clearInterval(int); return () => clearInterval(int); }, [pomoActive, pomoTime]); const formatPomo = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
 
+  // Find visible categories based on search
+  const visibleCategories = Object.keys(categories).filter(cat => 
+    !searchQuery || categories[cat].some(t => 
+      t.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      t.description.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  );
+
+  // If no search and user hasn't clicked "View All", only show the very first category
+  const categoriesToRender = (searchQuery || showAllCategories) 
+    ? visibleCategories 
+    : visibleCategories.slice(0, 1);
+
   return (
     <div className="container">
       <div className="toast-container">{toasts.map(toast => <Toast key={toast.id} message={toast.message} type={toast.type} />)}</div>
@@ -247,21 +260,37 @@ export default function App() {
               )}
 
               <div className="section-heading"><Layers size={24} color="var(--primary)" /> {searchQuery ? 'Search Results' : 'Browse Categories'}</div>
-              {Object.keys(categories).filter(cat => !searchQuery || categories[cat].some(t => t.name.toLowerCase().includes(searchQuery.toLowerCase()) || t.description.toLowerCase().includes(searchQuery.toLowerCase()))).length === 0 ? (
+              
+              {visibleCategories.length === 0 ? (
                 <div style={{textAlign: 'center', padding: '40px', color: 'var(--text-muted)'}}>No tools found for "{searchQuery}".</div>
               ) : (
-                Object.keys(categories).map(cat => {
-                  const toolsToShow = categories[cat].filter(t => !searchQuery || t.name.toLowerCase().includes(searchQuery.toLowerCase()) || t.description.toLowerCase().includes(searchQuery.toLowerCase()));
-                  if (toolsToShow.length === 0) return null;
-                  return (
-                    <div key={cat} style={{marginBottom: '40px'}}>
-                      <h3 style={{marginBottom: '15px', color: 'var(--text-main)'}}>{cat}</h3>
-                      <div className="responsive-grid">
-                        {toolsToShow.map(tool => <ToolCard key={tool.id} tool={tool} navigate={navigate} />)}
+                <>
+                  {categoriesToRender.map(cat => {
+                    const toolsToShow = categories[cat].filter(t => !searchQuery || t.name.toLowerCase().includes(searchQuery.toLowerCase()) || t.description.toLowerCase().includes(searchQuery.toLowerCase()));
+                    if (toolsToShow.length === 0) return null;
+                    return (
+                      <div key={cat} style={{marginBottom: '40px'}}>
+                        <h3 style={{marginBottom: '15px', color: 'var(--text-main)'}}>{cat}</h3>
+                        <div className="responsive-grid">
+                          {toolsToShow.map(tool => <ToolCard key={tool.id} tool={tool} navigate={navigate} />)}
+                        </div>
                       </div>
+                    )
+                  })}
+
+                  {/* Show "View All Tools" button if we are limiting categories */}
+                  {!searchQuery && !showAllCategories && visibleCategories.length > 1 && (
+                    <div style={{textAlign: 'center', marginTop: '20px', marginBottom: '40px'}}>
+                      <button 
+                        className="btn btn-secondary" 
+                        onClick={() => setShowAllCategories(true)}
+                        style={{padding: '12px 24px', fontSize: '1.1rem'}}
+                      >
+                        <Layers size={18} style={{marginRight: '8px'}} /> View All 62+ Tools
+                      </button>
                     </div>
-                  )
-                })
+                  )}
+                </>
               )}
             </div>
           )}
