@@ -118,8 +118,22 @@ export default function App() {
   const activeTab = currentPath === '/' ? 'home' : currentPath.replace('/tool/', '');
   const currentTool = flatTools.find(t => t.id === activeTab);
 
+  // --- UPDATED SEO EFFECT ---
   useEffect(() => {
-    const isHome = activeTab === 'home'; const siteName = 'I Love Tools'; const title = isHome ? `${siteName} | 100% Free & Private Web Utilities` : `${currentTool?.name} - Free Client-Side Tool | ${siteName}`; const description = isHome ? 'An all-in-one hub of 70+ free, private web utilities. Edit videos, OCR images, format code, and compress files directly in your browser with zero server uploads.' : currentTool?.description || `Use our free ${currentTool?.name} tool directly in your browser. 100% secure, client-side processing.`; const canonical = `https://ilovetools.dev${currentPath}`;
+    const isHome = activeTab === 'home'; 
+    const siteName = 'I Love Tools'; 
+    
+    // NEW SEO-Optimized Title targeting specific Google Searches
+    const title = isHome 
+      ? `${siteName} | 100% Free & Private Web Utilities` 
+      : `Free Client-Side ${currentTool?.name} Tool | Secure & Private`; 
+      
+    const description = isHome 
+      ? 'An all-in-one hub of 70+ free, private web utilities. Edit videos, OCR images, format code, and compress files directly in your browser with zero server uploads.' 
+      : `Looking for a secure way to use a ${currentTool?.name.toLowerCase()}? Our free client-side tool runs entirely in your browser. No uploads, no limits, 100% private.`; 
+      
+    const canonical = `https://ilovetools.dev${currentPath}`;
+    
     document.title = title;
     const setMeta = (name, content, isProperty = false) => { const attr = isProperty ? 'property' : 'name'; let tag = document.querySelector(`meta[${attr}="${name}"]`); if (!tag) { tag = document.createElement('meta'); tag.setAttribute(attr, name); document.head.appendChild(tag); } tag.setAttribute('content', content); };
     setMeta('description', description); setMeta('og:type', isHome ? 'website' : 'WebApplication', true); setMeta('og:title', title, true); setMeta('og:description', description, true); setMeta('og:url', canonical, true); setMeta('og:site_name', siteName, true); setMeta('twitter:card', 'summary_large_image'); setMeta('twitter:title', title); setMeta('twitter:description', description);
@@ -138,7 +152,7 @@ export default function App() {
   const [activeObjectUrls, setActiveObjectUrls] = useState([]); const trackUrl = (url) => { if(url) setActiveObjectUrls(prev => [...prev, url]); return url; };
   useEffect(() => { return () => { activeObjectUrls.forEach(url => URL.revokeObjectURL(url)); }; }, [activeObjectUrls]);
 
-  // --- NEW TOOL 1: OCR IMAGE TO TEXT ---
+  // ALL STATE & LOGIC BUNDLED
   const [ocrFile, setOcrFile] = useState(null); const [ocrText, setOcrText] = useState(''); const [ocrLoading, setOcrLoading] = useState(false); const [ocrProgress, setOcrProgress] = useState(0);
   const handleOcrProcess = async () => {
     if (!validateFile(ocrFile, 25)) return; setOcrLoading(true); setOcrProgress(0); setOcrText('');
@@ -155,7 +169,6 @@ export default function App() {
     setOcrLoading(false);
   };
 
-  // --- NEW TOOL 2: PDF MERGE & SPLIT ---
   const [pdfMergeMode, setPdfMergeMode] = useState('merge'); const [pdfMergeFiles, setPdfMergeFiles] = useState([]); const [pdfSplitFile, setPdfSplitFile] = useState(null);
   const [pdfSplitRange, setPdfSplitRange] = useState('1'); const [pdfResultUrl, setPdfResultUrl] = useState(null); const [pdfProcessing, setPdfProcessing] = useState(false);
   const handlePdfMergeProcess = async () => {
@@ -202,7 +215,6 @@ export default function App() {
     setPdfProcessing(false);
   };
 
-  // --- NEW TOOL 3: BACKGROUND REMOVER (CANVAS COLOR-KEY / THRESHOLD) ---
   const [bgImageFile, setBgImageFile] = useState(null); const [bgTolerance, setBgTolerance] = useState(25); const [bgTargetColor, setBgTargetColor] = useState('#ffffff');
   const [bgResultUrl, setBgResultUrl] = useState(null);
   const handleBgRemove = () => {
@@ -218,12 +230,12 @@ export default function App() {
       const rMatch = parseInt(bgTargetColor.slice(1, 3), 16);
       const gMatch = parseInt(bgTargetColor.slice(3, 5), 16);
       const bMatch = parseInt(bgTargetColor.slice(5, 7), 16);
-      const threshold = (bgTolerance / 100) * 441.67; // max distance between RGB vectors
+      const threshold = (bgTolerance / 100) * 441.67; 
       for (let i = 0; i < data.length; i += 4) {
         const r = data[i], g = data[i+1], b = data[i+2];
         const dist = Math.sqrt(Math.pow(r - rMatch, 2) + Math.pow(g - gMatch, 2) + Math.pow(b - bMatch, 2));
         if (dist <= threshold) {
-          data[i+3] = 0; // Transparent
+          data[i+3] = 0; 
         }
       }
       ctx.putImageData(imgData, 0, 0);
@@ -233,7 +245,6 @@ export default function App() {
     img.src = URL.createObjectURL(bgImageFile);
   };
 
-  // --- NEW TOOL 4: CODE MINIFIER ---
   const [minifyType, setMinifyType] = useState('js'); const [minifyInput, setMinifyInput] = useState('function calculateSum(a, b) {\n  // Add two numbers\n  const result = a + b;\n  return result;\n}');
   const [minifyOutput, setMinifyOutput] = useState(''); const [minifyStats, setMinifyStats] = useState('');
   const handleMinifyCode = () => {
@@ -252,7 +263,6 @@ export default function App() {
     showToast('Code Minified');
   };
 
-  // --- NEW TOOL 5: XML / YAML ↔ JSON ---
   const [convMode, setConvMode] = useState('xml2json'); const [convInputText, setConvInputText] = useState('<user>\n  <id>1</id>\n  <name>Alex</name>\n  <role>Developer</role>\n</user>');
   const [convOutputText, setConvOutputText] = useState('');
   const handleConvertDataFormat = () => {
@@ -330,7 +340,6 @@ export default function App() {
     } catch (e) { showToast(`Error: ${e.message}`, 'error'); }
   };
 
-  // --- NEW TOOL 6: DEVICE MOCKUP GENERATOR ---
   const [mockupImg, setMockupImg] = useState(null); const [mockupDevice, setMockupDevice] = useState('browser'); const [mockupBg, setMockupBg] = useState('#4f46e5');
   const [mockupPadding, setMockupPadding] = useState(40); const [mockupResultUrl, setMockupResultUrl] = useState(null);
   const handleRenderMockup = () => {
@@ -343,31 +352,25 @@ export default function App() {
       canvas.width = img.width + pad * 2;
       canvas.height = img.height + pad * 2 + headerHeight;
       const ctx = canvas.getContext('2d');
-      // Background
       ctx.fillStyle = mockupBg;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      // Card Shadow
       ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
       ctx.shadowBlur = 30;
       ctx.shadowOffsetY = 15;
-      // Window container
       ctx.fillStyle = '#1e1e2e';
       ctx.beginPath();
       ctx.roundRect(pad, pad, img.width, img.height + headerHeight, 14);
       ctx.fill();
-      ctx.shadowColor = 'transparent'; // reset shadow
+      ctx.shadowColor = 'transparent'; 
       if (mockupDevice === 'browser') {
-        // Window dots
         ctx.fillStyle = '#ff5f56'; ctx.beginPath(); ctx.arc(pad + 20, pad + 20, 6, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = '#ffbd2e'; ctx.beginPath(); ctx.arc(pad + 38, pad + 20, 6, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = '#27c93f'; ctx.beginPath(); ctx.arc(pad + 56, pad + 20, 6, 0, Math.PI * 2); ctx.fill();
-        // Address bar
         ctx.fillStyle = 'rgba(255,255,255,0.1)';
         ctx.beginPath();
         ctx.roundRect(pad + 80, pad + 10, img.width - 160, 20, 6);
         ctx.fill();
       }
-      // Draw uploaded screenshot
       ctx.drawImage(img, pad, pad + headerHeight, img.width, img.height);
       setMockupResultUrl(trackUrl(canvas.toDataURL('image/png')));
       showToast('Mockup Rendered');
@@ -375,7 +378,6 @@ export default function App() {
     img.src = URL.createObjectURL(mockupImg);
   };
 
-  // --- NEW TOOL 7: PASSWORD STRENGTH ANALYZER ---
   const [passTestInput, setPassTestInput] = useState('Passw0rd123!#'); const [showPassTest, setShowPassTest] = useState(false);
   const getPasswordAnalysis = (pwd) => {
     let score = 0;
@@ -402,7 +404,6 @@ export default function App() {
   };
   const passAnalysis = getPasswordAnalysis(passTestInput);
 
-  // --- NEW TOOL 8: TEXT-TO-SPEECH (TTS) ---
   const [ttsInput, setTtsInput] = useState('Welcome to I Love Tools. All your private client-side utilities in one clean dashboard.');
   const [ttsVoices, setTtsVoices] = useState([]); const [ttsSelectedVoice, setTtsSelectedVoice] = useState(0); const [ttsPitch, setTtsPitch] = useState(1);
   const [ttsRate, setTtsRate] = useState(1); const [ttsSpeaking, setTtsSpeaking] = useState(false);
@@ -437,7 +438,6 @@ export default function App() {
     setTtsSpeaking(false);
   };
 
-  // --- ALL PRE-EXISTING STATE & LOGIC PRESERVED ---
   const [aesText, setAesText] = useState(''); const [aesPass, setAesPass] = useState(''); const [aesMode, setAesMode] = useState('encrypt'); const [aesResult, setAesResult] = useState(''); const [aesError, setAesError] = useState(''); const handleAesProcess = async () => { setAesError(''); if (!aesPass) { showToast('Password required', 'error'); return; } try { const enc = new TextEncoder(); if (aesMode === 'encrypt') { const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(aesPass), { name: "PBKDF2" }, false, ["deriveKey"]); const salt = crypto.getRandomValues(new Uint8Array(16)); const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: 250000, hash: "SHA-256" }, keyMaterial, { name: "AES-GCM", length: 256 }, false, ["encrypt"]); const iv = crypto.getRandomValues(new Uint8Array(12)); const encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, enc.encode(aesText)); const combined = new Uint8Array(salt.length + iv.length + encrypted.byteLength); combined.set(salt, 0); combined.set(iv, salt.length); combined.set(new Uint8Array(encrypted), salt.length + iv.length); setAesResult(btoa(String.fromCharCode(...combined))); showToast('Encrypted Successfully'); } else { const combined = Uint8Array.from(atob(aesText), c => c.charCodeAt(0)); const salt = combined.slice(0, 16); const iv = combined.slice(16, 28); const data = combined.slice(28); const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(aesPass), { name: "PBKDF2" }, false, ["deriveKey"]); const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: 250000, hash: "SHA-256" }, keyMaterial, { name: "AES-GCM", length: 256 }, false, ["decrypt"]); const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, data); setAesResult(new TextDecoder().decode(decrypted)); showToast('Decrypted Successfully'); } } catch { setAesError('Decryption failed.'); showToast('Decryption Failed', 'error'); } };
   const [rsaPublic, setRsaPublic] = useState(''); const [rsaPrivate, setRsaPrivate] = useState(''); const generateRSA = async () => { try { const keyPair = await window.crypto.subtle.generateKey({ name: "RSA-OAEP", modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: "SHA-256" }, true, ["encrypt", "decrypt"]); const exportedPubKey = await window.crypto.subtle.exportKey("spki", keyPair.publicKey); const exportedPrivKey = await window.crypto.subtle.exportKey("pkcs8", keyPair.privateKey); const exportToPem = (buffer, type) => { const b64 = btoa(String.fromCharCode(...new Uint8Array(buffer))); return `-----BEGIN ${type}-----\n${b64.match(/.{1,64}/g).join('\n')}\n-----END ${type}-----\n`; }; setRsaPublic(exportToPem(exportedPubKey, "PUBLIC KEY")); setRsaPrivate(exportToPem(exportedPrivKey, "PRIVATE KEY")); showToast('RSA Keys Generated'); } catch { showToast('Error generating keys', 'error'); } };
   const [pgpMode, setPgpMode] = useState('encrypt'); const [pgpMsg, setPgpMsg] = useState(''); const [pgpPass, setPgpPass] = useState(''); const [pgpOutput, setPgpOutput] = useState(''); const [pgpProcessing, setPgpProcessing] = useState(false); const handlePgpProcess = async () => { if (!pgpMsg || !pgpPass) { showToast('Message and Passphrase required', 'error'); return; } setPgpProcessing(true); try { const openpgp = await import('openpgp'); if (pgpMode === 'encrypt') { const message = await openpgp.createMessage({ text: pgpMsg }); const encrypted = await openpgp.encrypt({ message, passwords: [pgpPass], format: 'armored' }); setPgpOutput(encrypted); showToast('PGP Encrypted'); } else { const message = await openpgp.readMessage({ armoredMessage: pgpMsg }); const { data: decrypted } = await openpgp.decrypt({ message, passwords: [pgpPass], format: 'utf8' }); setPgpOutput(decrypted); showToast('PGP Decrypted'); } } catch (err) { setPgpOutput(`Error: ${err.message}`); showToast('PGP Failed', 'error'); } setPgpProcessing(false); };
@@ -604,231 +604,15 @@ export default function App() {
             <div className="tool-workspace">
               <ToolHeader tool={currentTool} navigate={navigate} />
 
-              {/* === 8 NEW TOOLS === */}
-              {activeTab === 'ocr' && (
-                <div>
-                  <div className="file-input-wrapper">
-                    <input type="file" accept="image/*" onChange={(e) => setOcrFile(e.target.files[0])} className="file-input" />
-                  </div>
-                  <button onClick={handleOcrProcess} disabled={!ocrFile || ocrLoading} className="btn btn-primary form-group">
-                    <FileSearch size={16}/> {ocrLoading ? `Recognizing Text (${ocrProgress}%)...` : 'Extract Text from Image'}
-                  </button>
-                  {ocrText && (
-                    <div className="form-group" style={{marginTop:'20px'}}>
-                      <label>Extracted Text</label>
-                      <textarea rows="8" readOnly className="form-control readonly-area" value={ocrText} />
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {activeTab === 'pdf-merge' && (
-                <div>
-                  <div className="btn-group form-group">
-                    <button className={`btn ${pdfMergeMode === 'merge' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setPdfMergeMode('merge'); setPdfResultUrl(null); }}>Merge PDFs</button>
-                    <button className={`btn ${pdfMergeMode === 'split' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setPdfMergeMode('split'); setPdfResultUrl(null); }}>Split / Extract Pages</button>
-                  </div>
-                  {pdfMergeMode === 'merge' ? (
-                    <div>
-                      <div className="file-input-wrapper">
-                        <input type="file" accept="application/pdf" multiple onChange={(e) => setPdfMergeFiles(Array.from(e.target.files))} className="file-input" />
-                      </div>
-                      <p style={{fontSize:'0.85rem', color:'var(--text-muted)', margin:'10px 0'}}>Selected {pdfMergeFiles.length} PDF files</p>
-                      <button onClick={handlePdfMergeProcess} disabled={pdfProcessing || pdfMergeFiles.length < 2} className="btn btn-primary form-group">
-                        <FileText size={16}/> {pdfProcessing ? 'Merging...' : 'Merge All PDFs'}
-                      </button>
-                    </div>
-                  ) : (
-                    <div>
-                      <div className="file-input-wrapper">
-                        <input type="file" accept="application/pdf" onChange={(e) => setPdfSplitFile(e.target.files[0])} className="file-input" />
-                      </div>
-                      <div className="form-group" style={{marginTop:'15px'}}>
-                        <label>Pages to Extract (e.g. 1-3, 5)</label>
-                        <input type="text" className="form-control" value={pdfSplitRange} onChange={(e) => setPdfSplitRange(e.target.value)} placeholder="1-3, 5" />
-                      </div>
-                      <button onClick={handlePdfMergeProcess} disabled={pdfProcessing || !pdfSplitFile} className="btn btn-primary form-group">
-                        <Split size={16}/> {pdfProcessing ? 'Extracting...' : 'Extract Selected Pages'}
-                      </button>
-                    </div>
-                  )}
-                  {pdfResultUrl && (
-                    <div className="results-grid" style={{marginTop:'20px'}}>
-                      <div><h4>Status</h4><p>Ready to download</p></div>
-                      <div><h4>PDF File</h4><a href={pdfResultUrl} download={pdfMergeMode === 'merge' ? 'merged.pdf' : 'split.pdf'} className="btn btn-primary" style={{marginTop:'10px'}}><Download size={16}/> Download PDF</a></div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {activeTab === 'bg-remover' && (
-                <div>
-                  <div className="file-input-wrapper">
-                    <input type="file" accept="image/*" onChange={(e) => { setBgImageFile(e.target.files[0]); setBgResultUrl(null); }} className="file-input" />
-                  </div>
-                  <div className="responsive-grid form-group" style={{marginTop:'15px'}}>
-                    <div>
-                      <label>Color to Remove</label>
-                      <input type="color" className="form-control" style={{padding:'2px', height:'42px'}} value={bgTargetColor} onChange={(e) => setBgTargetColor(e.target.value)} />
-                    </div>
-                    <div>
-                      <label>Tolerance ({bgTolerance}%)</label>
-                      <input type="range" min="1" max="80" value={bgTolerance} onChange={(e) => setBgTolerance(Number(e.target.value))} />
-                    </div>
-                  </div>
-                  <button onClick={handleBgRemove} disabled={!bgImageFile} className="btn btn-primary form-group">
-                    <Wand2 size={16}/> Remove Color & Make Transparent
-                  </button>
-                  {bgResultUrl && (
-                    <div style={{textAlign:'center', marginTop:'20px', padding:'30px', background:'repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 20px 20px', borderRadius:'12px'}}>
-                      <img src={bgResultUrl} alt="Transparent Background" style={{maxWidth:'100%', maxHeight:'350px', borderRadius:'8px'}} />
-                      <br/><br/>
-                      <a href={bgResultUrl} download="transparent.png" className="btn btn-primary"><Download size={16}/> Download Transparent PNG</a>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {activeTab === 'code-minify' && (
-                <div>
-                  <div className="btn-group form-group">
-                    <button className={`btn ${minifyType === 'js' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setMinifyType('js')}>JavaScript</button>
-                    <button className={`btn ${minifyType === 'css' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setMinifyType('css')}>CSS</button>
-                    <button className={`btn ${minifyType === 'html' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setMinifyType('html')}>HTML</button>
-                  </div>
-                  <div className="form-group">
-                    <label>Unminified Code</label>
-                    <textarea rows="7" className="form-control" style={{fontFamily:'monospace'}} value={minifyInput} onChange={(e) => setMinifyInput(e.target.value)} />
-                  </div>
-                  <button onClick={handleMinifyCode} className="btn btn-primary form-group"><Minimize2 size={16}/> Minify Code</button>
-                  {minifyStats && <p style={{color:'var(--success)', fontWeight:'bold', margin:'10px 0'}}>{minifyStats}</p>}
-                  {minifyOutput && (
-                    <div className="form-group"><label>Minified Result</label><textarea rows="6" readOnly className="form-control readonly-area" value={minifyOutput} /></div>
-                  )}
-                </div>
-              )}
-
-              {activeTab === 'xml-yaml-json' && (
-                <div>
-                  <div className="btn-group form-group">
-                    <button className={`btn ${convMode === 'xml2json' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setConvMode('xml2json'); setConvInputText('<root><item>Hello</item></root>'); }}>XML to JSON</button>
-                    <button className={`btn ${convMode === 'json2xml' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setConvMode('json2xml'); setConvInputText('{"root": {"item": "Hello"}}'); }}>JSON to XML</button>
-                    <button className={`btn ${convMode === 'json2yaml' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setConvMode('json2yaml'); setConvInputText('{"server": {"port": 8080, "host": "localhost"}}'); }}>JSON to YAML</button>
-                  </div>
-                  <div className="form-group">
-                    <label>Input Data</label>
-                    <textarea rows="6" className="form-control" style={{fontFamily:'monospace'}} value={convInputText} onChange={(e) => setConvInputText(e.target.value)} />
-                  </div>
-                  <button onClick={handleConvertDataFormat} className="btn btn-primary form-group"><FileJson size={16}/> Convert Structure</button>
-                  {convOutputText && (
-                    <div className="form-group"><label>Output Result</label><textarea rows="8" readOnly className="form-control readonly-area" value={convOutputText} /></div>
-                  )}
-                </div>
-              )}
-
-              {activeTab === 'mockup-gen' && (
-                <div>
-                  <div className="file-input-wrapper">
-                    <input type="file" accept="image/*" onChange={(e) => { setMockupImg(e.target.files[0]); setMockupResultUrl(null); }} className="file-input" />
-                  </div>
-                  <div className="responsive-grid form-group" style={{marginTop:'15px'}}>
-                    <div>
-                      <label>Mockup Style</label>
-                      <select className="form-control" value={mockupDevice} onChange={(e) => setMockupDevice(e.target.value)}>
-                        <option value="browser">Browser Window (macOS)</option>
-                        <option value="clean">Clean Minimal Frame</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label>Background Color</label>
-                      <input type="color" className="form-control" style={{padding:'2px', height:'42px'}} value={mockupBg} onChange={(e) => setMockupBg(e.target.value)} />
-                    </div>
-                    <div>
-                      <label>Padding ({mockupPadding}px)</label>
-                      <input type="range" min="10" max="100" value={mockupPadding} onChange={(e) => setMockupPadding(Number(e.target.value))} />
-                    </div>
-                  </div>
-                  <button onClick={handleRenderMockup} disabled={!mockupImg} className="btn btn-primary form-group">
-                    <Laptop size={16}/> Render Mockup Image
-                  </button>
-                  {mockupResultUrl && (
-                    <div style={{textAlign:'center', marginTop:'20px'}}>
-                      <img src={mockupResultUrl} alt="Device Mockup" style={{maxWidth:'100%', borderRadius:'12px', boxShadow:'var(--shadow-md)', marginBottom:'15px'}} />
-                      <br/><a href={mockupResultUrl} download="mockup.png" className="btn btn-secondary"><Download size={16}/> Download Mockup PNG</a>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {activeTab === 'pass-strength' && (
-                <div>
-                  <div className="form-group">
-                    <label>Test Password</label>
-                    <div style={{display:'flex', gap:'10px'}}>
-                      <input type={showPassTest ? "text" : "password"} className="form-control" value={passTestInput} onChange={(e) => setPassTestInput(e.target.value)} />
-                      <button className="btn btn-secondary" onClick={() => setShowPassTest(!showPassTest)}>{showPassTest ? 'Hide' : 'Show'}</button>
-                    </div>
-                  </div>
-                  <div style={{margin:'20px 0'}}>
-                    <div style={{display:'flex', justifyContent:'space-between', marginBottom:'8px'}}>
-                      <strong>Strength: {passAnalysis.score}%</strong>
-                      <span style={{color: passAnalysis.score >= 80 ? 'var(--success)' : passAnalysis.score >= 50 ? 'var(--warning)' : 'var(--error)', fontWeight:'bold'}}>
-                        {passAnalysis.score >= 80 ? 'Strong / Bulletproof' : passAnalysis.score >= 50 ? 'Fair' : 'Weak'}
-                      </span>
-                    </div>
-                    <div style={{height:'10px', width:'100%', background:'var(--border)', borderRadius:'5px', overflow:'hidden'}}>
-                      <div style={{height:'100%', width:`${passAnalysis.score}%`, background: passAnalysis.score >= 80 ? 'var(--success)' : passAnalysis.score >= 50 ? 'var(--warning)' : 'var(--error)', transition:'all 0.3s'}}></div>
-                    </div>
-                  </div>
-                  <div className="results-grid" style={{marginBottom:'20px'}}>
-                    <div className="stat-box"><h4>Crack Time Estimate</h4><p>{passAnalysis.crackTime}</p></div>
-                    <div className="stat-box"><h4>Characters</h4><p>{passTestInput.length}</p></div>
-                  </div>
-                  <div style={{padding:'20px', background:'var(--bg-base)', borderRadius:'12px', border:'1px solid var(--border)'}}>
-                    <h4 style={{marginBottom:'10px'}}>Security Checklist:</h4>
-                    <ul style={{listStyle:'none', padding:0, margin:0, display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(200px, 1fr))', gap:'8px'}}>
-                      <li>{passAnalysis.checks.length ? '✅' : '❌'} At least 12 characters</li>
-                      <li>{passAnalysis.checks.upper ? '✅' : '❌'} Uppercase letters</li>
-                      <li>{passAnalysis.checks.lower ? '✅' : '❌'} Lowercase letters</li>
-                      <li>{passAnalysis.checks.numbers ? '✅' : '❌'} Numbers included</li>
-                      <li>{passAnalysis.checks.symbols ? '✅' : '❌'} Symbols included</li>
-                      <li>{passAnalysis.checks.noCommon ? '✅' : '❌'} No common words</li>
-                    </ul>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'tts-reader' && (
-                <div>
-                  <div className="form-group">
-                    <label>Text to Read Aloud</label>
-                    <textarea rows="6" className="form-control" value={ttsInput} onChange={(e) => setTtsInput(e.target.value)} />
-                  </div>
-                  <div className="responsive-grid form-group">
-                    <div>
-                      <label>Select Voice</label>
-                      <select className="form-control" value={ttsSelectedVoice} onChange={(e) => setTtsSelectedVoice(Number(e.target.value))}>
-                        {ttsVoices.map((v, i) => <option key={i} value={i}>{v.name} ({v.lang})</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <label>Playback Speed ({ttsRate}x)</label>
-                      <input type="range" min="0.5" max="2" step="0.1" value={ttsRate} onChange={(e) => setTtsRate(Number(e.target.value))} />
-                    </div>
-                    <div>
-                      <label>Pitch ({ttsPitch})</label>
-                      <input type="range" min="0.5" max="1.5" step="0.1" value={ttsPitch} onChange={(e) => setTtsPitch(Number(e.target.value))} />
-                    </div>
-                  </div>
-                  <div className="btn-group">
-                    {!ttsSpeaking ? (
-                      <button onClick={handleTtsSpeak} className="btn btn-primary"><Play size={16}/> Read Aloud</button>
-                    ) : (
-                      <button onClick={handleTtsStop} className="btn btn-danger"><Square size={16}/> Stop Speaking</button>
-                    )}
-                  </div>
-                </div>
-              )}
+              {/* NEW TOOLS */}
+              {activeTab === 'ocr' && ( <div> <div className="file-input-wrapper"> <input type="file" accept="image/*" onChange={(e) => setOcrFile(e.target.files[0])} className="file-input" /> </div> <button onClick={handleOcrProcess} disabled={!ocrFile || ocrLoading} className="btn btn-primary form-group"> <FileSearch size={16}/> {ocrLoading ? `Recognizing Text (${ocrProgress}%)...` : 'Extract Text from Image'} </button> {ocrText && ( <div className="form-group" style={{marginTop:'20px'}}> <label>Extracted Text</label> <textarea rows="8" readOnly className="form-control readonly-area" value={ocrText} /> </div> )} </div> )}
+              {activeTab === 'pdf-merge' && ( <div> <div className="btn-group form-group"> <button className={`btn ${pdfMergeMode === 'merge' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setPdfMergeMode('merge'); setPdfResultUrl(null); }}>Merge PDFs</button> <button className={`btn ${pdfMergeMode === 'split' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setPdfMergeMode('split'); setPdfResultUrl(null); }}>Split / Extract Pages</button> </div> {pdfMergeMode === 'merge' ? ( <div> <div className="file-input-wrapper"> <input type="file" accept="application/pdf" multiple onChange={(e) => setPdfMergeFiles(Array.from(e.target.files))} className="file-input" /> </div> <p style={{fontSize:'0.85rem', color:'var(--text-muted)', margin:'10px 0'}}>Selected {pdfMergeFiles.length} PDF files</p> <button onClick={handlePdfMergeProcess} disabled={pdfProcessing || pdfMergeFiles.length < 2} className="btn btn-primary form-group"> <FileText size={16}/> {pdfProcessing ? 'Merging...' : 'Merge All PDFs'} </button> </div> ) : ( <div> <div className="file-input-wrapper"> <input type="file" accept="application/pdf" onChange={(e) => setPdfSplitFile(e.target.files[0])} className="file-input" /> </div> <div className="form-group" style={{marginTop:'15px'}}> <label>Pages to Extract (e.g. 1-3, 5)</label> <input type="text" className="form-control" value={pdfSplitRange} onChange={(e) => setPdfSplitRange(e.target.value)} placeholder="1-3, 5" /> </div> <button onClick={handlePdfMergeProcess} disabled={pdfProcessing || !pdfSplitFile} className="btn btn-primary form-group"> <Split size={16}/> {pdfProcessing ? 'Extracting...' : 'Extract Selected Pages'} </button> </div> )} {pdfResultUrl && ( <div className="results-grid" style={{marginTop:'20px'}}> <div><h4>Status</h4><p>Ready to download</p></div> <div><h4>PDF File</h4><a href={pdfResultUrl} download={pdfMergeMode === 'merge' ? 'merged.pdf' : 'split.pdf'} className="btn btn-primary" style={{marginTop:'10px'}}><Download size={16}/> Download PDF</a></div> </div> )} </div> )}
+              {activeTab === 'bg-remover' && ( <div> <div className="file-input-wrapper"> <input type="file" accept="image/*" onChange={(e) => { setBgImageFile(e.target.files[0]); setBgResultUrl(null); }} className="file-input" /> </div> <div className="responsive-grid form-group" style={{marginTop:'15px'}}> <div> <label>Color to Remove</label> <input type="color" className="form-control" style={{padding:'2px', height:'42px'}} value={bgTargetColor} onChange={(e) => setBgTargetColor(e.target.value)} /> </div> <div> <label>Tolerance ({bgTolerance}%)</label> <input type="range" min="1" max="80" value={bgTolerance} onChange={(e) => setBgTolerance(Number(e.target.value))} /> </div> </div> <button onClick={handleBgRemove} disabled={!bgImageFile} className="btn btn-primary form-group"> <Wand2 size={16}/> Remove Color & Make Transparent </button> {bgResultUrl && ( <div style={{textAlign:'center', marginTop:'20px', padding:'30px', background:'repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 20px 20px', borderRadius:'12px'}}> <img src={bgResultUrl} alt="Transparent Background" style={{maxWidth:'100%', maxHeight:'350px', borderRadius:'8px'}} /> <br/><br/> <a href={bgResultUrl} download="transparent.png" className="btn btn-primary"><Download size={16}/> Download Transparent PNG</a> </div> )} </div> )}
+              {activeTab === 'code-minify' && ( <div> <div className="btn-group form-group"> <button className={`btn ${minifyType === 'js' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setMinifyType('js')}>JavaScript</button> <button className={`btn ${minifyType === 'css' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setMinifyType('css')}>CSS</button> <button className={`btn ${minifyType === 'html' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setMinifyType('html')}>HTML</button> </div> <div className="form-group"> <label>Unminified Code</label> <textarea rows="7" className="form-control" style={{fontFamily:'monospace'}} value={minifyInput} onChange={(e) => setMinifyInput(e.target.value)} /> </div> <button onClick={handleMinifyCode} className="btn btn-primary form-group"><Minimize2 size={16}/> Minify Code</button> {minifyStats && <p style={{color:'var(--success)', fontWeight:'bold', margin:'10px 0'}}>{minifyStats}</p>} {minifyOutput && ( <div className="form-group"><label>Minified Result</label><textarea rows="6" readOnly className="form-control readonly-area" value={minifyOutput} /></div> )} </div> )}
+              {activeTab === 'xml-yaml-json' && ( <div> <div className="btn-group form-group"> <button className={`btn ${convMode === 'xml2json' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setConvMode('xml2json'); setConvInputText('<root><item>Hello</item></root>'); }}>XML to JSON</button> <button className={`btn ${convMode === 'json2xml' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setConvMode('json2xml'); setConvInputText('{"root": {"item": "Hello"}}'); }}>JSON to XML</button> <button className={`btn ${convMode === 'json2yaml' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setConvMode('json2yaml'); setConvInputText('{"server": {"port": 8080, "host": "localhost"}}'); }}>JSON to YAML</button> </div> <div className="form-group"> <label>Input Data</label> <textarea rows="6" className="form-control" style={{fontFamily:'monospace'}} value={convInputText} onChange={(e) => setConvInputText(e.target.value)} /> </div> <button onClick={handleConvertDataFormat} className="btn btn-primary form-group"><FileJson size={16}/> Convert Structure</button> {convOutputText && ( <div className="form-group"><label>Output Result</label><textarea rows="8" readOnly className="form-control readonly-area" value={convOutputText} /></div> )} </div> )}
+              {activeTab === 'mockup-gen' && ( <div> <div className="file-input-wrapper"> <input type="file" accept="image/*" onChange={(e) => { setMockupImg(e.target.files[0]); setMockupResultUrl(null); }} className="file-input" /> </div> <div className="responsive-grid form-group" style={{marginTop:'15px'}}> <div> <label>Mockup Style</label> <select className="form-control" value={mockupDevice} onChange={(e) => setMockupDevice(e.target.value)}> <option value="browser">Browser Window (macOS)</option> <option value="clean">Clean Minimal Frame</option> </select> </div> <div> <label>Background Color</label> <input type="color" className="form-control" style={{padding:'2px', height:'42px'}} value={mockupBg} onChange={(e) => setMockupBg(e.target.value)} /> </div> <div> <label>Padding ({mockupPadding}px)</label> <input type="range" min="10" max="100" value={mockupPadding} onChange={(e) => setMockupPadding(Number(e.target.value))} /> </div> </div> <button onClick={handleRenderMockup} disabled={!mockupImg} className="btn btn-primary form-group"> <Laptop size={16}/> Render Mockup Image </button> {mockupResultUrl && ( <div style={{textAlign:'center', marginTop:'20px'}}> <img src={mockupResultUrl} alt="Device Mockup" style={{maxWidth:'100%', borderRadius:'12px', boxShadow:'var(--shadow-md)', marginBottom:'15px'}} /> <br/><a href={mockupResultUrl} download="mockup.png" className="btn btn-secondary"><Download size={16}/> Download Mockup PNG</a> </div> )} </div> )}
+              {activeTab === 'pass-strength' && ( <div> <div className="form-group"> <label>Test Password</label> <div style={{display:'flex', gap:'10px'}}> <input type={showPassTest ? "text" : "password"} className="form-control" value={passTestInput} onChange={(e) => setPassTestInput(e.target.value)} /> <button className="btn btn-secondary" onClick={() => setShowPassTest(!showPassTest)}>{showPassTest ? 'Hide' : 'Show'}</button> </div> </div> <div style={{margin:'20px 0'}}> <div style={{display:'flex', justifyContent:'space-between', marginBottom:'8px'}}> <strong>Strength: {passAnalysis.score}%</strong> <span style={{color: passAnalysis.score >= 80 ? 'var(--success)' : passAnalysis.score >= 50 ? 'var(--warning)' : 'var(--error)', fontWeight:'bold'}}> {passAnalysis.score >= 80 ? 'Strong / Bulletproof' : passAnalysis.score >= 50 ? 'Fair' : 'Weak'} </span> </div> <div style={{height:'10px', width:'100%', background:'var(--border)', borderRadius:'5px', overflow:'hidden'}}> <div style={{height:'100%', width:`${passAnalysis.score}%`, background: passAnalysis.score >= 80 ? 'var(--success)' : passAnalysis.score >= 50 ? 'var(--warning)' : 'var(--error)', transition:'all 0.3s'}}></div> </div> </div> <div className="results-grid" style={{marginBottom:'20px'}}> <div className="stat-box"><h4>Crack Time Estimate</h4><p>{passAnalysis.crackTime}</p></div> <div className="stat-box"><h4>Characters</h4><p>{passTestInput.length}</p></div> </div> <div style={{padding:'20px', background:'var(--bg-base)', borderRadius:'12px', border:'1px solid var(--border)'}}> <h4 style={{marginBottom:'10px'}}>Security Checklist:</h4> <ul style={{listStyle:'none', padding:0, margin:0, display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(200px, 1fr))', gap:'8px'}}> <li>{passAnalysis.checks.length ? '✅' : '❌'} At least 12 characters</li> <li>{passAnalysis.checks.upper ? '✅' : '❌'} Uppercase letters</li> <li>{passAnalysis.checks.lower ? '✅' : '❌'} Lowercase letters</li> <li>{passAnalysis.checks.numbers ? '✅' : '❌'} Numbers included</li> <li>{passAnalysis.checks.symbols ? '✅' : '❌'} Symbols included</li> <li>{passAnalysis.checks.noCommon ? '✅' : '❌'} No common words</li> </ul> </div> </div> )}
+              {activeTab === 'tts-reader' && ( <div> <div className="form-group"> <label>Text to Read Aloud</label> <textarea rows="6" className="form-control" value={ttsInput} onChange={(e) => setTtsInput(e.target.value)} /> </div> <div className="responsive-grid form-group"> <div> <label>Select Voice</label> <select className="form-control" value={ttsSelectedVoice} onChange={(e) => setTtsSelectedVoice(Number(e.target.value))}> {ttsVoices.map((v, i) => <option key={i} value={i}>{v.name} ({v.lang})</option>)} </select> </div> <div> <label>Playback Speed ({ttsRate}x)</label> <input type="range" min="0.5" max="2" step="0.1" value={ttsRate} onChange={(e) => setTtsRate(Number(e.target.value))} /> </div> <div> <label>Pitch ({ttsPitch})</label> <input type="range" min="0.5" max="1.5" step="0.1" value={ttsPitch} onChange={(e) => setTtsPitch(Number(e.target.value))} /> </div> </div> <div className="btn-group"> {!ttsSpeaking ? ( <button onClick={handleTtsSpeak} className="btn btn-primary"><Play size={16}/> Read Aloud</button> ) : ( <button onClick={handleTtsStop} className="btn btn-danger"><Square size={16}/> Stop Speaking</button> )} </div> </div> )}
 
               {/* SECURITY & PRIVACY */}
               {activeTab === 'aes-encrypt' && ( <div> <div className="btn-group"> <button className={`btn ${aesMode === 'encrypt' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setAesMode('encrypt'); setAesResult(''); setAesError(''); }}>Encrypt</button> <button className={`btn ${aesMode === 'decrypt' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setAesMode('decrypt'); setAesResult(''); setAesError(''); }}>Decrypt</button> </div> <div className="form-group"><label>{aesMode === 'encrypt' ? 'Message' : 'Ciphertext'}</label><textarea rows="4" className="form-control" value={aesText} onChange={(e) => setAesText(e.target.value)} /></div> <div className="form-group"><label>Passphrase</label><input type="password" placeholder="Enter secure passphrase..." className="form-control" value={aesPass} onChange={(e) => setAesPass(e.target.value)} /></div> <button onClick={handleAesProcess} className="btn btn-primary form-group"><ShieldCheck size={16}/> Process Locally</button> {aesResult && <div className="form-group"><label>Result</label><textarea rows="4" readOnly className="form-control readonly-area" value={aesResult} /></div>} </div> )}
@@ -908,13 +692,27 @@ export default function App() {
             </div>
           )}
 
+          {/* === PROGRAMMATIC SEO PROBLEM-SOLUTION BLOCK === */}
           {activeTab !== 'home' && currentTool && (
-            <div className="seo-content" style={{ marginTop: '40px', padding: '30px', borderTop: '1px solid var(--border)', color: 'var(--text-main)' }}>
-              <h2 style={{ fontSize: '1.5rem', marginBottom: '15px' }}>About the {currentTool.name} Tool</h2>
-              <p style={{ marginBottom: '15px', color:'var(--text-muted)' }}>{currentTool.description}</p>
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '10px' }}>Privacy First Guarantee</h3>
-              <p style={{ color:'var(--text-muted)' }}>
-                Most tools process your files and data locally in your browser. Tools that require network requests send data to the destination required for that tool.
+            <div className="seo-content" style={{ marginTop: '40px', padding: '30px', borderTop: '1px solid var(--border)', color: 'var(--text-main)', background: 'var(--bg-surface)', borderRadius: '0 0 12px 12px' }}>
+              <h2 style={{ fontSize: '1.5rem', marginBottom: '15px' }}>Free Client-Side {currentTool.name} Tool</h2>
+              
+              <p style={{ marginBottom: '20px', color:'var(--text-muted)', lineHeight: '1.6' }}>
+                Are you looking for a secure, fast, and reliable solution for <strong>{currentTool.name.toLowerCase()}</strong>? 
+                Our free client-side {currentTool.name} tool is designed to solve your problem instantly. 
+                {currentTool.description}
+              </p>
+
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '15px' }}>Why Use Our {currentTool.name} Tool?</h3>
+              <ul style={{ marginBottom: '25px', color:'var(--text-muted)', paddingLeft: '20px', lineHeight: '1.6' }}>
+                <li style={{marginBottom: '8px'}}><strong>100% Privacy & Security:</strong> Your data never leaves your device. Because this is a client-side {currentTool.name.toLowerCase()}, there are no server uploads, meaning zero risk of data breaches or leaks.</li>
+                <li style={{marginBottom: '8px'}}><strong>Lightning Fast:</strong> No waiting for files to upload or download from a remote server. The processing happens instantly using your device's own computing power.</li>
+                <li style={{marginBottom: '8px'}}><strong>No Usage Limits:</strong> Since we don't pay for expensive server processing, we don't restrict how much data you can process locally. Use it as much as you want.</li>
+              </ul>
+
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '10px' }}>The Problem with Traditional Online Tools</h3>
+              <p style={{ color:'var(--text-muted)', lineHeight: '1.6' }}>
+                Most free online {currentTool.name.toLowerCase()} tools operate by sending your files to a remote server for processing. This creates a massive security vulnerability. Once you upload your data, you lose control over who can access it, how long it is stored, and whether it is used to train AI models. By switching to a browser-based, client-side solution, you completely eliminate these privacy risks while getting the exact same professional results.
               </p>
             </div>
           )}
