@@ -49,50 +49,6 @@ body {
   max-width: 1200px;
 }
 
-.home-dashboard, .tool-workspace {
-  background-color: var(--bg-base);
-}
-
-.home-hero {
-  text-align: center;
-  padding: 3rem 1rem;
-  margin-bottom: 2rem;
-}
-
-.home-hero h2 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  background: linear-gradient(135deg, var(--primary), #8a2387);
-  -webkit-background-clip: text;
-  background-clip: text; /* <-- Add this line right here */
-  -webkit-text-fill-color: transparent;
-}
-
-.section-heading {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--border);
-}
-
-/* --- GRID SYSTEM --- */
-.responsive-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-}
-
-.results-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin: 1.5rem 0;
-}
-
 /* --- HEADER & NAVIGATION --- */
 .header {
   background-color: var(--bg-surface);
@@ -108,31 +64,38 @@ body {
   margin: 0 auto;
   padding: 0 1rem;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
 }
 
 .site-logo-container {
   text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .site-logo {
   font-size: 1.75rem;
   color: var(--text-main);
   font-weight: 800;
+  white-space: nowrap; /* Fixes the vertical text stacking */
 }
 
 .header-subtitle {
   color: var(--text-muted);
   font-size: 0.9rem;
-  margin-top: -0.5rem;
+  margin-top: 0.2rem;
+  white-space: nowrap;
 }
 
 .search-container {
   position: relative;
-  width: 100%;
-  max-width: 600px;
+  flex: 1;
+  min-width: 250px;
+  max-width: 450px;
 }
 
 .search-icon {
@@ -145,7 +108,7 @@ body {
 
 .search-bar {
   width: 100%;
-  padding: 12px 12px 12px 40px;
+  padding: 10px 12px 10px 40px;
   border-radius: 8px;
   border: 1px solid var(--border);
   background-color: var(--bg-base);
@@ -160,10 +123,8 @@ body {
 
 .header-nav {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  align-items: center;
   gap: 1rem;
-  width: 100%;
 }
 
 .header-nav-item {
@@ -180,7 +141,7 @@ body {
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem;
   border-radius: 6px;
 }
 
@@ -200,8 +161,7 @@ body {
   display: none;
   position: absolute;
   top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 0;
   background-color: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -231,7 +191,52 @@ body {
   color: var(--text-main);
 }
 
-/* --- TOOL CARDS (Animations removed for Framer Motion) --- */
+/* --- HOME HERO & DASHBOARD --- */
+.home-dashboard, .tool-workspace {
+  background-color: var(--bg-base);
+}
+
+.home-hero {
+  text-align: center;
+  padding: 3rem 1rem;
+  margin-bottom: 2rem;
+}
+
+.home-hero h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, var(--primary), #8a2387);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* --- GRID SYSTEM --- */
+.responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+/* --- TOOL CARDS --- */
 .tool-card {
   background-color: var(--bg-surface);
   border: 1px solid var(--border);
@@ -267,6 +272,31 @@ body {
 .tool-card p {
   color: var(--text-muted);
   font-size: 0.95rem;
+}
+
+.tool-header {
+  margin-bottom: 2rem;
+}
+
+.tool-header h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.back-btn:hover {
+  color: var(--primary);
 }
 
 /* --- FORMS & INPUTS --- */
@@ -338,7 +368,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: background-color 0.2s; /* Color transitions are fine to keep in CSS */
+  transition: background-color 0.2s;
 }
 
 .btn:disabled {
@@ -346,28 +376,11 @@ body {
   cursor: not-allowed;
 }
 
-.btn-primary {
-  background-color: var(--primary);
-  color: #fff;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: var(--primary-hover);
-}
-
-.btn-secondary {
-  background-color: var(--secondary);
-  color: var(--text-main);
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background-color: var(--secondary-hover);
-}
-
-.btn-danger {
-  background-color: var(--error);
-  color: #fff;
-}
+.btn-primary { background-color: var(--primary); color: #fff; }
+.btn-primary:hover:not(:disabled) { background-color: var(--primary-hover); }
+.btn-secondary { background-color: var(--secondary); color: var(--text-main); }
+.btn-secondary:hover:not(:disabled) { background-color: var(--secondary-hover); }
+.btn-danger { background-color: var(--error); color: #fff; }
 
 /* --- MISC UI COMPONENTS --- */
 .stat-box {
@@ -393,32 +406,7 @@ body {
   word-break: break-all;
 }
 
-.tool-header {
-  margin-bottom: 2rem;
-}
-
-.tool-header h1 {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-}
-
-.back-btn {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-bottom: 1rem;
-  font-size: 0.95rem;
-}
-
-.back-btn:hover {
-  color: var(--primary);
-}
-
-/* --- TOASTS (Animations removed for Framer Motion) --- */
+/* --- TOASTS --- */
 .toast-container {
   position: fixed;
   bottom: 20px;
@@ -445,17 +433,27 @@ body {
 .toast.error { background-color: var(--error); }
 .toast.warning { background-color: var(--warning); color: #000; }
 
-/* Responsive Adjustments */
-@media (min-width: 901px) {
+/* Responsive Adjustments for Header */
+@media (max-width: 950px) {
   .header-content {
-    flex-direction: row;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
   }
+  
   .search-container {
-    max-width: 300px;
-    margin-left: auto;
+    max-width: 100%;
+    width: 100%;
   }
+
   .header-nav {
-    width: auto;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .header-dropdown {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
   }
 }
