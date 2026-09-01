@@ -18,6 +18,7 @@
     "cronstrue": "^3.24.0",
     "diff": "^9.0.0",
     "dompurify": "^3.4.14",
+    "framer-motion": "^13.1.1",
     "gifshot": "^0.4.5",
     "jsonpath-plus": "^10.4.0",
     "jspdf": "^4.2.1",
