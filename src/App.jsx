@@ -11,7 +11,8 @@ import {
   KeyRound, Fingerprint, FileJson, GitCompare, ImagePlus, 
   Clapperboard, AppWindow, MicVocal, ArrowLeft, CheckCircle2, AlertCircle,
   Lock, Eye, FileCheck, Send, Sliders, FileCode, Split, Minimize2,
-  Cpu, FileOutput, ShieldAlert, Laptop, Smartphone, Tablet
+  Cpu, FileOutput, ShieldAlert, Laptop, Smartphone, Tablet,
+  Activity, GitBranch, EyeOff, Wind, Tags
 } from 'lucide-react';
 import AdBanner from './AdBanner';
 import { Analytics } from '@vercel/analytics/react';
@@ -38,6 +39,9 @@ const categories = {
     { id: 'ocr', name: 'Image to Text (OCR)', icon: FileSearch, description: 'Extract text and characters directly from screenshots, photos, and scanned documents.' },
     { id: 'bg-remover', name: 'Background Remover', icon: Wand2, description: 'Remove or key-out backgrounds from images locally to create transparent PNGs.' },
     { id: 'mockup-gen', name: 'Device Mockup Gen', icon: Laptop, description: 'Wrap screenshots into realistic MacBook, iPhone, and desktop device frames.' },
+    { id: 'id3-editor', name: 'MP3 ID3 Tag Editor', icon: Tags, description: 'Edit album art, artist, and track metadata directly inside MP3 audio files locally.' },
+    { id: 'mesh-grad', name: 'CSS Mesh Gradient', icon: Sparkles, description: 'Visually generate complex, overlapping CSS radial mesh gradients.' },
+    { id: 'color-blind', name: 'Color Blind Sim', icon: EyeOff, description: 'Simulate how your images and UI designs look to users with various forms of color blindness.' },
     { id: 'image', name: 'Compress Image', icon: Image, description: 'Compress PNG, JPG, and WebP images locally with custom target file size limits.' },
     { id: 'img-converter', name: 'Format Converter', icon: RefreshCw, description: 'Transcode images between PNG, JPG, and modern WebP formats in the browser.' },
     { id: 'favicon-gen', name: 'Favicon Generator', icon: FileArchive, description: 'Upload a logo to generate a complete multi-size favicon package and web manifest.' },
@@ -50,6 +54,11 @@ const categories = {
     { id: 'dummyimg', name: 'Dummy Image', icon: ImagePlus, description: 'Generate custom placeholder images with custom dimensions, colors, and text.' },
   ],
   "Developer & Code": [
+    { id: 'svg-to-jsx', name: 'SVG to React JSX', icon: Code, description: 'Clean and convert raw SVG code into fully functional React JSX components.' },
+    { id: 'css-to-tailwind', name: 'CSS to Tailwind', icon: Wind, description: 'Convert standard CSS property blocks into modern Tailwind CSS utility classes.' },
+    { id: 'chmod-calc', name: 'Chmod Calculator', icon: Calculator, description: 'Visually calculate Linux file permission octal numbers and symbolic strings.' },
+    { id: 'jsonpath-eval', name: 'JSONPath Evaluator', icon: Brackets, description: 'Test and evaluate JSONPath queries against massive JSON payloads instantly.' },
+    { id: 'git-builder', name: 'Visual Git Builder', icon: GitBranch, description: 'Visually build complex Git commands for rebasing, undoing commits, and stashing.' },
     { id: 'code-minify', name: 'Code Minifier', icon: Minimize2, description: 'Minify JavaScript, HTML, and CSS code directly in the browser to reduce file sizes.' },
     { id: 'xml-yaml-json', name: 'XML / YAML ↔ JSON', icon: FileJson, description: 'Convert structured data seamlessly between XML, YAML, and JSON formats.' },
     { id: 'api-tester', name: 'API Request Tester', icon: Send, description: 'Test REST APIs, inspect response headers, and format payloads without desktop clients.' },
@@ -74,6 +83,7 @@ const categories = {
     { id: 'ratio', name: 'Aspect Ratio', icon: Crop, description: 'Calculate pixel dimensions based on aspect ratios.' },
   ],
   "Text & Data": [
+    { id: 'csv-to-sql', name: 'CSV to SQL Insert', icon: Database, description: 'Parse CSV datasets and automatically generate bulk SQL INSERT INTO statements.' },
     { id: 'tts-reader', name: 'Text to Speech (TTS)', icon: Volume2, description: 'Synthesize spoken speech from written text with selectable browser voices.' },
     { id: 'excel-json', name: 'Excel to JSON', icon: FileSpreadsheet, description: 'Parse Excel sheets (.xlsx, .xls) and CSVs directly into structured JSON datasets.' },
     { id: 'counter', name: 'Word Counter', icon: FileText, description: 'Count words, characters, and spaces in text.' },
@@ -84,6 +94,7 @@ const categories = {
     { id: 'cron', name: 'Cron Parse', icon: Calendar, description: 'Translate cron schedule expressions into readable text.' },
   ],
   "Business & Utilities": [
+    { id: 'bpm-tapper', name: 'BPM Tapper', icon: Activity, description: 'Tap your keyboard or click to calculate the exact Beats Per Minute (BPM) of a track.' },
     { id: 'pdf-merge', name: 'Merge & Split PDF', icon: Split, description: 'Merge multiple PDF documents into one or split specific page ranges locally.' },
     { id: 'pdfgen', name: 'Photos to PDF', icon: FileUp, description: 'Convert multiple images and photos into a single PDF document.' },
     { id: 'invoice', name: 'PDF Invoice', icon: FileSpreadsheet, description: 'Create and download billing invoices as PDFs.' },
@@ -104,7 +115,7 @@ const categories = {
 };
 
 const flatTools = Object.values(categories).flat();
-const popularToolIds = ['videditor', 'image', 'ocr', 'api-tester', 'pdf-merge', 'bg-remover', 'pass-strength', 'excel-json'];
+const popularToolIds = ['svg-to-jsx', 'css-to-tailwind', 'csv-to-sql', 'ocr', 'pdf-merge', 'bg-remover', 'pass-strength', 'id3-editor'];
 
 const Toast = ({ message, type }) => ( <div className={`toast ${type}`}> {type === 'success' ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />} <span>{message}</span> </div> );
 const ToolCard = ({ tool, navigate }) => ( <a href={`/tool/${tool.id}`} onClick={(e) => { e.preventDefault(); navigate(`/tool/${tool.id}`); }} className="tool-card"> <div className="tool-card-header"><div className="tool-card-icon"><tool.icon size={24} /></div><h3>{tool.name}</h3></div> <p>{tool.description}</p> </a> );
@@ -118,20 +129,11 @@ export default function App() {
   const activeTab = currentPath === '/' ? 'home' : currentPath.replace('/tool/', '');
   const currentTool = flatTools.find(t => t.id === activeTab);
 
-  // --- UPDATED SEO EFFECT ---
   useEffect(() => {
     const isHome = activeTab === 'home'; 
     const siteName = 'I Love Tools'; 
-    
-    // NEW SEO-Optimized Title targeting specific Google Searches
-    const title = isHome 
-      ? `${siteName} | 100% Free & Private Web Utilities` 
-      : `Free Client-Side ${currentTool?.name} Tool | Secure & Private`; 
-      
-    const description = isHome 
-      ? 'An all-in-one hub of 70+ free, private web utilities. Edit videos, OCR images, format code, and compress files directly in your browser with zero server uploads.' 
-      : `Looking for a secure way to use a ${currentTool?.name.toLowerCase()}? Our free client-side tool runs entirely in your browser. No uploads, no limits, 100% private.`; 
-      
+    const title = isHome ? `${siteName} | 100% Free & Private Web Utilities` : `Free Client-Side ${currentTool?.name} Tool | Secure & Private`; 
+    const description = isHome ? 'An all-in-one hub of 80+ free, private web utilities. Edit videos, OCR images, format code, and compress files directly in your browser with zero server uploads.' : `Looking for a secure way to use a ${currentTool?.name.toLowerCase()}? Our free client-side tool runs entirely in your browser. No uploads, no limits, 100% private.`; 
     const canonical = `https://ilovetools.dev${currentPath}`;
     
     document.title = title;
@@ -152,7 +154,140 @@ export default function App() {
   const [activeObjectUrls, setActiveObjectUrls] = useState([]); const trackUrl = (url) => { if(url) setActiveObjectUrls(prev => [...prev, url]); return url; };
   useEffect(() => { return () => { activeObjectUrls.forEach(url => URL.revokeObjectURL(url)); }; }, [activeObjectUrls]);
 
-  // ALL STATE & LOGIC BUNDLED
+  // --- NEW TOOL 1: SVG TO JSX ---
+  const [svgJsxInput, setSvgJsxInput] = useState('<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-code"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>');
+  const [svgJsxOutput, setSvgJsxOutput] = useState('');
+  const convertSvgToJsx = () => {
+    let res = svgJsxInput
+      .replace(/class=/g, 'className=')
+      .replace(/stroke-width=/g, 'strokeWidth=')
+      .replace(/stroke-linecap=/g, 'strokeLinecap=')
+      .replace(/stroke-linejoin=/g, 'strokeLinejoin=')
+      .replace(/fill-rule=/g, 'fillRule=')
+      .replace(/clip-rule=/g, 'clipRule=')
+      .replace(/stroke-miterlimit=/g, 'strokeMiterlimit=');
+    setSvgJsxOutput(`export const Icon = (props) => (\n  ${res.trim()}\n);`);
+    showToast('Converted to JSX');
+  };
+
+  // --- NEW TOOL 2: CSS TO TAILWIND ---
+  const [cssTwInput, setCssTwInput] = useState('.card {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 100%;\n  height: 100%;\n  margin: 0 auto;\n  font-weight: bold;\n}');
+  const [cssTwOutput, setCssTwOutput] = useState('');
+  const convertCssToTw = () => {
+    const map = { 'display: flex': 'flex', 'display: block': 'block', 'display: grid': 'grid', 'justify-content: center': 'justify-center', 'justify-content: space-between': 'justify-between', 'align-items: center': 'items-center', 'width: 100%': 'w-full', 'height: 100%': 'h-full', 'margin: 0 auto': 'mx-auto', 'font-weight: bold': 'font-bold', 'text-align: center': 'text-center', 'box-sizing: border-box': 'box-border' };
+    let out = cssTwInput;
+    Object.keys(map).forEach(k => { out = out.replace(new RegExp(k+';?', 'gi'), map[k]); });
+    setCssTwOutput(out.replace(/\n/g, ' ').replace(/{|}|.card/g, '').replace(/;/g, '').trim());
+    showToast('Converted common rules');
+  };
+
+  // --- NEW TOOL 3: CHMOD CALCULATOR ---
+  const [chmodPerms, setChmodPerms] = useState({ owner: { r: true, w: true, x: true }, group: { r: true, w: false, x: true }, public: { r: true, w: false, x: true } });
+  const getChmodNum = (role) => (chmodPerms[role].r ? 4 : 0) + (chmodPerms[role].w ? 2 : 0) + (chmodPerms[role].x ? 1 : 0);
+  const chmodOctal = `${getChmodNum('owner')}${getChmodNum('group')}${getChmodNum('public')}`;
+  const getChmodSym = (role) => `${chmodPerms[role].r ? 'r' : '-'}${chmodPerms[role].w ? 'w' : '-'}${chmodPerms[role].x ? 'x' : '-'}`;
+  const chmodSymbolic = `-${getChmodSym('owner')}${getChmodSym('group')}${getChmodSym('public')}`;
+  const toggleChmod = (role, perm) => setChmodPerms({...chmodPerms, [role]: {...chmodPerms[role], [perm]: !chmodPerms[role][perm]}});
+
+  // --- NEW TOOL 4: CSV TO SQL ---
+  const [csvSqlInput, setCsvSqlInput] = useState('id,name,role\n1,Alex,Admin\n2,Sam,User');
+  const [csvSqlTable, setCsvSqlTable] = useState('users');
+  const [csvSqlOutput, setCsvSqlOutput] = useState('');
+  const convertCsvToSql = async () => {
+    if (!csvSqlInput.trim()) return;
+    try {
+      const Papa = (await import('papaparse')).default;
+      Papa.parse(csvSqlInput.trim(), {
+        header: true, skipEmptyLines: true,
+        complete: (results) => {
+          if (!results.data || results.data.length === 0) { showToast('No data', 'error'); return; }
+          const sqls = results.data.map(row => {
+            const vals = Object.values(row).map(v => `'${v.replace(/'/g, "''")}'`).join(', ');
+            return `INSERT INTO ${csvSqlTable} (${Object.keys(row).join(', ')}) VALUES (${vals});`;
+          });
+          setCsvSqlOutput(sqls.join('\n'));
+          showToast('SQL Generated');
+        }
+      });
+    } catch { showToast('Conversion failed', 'error'); }
+  };
+
+  // --- NEW TOOL 5: JSONPath EVALUATOR ---
+  const [jpJson, setJpJson] = useState('{\n  "store": {\n    "book": [\n      { "author": "Nigel Rees", "title": "Sayings of the Century" },\n      { "author": "J. R. R. Tolkien", "title": "The Lord of the Rings" }\n    ]\n  }\n}');
+  const [jpQuery, setJpQuery] = useState('$.store.book[*].author');
+  const [jpResult, setJpResult] = useState('');
+  const evaluateJsonPath = async () => {
+    try {
+      const { JSONPath } = await import('jsonpath-plus');
+      const res = JSONPath({ path: jpQuery, json: JSON.parse(jpJson) });
+      setJpResult(JSON.stringify(res, null, 2));
+      showToast('Query Evaluated');
+    } catch { showToast('Invalid JSON or Path', 'error'); }
+  };
+
+  // --- NEW TOOL 6: MP3 ID3 EDITOR ---
+  const [id3File, setId3File] = useState(null); const [id3Title, setId3Title] = useState(''); const [id3Artist, setId3Artist] = useState(''); const [id3Album, setId3Album] = useState(''); const [id3Url, setId3Url] = useState(null);
+  const writeId3 = async () => {
+    if(!id3File) return;
+    try {
+      const ID3Writer = (await import('browser-id3-writer')).default;
+      const buffer = await id3File.arrayBuffer();
+      const writer = new ID3Writer(buffer);
+      writer.setFrame('TIT2', id3Title).setFrame('TPE1', [id3Artist]).setFrame('TALB', id3Album);
+      writer.addTag();
+      setId3Url(trackUrl(URL.createObjectURL(writer.getBlob())));
+      showToast('ID3 Tags Written');
+    } catch(e) { showToast('Error writing tags', 'error'); }
+  };
+
+  // --- NEW TOOL 7: MESH GRADIENT ---
+  const [mesh1, setMesh1] = useState('#e94057'); const [mesh2, setMesh2] = useState('#8a2387'); const [mesh3, setMesh3] = useState('#f27121');
+  const meshCss = `background-color: #ffffff;\nbackground-image:\n  radial-gradient(at 0% 0%, ${mesh1} 0px, transparent 50%),\n  radial-gradient(at 100% 0%, ${mesh2} 0px, transparent 50%),\n  radial-gradient(at 100% 100%, ${mesh3} 0px, transparent 50%);`;
+
+  // --- NEW TOOL 8: COLOR BLIND SIMULATOR ---
+  const [cbImage, setCbImage] = useState(null); const [cbType, setCbType] = useState('protanopia'); const [cbResult, setCbResult] = useState(null);
+  const simulateColorBlindness = () => {
+    if(!cbImage) return;
+    const img = new window.Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width; canvas.height = img.height;
+      const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0);
+      const imgData = ctx.getImageData(0,0,canvas.width, canvas.height); const d = imgData.data;
+      for(let i=0; i<d.length; i+=4) {
+        const r=d[i], g=d[i+1], b=d[i+2];
+        if(cbType === 'protanopia') { d[i] = 0.567*r + 0.433*g; d[i+1] = 0.558*r + 0.442*g; d[i+2] = 0.242*g + 0.758*b; }
+        else if(cbType === 'deuteranopia') { d[i] = 0.625*r + 0.375*g; d[i+1] = 0.7*r + 0.3*g; d[i+2] = 0.3*g + 0.7*b; }
+        else if(cbType === 'tritanopia') { d[i] = 0.95*r + 0.05*g; d[i+1] = 0.433*r + 0.567*g; d[i+2] = 0.475*g + 0.525*b; }
+      }
+      ctx.putImageData(imgData, 0, 0);
+      setCbResult(trackUrl(canvas.toDataURL('image/png')));
+      showToast('Filter Applied');
+    }; img.src = URL.createObjectURL(cbImage);
+  };
+
+  // --- NEW TOOL 9: GIT BUILDER ---
+  const [gitAction, setGitAction] = useState('undo_commit_keep');
+  const gitCommands = {
+    'undo_commit_keep': 'git reset --soft HEAD~1', 'undo_commit_delete': 'git reset --hard HEAD~1',
+    'delete_remote_branch': 'git push origin --delete <branch_name>', 'discard_local_changes': 'git checkout -- .',
+    'change_last_commit_msg': 'git commit --amend -m "New message"', 'stash_changes': 'git stash push -m "message"',
+    'fetch_prune': 'git fetch -p'
+  };
+
+  // --- NEW TOOL 10: BPM TAPPER ---
+  const [bpmTaps, setBpmTaps] = useState([]); const [bpmResult, setBpmResult] = useState(0);
+  const handleBpmTap = () => {
+    const now = Date.now(); const newTaps = [...bpmTaps, now].slice(-10);
+    setBpmTaps(newTaps);
+    if(newTaps.length > 1) {
+      const diffs = []; for(let i=1; i<newTaps.length; i++) diffs.push(newTaps[i] - newTaps[i-1]);
+      const avg = diffs.reduce((a,b)=>a+b,0)/diffs.length;
+      setBpmResult(Math.round(60000 / avg));
+    }
+  };
+
+  // --- EXISTING TOOLS STATE ---
   const [ocrFile, setOcrFile] = useState(null); const [ocrText, setOcrText] = useState(''); const [ocrLoading, setOcrLoading] = useState(false); const [ocrProgress, setOcrProgress] = useState(0);
   const handleOcrProcess = async () => {
     if (!validateFile(ocrFile, 25)) return; setOcrLoading(true); setOcrProgress(0); setOcrText('');
@@ -480,7 +615,6 @@ export default function App() {
   const [mongoId, setMongoId] = useState(''); const [mongoResult, setMongoResult] = useState(''); const extractMongoDate = () => { if (mongoId.length === 24) setMongoResult(new Date(parseInt(mongoId.substring(0, 8), 16) * 1000).toLocaleString()); else { showToast('Invalid ID', 'error'); } };
   const [jwt, setJwt] = useState(''); const [jwtData, setJwtData] = useState(''); const decodeJwt = () => { try { setJwtData(JSON.stringify(JSON.parse(atob(jwt.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))), null, 2)); } catch { showToast('Invalid JWT', 'error'); } };
   const [boxH, setBoxH] = useState(10); const [boxV, setBoxV] = useState(10); const [boxBlur, setBoxBlur] = useState(15); const [boxSpread, setBoxSpread] = useState(0); const [boxColor, setBoxColor] = useState('#000000'); const [boxOpacity, setBoxOpacity] = useState(0.25); const hexToRgba = (hex, opacity) => { const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16); return `rgba(${r}, ${g}, ${b}, ${opacity})`; }; const boxShadowCSS = `box-shadow: ${boxH}px ${boxV}px ${boxBlur}px ${boxSpread}px ${hexToRgba(boxColor, boxOpacity)};`;
-  const [blur, setBlur] = useState(10); const [opacity, setOpacity] = useState(0.5); const glassCss = `background: rgba(255, 255, 255, ${opacity});\nbackdrop-filter: blur(${blur}px);\n-webkit-backdrop-filter: blur(${blur}px);\nborder: 1px solid rgba(255, 255, 255, 0.3);`;
   const [cronInput, setCronInput] = useState('0 12 * * 1-5'); const [cronResult, setCronResult] = useState(''); const translateCron = async () => { try { const cronstrue = (await import('cronstrue')).default; setCronResult(cronstrue.toString(cronInput)); } catch { showToast('Invalid Cron', 'error'); } };
   const [regexPattern, setRegexPattern] = useState('[a-zA-Z]+'); const [regexText, setRegexText] = useState('Test 123 string'); const [regexResult, setRegexResult] = useState(''); const testRegex = () => { try { const re = new RegExp(regexPattern, 'g'); const matches = regexText.match(re); setRegexResult(matches ? matches.join(', ') : 'No matches found.'); } catch { showToast('Invalid Regex', 'error'); } };
   const [keyData, setKeyData] = useState({ key: '-', code: '-', keyCode: '-' }); const handleKeyDown = (e) => { e.preventDefault(); setKeyData({ key: e.key === ' ' ? 'Space' : e.key, code: e.code, keyCode: e.keyCode }); };
@@ -523,7 +657,7 @@ export default function App() {
 
           <div className="search-container">
             <Search className="search-icon" size={20} />
-            <input type="text" placeholder="Search across 70+ tools (e.g. OCR, PDF, API Tester)..." className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+            <input type="text" placeholder="Search across 80+ tools (e.g. OCR, SVG to JSX, API Tester)..." className="search-bar" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
           </div>
 
           <nav className="header-nav">
@@ -553,7 +687,7 @@ export default function App() {
             <div className="home-dashboard">
               <div className="home-hero">
                 <h2>All the tools you need. None of the privacy risks.</h2>
-                <p style={{color: 'var(--text-muted)', fontSize: '1.2rem'}}>70+ powerful web utilities running entirely on your local device.</p>
+                <p style={{color: 'var(--text-muted)', fontSize: '1.2rem'}}>80+ powerful web utilities running entirely on your local device.</p>
               </div>
 
               {!searchQuery && (
@@ -591,7 +725,7 @@ export default function App() {
                         onClick={() => setShowAllCategories(true)}
                         style={{padding: '12px 24px', fontSize: '1.1rem'}}
                       >
-                        <Layers size={18} style={{marginRight: '8px'}} /> View All 70+ Tools
+                        <Layers size={18} style={{marginRight: '8px'}} /> View All 80+ Tools
                       </button>
                     </div>
                   )}
@@ -604,7 +738,19 @@ export default function App() {
             <div className="tool-workspace">
               <ToolHeader tool={currentTool} navigate={navigate} />
 
-              {/* NEW TOOLS */}
+              {/* === 10 NEW TOOLS ADDED === */}
+              {activeTab === 'svg-to-jsx' && ( <div> <div className="form-group"><label>Raw SVG Code</label><textarea rows="6" className="form-control" style={{fontFamily:'monospace'}} value={svgJsxInput} onChange={(e) => setSvgJsxInput(e.target.value)} /></div> <button onClick={convertSvgToJsx} className="btn btn-primary form-group"><Code size={16}/> Convert to React JSX</button> {svgJsxOutput && <div className="form-group"><label>React JSX Component</label><textarea rows="6" readOnly className="form-control readonly-area" value={svgJsxOutput} /></div>} </div> )}
+              {activeTab === 'css-to-tailwind' && ( <div> <div className="form-group"><label>Standard CSS</label><textarea rows="6" className="form-control" style={{fontFamily:'monospace'}} value={cssTwInput} onChange={(e) => setCssTwInput(e.target.value)} /></div> <button onClick={convertCssToTw} className="btn btn-primary form-group"><Wind size={16}/> Convert to Tailwind Classes</button> {cssTwOutput && <div className="form-group"><label>Tailwind Utility Classes</label><textarea rows="4" readOnly className="form-control readonly-area" value={cssTwOutput} /></div>} </div> )}
+              {activeTab === 'chmod-calc' && ( <div> <div className="responsive-grid form-group" style={{gap:'20px'}}> {['owner', 'group', 'public'].map(role => ( <div key={role} style={{background:'var(--bg-surface)', padding:'15px', borderRadius:'12px', border:'1px solid var(--border)'}}> <h4 style={{textTransform:'capitalize', marginBottom:'10px'}}>{role}</h4> <label style={{display:'block', marginBottom:'8px'}}><input type="checkbox" checked={chmodPerms[role].r} onChange={() => toggleChmod(role, 'r')} style={{marginRight:'8px'}}/> Read (4)</label> <label style={{display:'block', marginBottom:'8px'}}><input type="checkbox" checked={chmodPerms[role].w} onChange={() => toggleChmod(role, 'w')} style={{marginRight:'8px'}}/> Write (2)</label> <label style={{display:'block', marginBottom:'8px'}}><input type="checkbox" checked={chmodPerms[role].x} onChange={() => toggleChmod(role, 'x')} style={{marginRight:'8px'}}/> Execute (1)</label> </div> ))} </div> <div className="results-grid"> <div className="stat-box"><h4>Octal Notation</h4><p style={{fontSize:'2rem'}}>{chmodOctal}</p></div> <div className="stat-box"><h4>Symbolic Notation</h4><p style={{fontSize:'2rem'}}>{chmodSymbolic}</p></div> </div> </div> )}
+              {activeTab === 'csv-to-sql' && ( <div> <div className="form-group"><label>Target SQL Table Name</label><input type="text" className="form-control" value={csvSqlTable} onChange={(e) => setCsvSqlTable(e.target.value)} /></div> <div className="form-group"><label>CSV Data (with headers)</label><textarea rows="6" className="form-control" style={{fontFamily:'monospace'}} value={csvSqlInput} onChange={(e) => setCsvSqlInput(e.target.value)} /></div> <button onClick={convertCsvToSql} className="btn btn-primary form-group"><Database size={16}/> Generate SQL INSERT Statements</button> {csvSqlOutput && <div className="form-group"><label>SQL Output</label><textarea rows="8" readOnly className="form-control readonly-area" value={csvSqlOutput} /></div>} </div> )}
+              {activeTab === 'jsonpath-eval' && ( <div> <div className="form-group"><label>JSON Payload</label><textarea rows="6" className="form-control" style={{fontFamily:'monospace'}} value={jpJson} onChange={(e) => setJpJson(e.target.value)} /></div> <div className="form-group"><label>JSONPath Query</label><input type="text" className="form-control" value={jpQuery} onChange={(e) => setJpQuery(e.target.value)} /></div> <button onClick={evaluateJsonPath} className="btn btn-primary form-group"><Brackets size={16}/> Evaluate Query</button> {jpResult && <div className="form-group"><label>Extraction Result</label><textarea rows="6" readOnly className="form-control readonly-area" value={jpResult} /></div>} </div> )}
+              {activeTab === 'id3-editor' && ( <div> <div className="file-input-wrapper"><input type="file" accept="audio/mpeg" onChange={(e) => { setId3File(e.target.files[0]); setId3Url(null); }} className="file-input" /></div> <div className="responsive-grid form-group" style={{marginTop:'15px'}}> <div><label>Song Title</label><input type="text" className="form-control" value={id3Title} onChange={(e) => setId3Title(e.target.value)} /></div> <div><label>Artist Name</label><input type="text" className="form-control" value={id3Artist} onChange={(e) => setId3Artist(e.target.value)} /></div> <div><label>Album Name</label><input type="text" className="form-control" value={id3Album} onChange={(e) => setId3Album(e.target.value)} /></div> </div> <button onClick={writeId3} disabled={!id3File} className="btn btn-primary form-group"><Tags size={16}/> Write ID3 Metadata to MP3</button> {id3Url && <div style={{marginTop:'20px'}}><a href={id3Url} download={`tagged-${id3File?.name}`} className="btn btn-secondary"><Download size={16}/> Download Updated MP3</a></div>} </div> )}
+              {activeTab === 'mesh-grad' && ( <div> <div className="responsive-grid form-group"> <div><label>Top Left Color</label><input type="color" className="form-control" style={{padding:'2px', height:'42px'}} value={mesh1} onChange={(e) => setMesh1(e.target.value)} /></div> <div><label>Top Right Color</label><input type="color" className="form-control" style={{padding:'2px', height:'42px'}} value={mesh2} onChange={(e) => setMesh2(e.target.value)} /></div> <div><label>Bottom Right Color</label><input type="color" className="form-control" style={{padding:'2px', height:'42px'}} value={mesh3} onChange={(e) => setMesh3(e.target.value)} /></div> </div> <div style={{width:'100%', height:'250px', borderRadius:'16px', border:'1px solid var(--border)', marginBottom:'20px', backgroundColor: '#ffffff', backgroundImage: `radial-gradient(at 0% 0%, ${mesh1} 0px, transparent 50%), radial-gradient(at 100% 0%, ${mesh2} 0px, transparent 50%), radial-gradient(at 100% 100%, ${mesh3} 0px, transparent 50%)` }}></div> <div className="form-group"><label>CSS Code</label><textarea rows="5" readOnly className="form-control readonly-area" value={meshCss} /></div> </div> )}
+              {activeTab === 'color-blind' && ( <div> <div className="file-input-wrapper"><input type="file" accept="image/*" onChange={(e) => { setCbImage(e.target.files[0]); setCbResult(null); }} className="file-input" /></div> <div className="form-group" style={{marginTop:'15px'}}> <label>Condition to Simulate</label> <select className="form-control" value={cbType} onChange={(e) => setCbType(e.target.value)}> <option value="protanopia">Protanopia (Red-Blind)</option> <option value="deuteranopia">Deuteranopia (Green-Blind)</option> <option value="tritanopia">Tritanopia (Blue-Blind)</option> </select> </div> <button onClick={simulateColorBlindness} disabled={!cbImage} className="btn btn-primary form-group"><EyeOff size={16}/> Simulate Filter</button> {cbResult && ( <div style={{textAlign:'center', marginTop:'20px'}}> <img src={cbResult} alt="Color Blind Simulation" style={{maxWidth:'100%', borderRadius:'8px', border:'1px solid var(--border)', marginBottom:'15px'}} /> <br/><a href={cbResult} download={`simulated-${cbType}.png`} className="btn btn-secondary"><Download size={16}/> Download PNG</a> </div> )} </div> )}
+              {activeTab === 'git-builder' && ( <div> <div className="form-group"> <label>What do you want to do?</label> <select className="form-control" value={gitAction} onChange={(e) => setGitAction(e.target.value)}> <option value="undo_commit_keep">Undo last commit (keep files)</option> <option value="undo_commit_delete">Undo last commit (destroy files)</option> <option value="delete_remote_branch">Delete a remote branch</option> <option value="discard_local_changes">Discard all local uncommitted changes</option> <option value="change_last_commit_msg">Change the last commit message</option> <option value="stash_changes">Stash changes safely</option> <option value="fetch_prune">Fetch and prune dead branches</option> </select> </div> <div className="form-group"><label>Exact Terminal Command</label><div className="form-control readonly-area" style={{fontSize: '1.2rem', fontFamily:'monospace', fontWeight:'600'}}>{gitCommands[gitAction]}</div></div> </div> )}
+              {activeTab === 'bpm-tapper' && ( <div style={{textAlign: 'center'}}> <div style={{fontSize: '6rem', fontWeight: '800', margin: '20px 0', color: 'var(--primary)'}}>{bpmResult || '0'} <span style={{fontSize:'1.5rem', color:'var(--text-muted)'}}>BPM</span></div> <div style={{display:'flex', justifyContent:'center', gap:'15px'}}> <button onClick={handleBpmTap} className="btn btn-primary" style={{padding:'20px 40px', fontSize:'1.2rem'}}><Activity size={20} style={{marginRight:'8px'}}/> TAP HERE</button> <button onClick={() => { setBpmTaps([]); setBpmResult(0); }} className="btn btn-secondary" style={{padding:'20px 30px'}}><RefreshCw size={20}/></button> </div> <p style={{marginTop:'20px', color:'var(--text-muted)'}}>Click the button or tap any key repeatedly to calculate tempo.</p> </div> )}
+
+              {/* EXISTING TOOLS */}
               {activeTab === 'ocr' && ( <div> <div className="file-input-wrapper"> <input type="file" accept="image/*" onChange={(e) => setOcrFile(e.target.files[0])} className="file-input" /> </div> <button onClick={handleOcrProcess} disabled={!ocrFile || ocrLoading} className="btn btn-primary form-group"> <FileSearch size={16}/> {ocrLoading ? `Recognizing Text (${ocrProgress}%)...` : 'Extract Text from Image'} </button> {ocrText && ( <div className="form-group" style={{marginTop:'20px'}}> <label>Extracted Text</label> <textarea rows="8" readOnly className="form-control readonly-area" value={ocrText} /> </div> )} </div> )}
               {activeTab === 'pdf-merge' && ( <div> <div className="btn-group form-group"> <button className={`btn ${pdfMergeMode === 'merge' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setPdfMergeMode('merge'); setPdfResultUrl(null); }}>Merge PDFs</button> <button className={`btn ${pdfMergeMode === 'split' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setPdfMergeMode('split'); setPdfResultUrl(null); }}>Split / Extract Pages</button> </div> {pdfMergeMode === 'merge' ? ( <div> <div className="file-input-wrapper"> <input type="file" accept="application/pdf" multiple onChange={(e) => setPdfMergeFiles(Array.from(e.target.files))} className="file-input" /> </div> <p style={{fontSize:'0.85rem', color:'var(--text-muted)', margin:'10px 0'}}>Selected {pdfMergeFiles.length} PDF files</p> <button onClick={handlePdfMergeProcess} disabled={pdfProcessing || pdfMergeFiles.length < 2} className="btn btn-primary form-group"> <FileText size={16}/> {pdfProcessing ? 'Merging...' : 'Merge All PDFs'} </button> </div> ) : ( <div> <div className="file-input-wrapper"> <input type="file" accept="application/pdf" onChange={(e) => setPdfSplitFile(e.target.files[0])} className="file-input" /> </div> <div className="form-group" style={{marginTop:'15px'}}> <label>Pages to Extract (e.g. 1-3, 5)</label> <input type="text" className="form-control" value={pdfSplitRange} onChange={(e) => setPdfSplitRange(e.target.value)} placeholder="1-3, 5" /> </div> <button onClick={handlePdfMergeProcess} disabled={pdfProcessing || !pdfSplitFile} className="btn btn-primary form-group"> <Split size={16}/> {pdfProcessing ? 'Extracting...' : 'Extract Selected Pages'} </button> </div> )} {pdfResultUrl && ( <div className="results-grid" style={{marginTop:'20px'}}> <div><h4>Status</h4><p>Ready to download</p></div> <div><h4>PDF File</h4><a href={pdfResultUrl} download={pdfMergeMode === 'merge' ? 'merged.pdf' : 'split.pdf'} className="btn btn-primary" style={{marginTop:'10px'}}><Download size={16}/> Download PDF</a></div> </div> )} </div> )}
               {activeTab === 'bg-remover' && ( <div> <div className="file-input-wrapper"> <input type="file" accept="image/*" onChange={(e) => { setBgImageFile(e.target.files[0]); setBgResultUrl(null); }} className="file-input" /> </div> <div className="responsive-grid form-group" style={{marginTop:'15px'}}> <div> <label>Color to Remove</label> <input type="color" className="form-control" style={{padding:'2px', height:'42px'}} value={bgTargetColor} onChange={(e) => setBgTargetColor(e.target.value)} /> </div> <div> <label>Tolerance ({bgTolerance}%)</label> <input type="range" min="1" max="80" value={bgTolerance} onChange={(e) => setBgTolerance(Number(e.target.value))} /> </div> </div> <button onClick={handleBgRemove} disabled={!bgImageFile} className="btn btn-primary form-group"> <Wand2 size={16}/> Remove Color & Make Transparent </button> {bgResultUrl && ( <div style={{textAlign:'center', marginTop:'20px', padding:'30px', background:'repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 20px 20px', borderRadius:'12px'}}> <img src={bgResultUrl} alt="Transparent Background" style={{maxWidth:'100%', maxHeight:'350px', borderRadius:'8px'}} /> <br/><br/> <a href={bgResultUrl} download="transparent.png" className="btn btn-primary"><Download size={16}/> Download Transparent PNG</a> </div> )} </div> )}
