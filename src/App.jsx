@@ -38,9 +38,9 @@ export default function App() {
               {Object.keys(categories).map(category => (
                 <div key={category} className="header-nav-item" onMouseEnter={() => handleMouseEnter(category)} onMouseLeave={handleMouseLeave}>
                   <button className="nav-category-btn" onClick={() => handleMobileClick(category)}>
-                    {category} <ChevronDown size={16} className={`chevron ${activeDropdown === category || searchQuery ? 'open' : ''}`} />
+                    {category} <ChevronDown size={16} className={`chevron ${activeDropdown === category ? 'open' : ''}`} />
                   </button>
-                  <div className={`header-dropdown ${activeDropdown === category || searchQuery ? 'show' : ''}`}>
+                  <div className={`header-dropdown ${activeDropdown === category ? 'show' : ''}`}>
                     {categories[category].map(tool => (
                       <Link key={tool.id} to={`/tool/${tool.id}`} className="nav-link" onClick={() => setActiveDropdown(null)}>
                         <tool.icon size={16} /> {tool.name}
