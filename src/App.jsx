@@ -1,3 +1,4 @@
+import ToolsPage from './pages/ToolsPage';
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -58,7 +59,8 @@ export default function App() {
             <AdBanner />
             <AnimatePresence mode="wait">
               <Routes>
-                <Route path="/" element={<HomePage searchQuery={searchQuery} categories={categories} flatTools={flatTools} popularToolIds={popularToolIds} />} />
+                <Route path="/" element={<HomePage searchQuery={searchQuery} />} />
+                <Route path="/tools" element={<ToolsPage searchQuery={searchQuery} categories={categories} />} />
                 <Route path="/tool/:id" element={<ToolPageWrapper flatTools={flatTools} categories={categories} />} />
               </Routes>
             </AnimatePresence>
