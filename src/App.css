@@ -25,6 +25,14 @@
   padding: 0;
 }
 
+/* FIX: Force Vite's root element to stretch edge-to-edge */
+#root {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   font-family: 'Inter', -apple-system, sans-serif;
   background-color: var(--bg-base);
