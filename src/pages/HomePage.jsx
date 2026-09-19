@@ -11,11 +11,7 @@ export default function HomePage() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.4 }} className="home-dashboard" style={{textAlign: 'center', padding: '6rem 1rem 4rem 1rem'}}>
-      
-      {/* Beta Badge */}
-      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'var(--bg-card)', border: '1px solid var(--border)', padding: '6px 16px', borderRadius: '99px', fontSize: '0.85rem', color: 'var(--text-main)', marginBottom: '2rem' }}>
-        <Sparkles size={14} color="#a1a1aa" /> Now in Public Beta
-      </div>
+     
 
       {/* Massive Hero Heading */}
       <h1 style={{ fontSize: 'clamp(3rem, 8vw, 5.5rem)', fontWeight: '700', letterSpacing: '-0.04em', lineHeight: '1.1', color: 'var(--text-main)', marginBottom: '1.5rem' }}>
