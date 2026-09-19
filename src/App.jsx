@@ -6,8 +6,8 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import AdBanner from './AdBanner';
 import HomePage from './pages/HomePage';
-import ToolsPage from './pages/ToolsPage';
-import ToolPageWrapper from './pages/ToolsPage';
+import ToolsDirectory from './pages/ToolsDirectory';
+import ToolPageWrapper from './pages/ToolPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import { categories, flatTools, popularToolIds } from './data/categories';
@@ -80,7 +80,7 @@ function AppContent() {
           <AnimatePresence mode="wait">
             <Routes>
               <Route path="/" element={<HomePage />} />
-              <Route path="/tools" element={<ToolsPage searchQuery={searchQuery} categories={categories} />} />
+              <Route path="/tools" element={<ToolsDirectory searchQuery={searchQuery} categories={categories} />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/tool/:id" element={<ToolPageWrapper flatTools={flatTools} categories={categories} />} />
