@@ -7,7 +7,7 @@ import { SpeedInsights } from '@vercel/speed-insights/react';
 import AdBanner from './AdBanner';
 import HomePage from './pages/HomePage';
 import ToolsPage from './pages/ToolsPage';
-import ToolPageWrapper from './pages/ToolPage';
+import ToolPageWrapper from './pages/ToolsPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import { categories, flatTools, popularToolIds } from './data/categories';
