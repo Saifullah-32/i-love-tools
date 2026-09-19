@@ -1,17 +1,13 @@
 import React, { useEffect } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ShieldCheck, Zap, ServerOff, ArrowRight } from 'lucide-react';
 
-export default function HomePage({ searchQuery }) {
+export default function HomePage() {
   useEffect(() => {
+    window.scrollTo(0, 0);
     document.title = 'I Love Tools | 100% Free & Private Web Utilities';
   }, []);
-
-  // If user starts typing in the search bar, automatically jump to the Tools directory page
-  if (searchQuery) {
-    return <Navigate to="/tools" />;
-  }
 
   return (
     <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }} className="home-dashboard" style={{textAlign: 'center', padding: '4rem 1rem'}}>
@@ -47,7 +43,6 @@ export default function HomePage({ searchQuery }) {
           <p style={{color: 'var(--text-muted)', lineHeight: '1.6'}}>We don't pay for expensive cloud processing, which means we don't need to put you behind a paywall. Use every tool as many times as you want, completely free.</p>
         </div>
       </div>
-
     </motion.div>
   );
 }
