@@ -38,9 +38,9 @@ function AppContent() {
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '20px' }}>
           
           {/* Left: Logo */}
-          <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }} onClick={() => setSearchQuery('')}>
-            <div style={{ width: '28px', height: '28px', background: 'var(--text-main)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--bg-base)', fontWeight: 'bold', fontSize: '1.2rem' }}>⚡</div>
-            <h1 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--text-main)' }}>I Love Tools</h1>
+          <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }} onClick={() => setSearchQuery('')}>
+            <img src="/favicon.png" alt="1T Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
+            <h1 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--text-main)' }}>I Love Tools</h1>
           </Link>
 
           {/* Center: Main Navigation */}
