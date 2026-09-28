@@ -51,13 +51,12 @@ function AppContent() {
             <Link to="/contact" style={{ color: location.pathname === '/contact' ? 'var(--text-main)' : 'inherit', transition: 'color 0.2s' }}>Contact</Link>
           </nav>
 
-          {/* Right: Search & CTA */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {/* Right: Search */}
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             <div className="search-container" style={{ width: '240px' }}>
               <Search className="search-icon" size={16} />
               <input type="text" placeholder="Search 80+ tools..." className="search-bar" value={searchQuery} onChange={handleSearch} style={{ padding: '8px 12px 8px 36px', background: 'var(--bg-base)' }} />
             </div>
-            <Link to="/tools" className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '0.9rem' }}>Get Started</Link>
           </div>
 
         </div>
