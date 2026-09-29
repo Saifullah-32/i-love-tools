@@ -110,11 +110,9 @@ a {
 
 /* Header & Nav */
 .header {
-  position: sticky;
-  top: 0;
+  position: relative; /* Removed sticky behavior so it scrolls away naturally */
   z-index: 100;
-  background-color: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(12px);
+  background-color: var(--bg-base);
   border-bottom: 1px solid var(--border);
 }
 
