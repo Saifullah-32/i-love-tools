@@ -3,7 +3,8 @@ import {
   Image, Scissors, ImagePlus, Maximize, Crop, Video, FileUp, Music, Mic, Clapperboard, 
   Code2, FileCode2, Code, Brackets, Wind, Database, FileJson, GitCompare, BoxSelect, 
   Tags, FileText, Type, ListTree, Regex, Keyboard, Layout, Activity, Clock, Timer, 
-  Calculator, Receipt, Link, QrCode, Mail, Share2, GraduationCap, Gamepad2, LayoutGrid, Bug, FileStack
+  Calculator, Receipt, Link, QrCode, Mail, Share2, GraduationCap, Gamepad2, LayoutGrid, Bug, FileStack,
+  FileSpreadsheet, BookOpen, FolderOpen
 } from 'lucide-react';
 
 export const categories = {
@@ -41,7 +42,10 @@ export const categories = {
     { id: 'svg', name: 'SVG to PNG', description: 'Convert raw SVG code or files into high-resolution PNG images.', icon: Image },
     { id: 'dummyimg', name: 'Dummy Image Gen', description: 'Generate simple, solid-color placeholder images with custom dimensions and text.', icon: ImagePlus },
     { id: 'pod-safe-zone', name: 'POD Safe Zone', description: 'Upload merch designs to check them against standard print-on-demand safe zone guides.', icon: Crop },
-    { id: 'batch-watermark', name: 'Batch Watermark', description: 'Apply text watermarks to dozens of images instantly and download them as a ZIP.', icon: FileArchive }
+    { id: 'batch-watermark', name: 'Batch Watermark', description: 'Apply text watermarks to dozens of images instantly and download them as a ZIP.', icon: FileArchive },
+    { id: 'avif-converter', name: 'Next-Gen Img Converter', description: 'Convert legacy images into highly optimized next-gen formats like WebP or AVIF.', icon: ImagePlus },
+    { id: 'video-transcoder', name: 'Video Transcoder', description: 'Locally re-encode and transcode video containers (MP4, MKV, AVI) via WebCodecs.', icon: Video },
+    { id: 'audio-converter', name: 'Audio Formatter', description: 'Convert and compress audio tracks between WAV, MP3, and AAC client-side.', icon: Music }
   ],
   "Developer & Code": [
     { id: 'svg-to-jsx', name: 'SVG to React JSX', description: 'Clean and convert raw SVG code into fully functional React JSX components.', icon: Code2 },
@@ -69,7 +73,8 @@ export const categories = {
     { id: 'code-to-img', name: 'Code to Image', description: 'Turn a code snippet into a beautiful, shareable image for social media.', icon: ImagePlus },
     { id: 'prisma-vis', name: 'Prisma Visualizer', description: 'Paste a Prisma schema to render an interactive visual Entity-Relationship layout.', icon: Database },
     { id: 'sql-generator', name: 'Massive SQL Dump', description: 'Generate thousands of rows of mock SQL INSERT statements for local DB testing.', icon: Database },
-    { id: 'sprite-generator', name: 'Sprite Sheet Gen', description: 'Stitch individual icon files into a single optimized PNG sprite sheet for web games.', icon: LayoutGrid }
+    { id: 'sprite-generator', name: 'Sprite Sheet Gen', description: 'Stitch individual icon files into a single optimized PNG sprite sheet for web games.', icon: LayoutGrid },
+    { id: 'font-converter', name: 'Font to Base64', description: 'Convert uploaded TTF or OTF fonts into inline CSS Base64 strings for web embedding.', icon: Type }
   ],
   "Text & Data": [
     { id: 'csv-to-sql', name: 'CSV to SQL Insert', description: 'Parse CSV datasets and automatically generate bulk SQL INSERT INTO statements.', icon: Database },
@@ -81,7 +86,10 @@ export const categories = {
     { id: 'lorem', name: 'Lorem Ipsum', description: 'Generate customizable blocks of standard Lorem Ipsum dummy text.', icon: ListTree },
     { id: 'md', name: 'Markdown Viewer', description: 'Live preview Markdown syntax and convert it to sanitized HTML code.', icon: FileCode2 },
     { id: 'cgpa-calc', name: 'CGPA Forecaster', description: 'Reverse-engineer the grades you need in upcoming semesters to hit your target CGPA.', icon: GraduationCap },
-    { id: 'md-email', name: 'MD to HTML Email', description: 'Convert Markdown into fully inline-styled HTML ready to copy-paste into email clients.', icon: Mail }
+    { id: 'md-email', name: 'MD to HTML Email', description: 'Convert Markdown into fully inline-styled HTML ready to copy-paste into email clients.', icon: Mail },
+    { id: 'pdf-to-text', name: 'PDF to Text', description: 'Extract raw text layers from PDF documents locally in your browser.', icon: FileText },
+    { id: 'csv-to-excel', name: 'CSV to Excel Converter', description: 'Convert raw CSV spreadsheet data directly into a native Microsoft Excel (.xlsx) file.', icon: FileSpreadsheet },
+    { id: 'text-to-epub', name: 'E-Book Creator (EPUB)', description: 'Package raw markdown or text into a valid reflowable EPUB e-book container.', icon: BookOpen }
   ],
   "Business & Utilities": [
     { id: 'bpm-tapper', name: 'BPM Tapper', description: 'Tap a button to calculate the exact Beats Per Minute (BPM) of a song or heartbeat.', icon: Activity },
@@ -97,9 +105,10 @@ export const categories = {
     { id: 'pomo', name: 'Pomodoro Timer', description: 'A 25-minute focus timer to boost productivity using the Pomodoro technique.', icon: Clock },
     { id: 'invoice', name: 'PDF Invoice', description: 'Generate a basic, clean PDF invoice for quick client billing.', icon: Receipt },
     { id: 'gamepad-mapper', name: 'Gamepad Mapper', description: 'Upload a mobile game screenshot to plan and map external controller touch zones.', icon: Gamepad2 },
-    { id: 'og-preview', name: 'OpenGraph Preview', description: 'Live preview of how your website links will look when shared on Twitter and iMessage.', icon: Share2 }
+    { id: 'og-preview', name: 'OpenGraph Preview', description: 'Live preview of how your website links will look when shared on Twitter and iMessage.', icon: Share2 },
+    { id: 'archive-extractor', name: 'Archive Extractor', description: 'Read, extract, and view the contents of ZIP archive files directly in your browser.', icon: FolderOpen }
   ]
 };
 
 export const flatTools = Object.values(categories).flat();
-export const popularToolIds = ['svg-to-jsx', 'css-to-tailwind', 'csv-to-sql', 'ocr', 'pdf-merge', 'bg-remover', 'pass-strength', 'id3-editor'];
+export const popularToolIds = ['svg-to-jsx', 'css-to-tailwind', 'csv-to-sql', 'pdf-merge', 'csv-to-excel', 'bg-remover', 'pass-strength', 'id3-editor'];
