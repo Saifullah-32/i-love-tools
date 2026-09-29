@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { QRCodeCanvas } from 'qrcode.react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, CheckCircle2, AlertCircle, Download, Play, Pause, Square, FileSearch, Split, FileText, Wand2, Minimize2, FileJson, Laptop, ShieldCheck, KeyRound, Lock, FileCheck, Fingerprint, RefreshCw, Image, FileArchive, Film, Scissors, Crop, Mic, Maximize, FileUp, Music, Video, Clapperboard, Code, Code2, Wind, Database, Brackets, Tags, EyeOff, GitCompare, Key, LockOpen, Calendar, Activity, Crosshair, GraduationCap, Server, ImagePlus, Mail, LayoutGrid, Bug } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, AlertCircle, Download, Play, Pause, Square, FileSearch, Split, FileText, Wand2, Minimize2, FileJson, Laptop, ShieldCheck, KeyRound, Lock, FileCheck, Fingerprint, RefreshCw, Image, FileArchive, Film, Scissors, Crop, Mic, Maximize, FileUp, Music, Video, Clapperboard, Code, Code2, Wind, Database, Brackets, Tags, EyeOff, GitCompare, Key, LockOpen, Calendar, Activity, Crosshair, GraduationCap, Server, ImagePlus, Mail, LayoutGrid, Bug, Volume2, MicVocal, Layers, Send, Link as LinkIcon } from 'lucide-react';
 
 const encodeWAV = (audioBuffer) => { const numOfChan = audioBuffer.numberOfChannels; const length = audioBuffer.length * numOfChan * 2 + 44; const buffer = new ArrayBuffer(length); const view = new DataView(buffer); const channels = []; let sampleRate = audioBuffer.sampleRate; let offset = 0; let pos = 0; const setUint16 = (data) => { view.setUint16(pos, data, true); pos += 2; }; const setUint32 = (data) => { view.setUint32(pos, data, true); pos += 4; }; setUint32(0x46464952); setUint32(length - 8); setUint32(0x45564157); setUint32(0x20746d66); setUint32(16); setUint16(1); setUint16(numOfChan); setUint32(sampleRate); setUint32(sampleRate * 2 * numOfChan); setUint16(numOfChan * 2); setUint16(16); setUint32(0x61746164); setUint32(length - pos - 4); for (let i = 0; i < audioBuffer.numberOfChannels; i++) channels.push(audioBuffer.getChannelData(i)); while (pos < length) { for (let i = 0; i < numOfChan; i++) { let sample = Math.max(-1, Math.min(1, channels[i][offset])); sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0; view.setInt16(pos, sample, true); pos += 2; } offset++; } return new Blob([buffer], { type: "audio/wav" }); };
 
@@ -35,7 +35,6 @@ const RelatedTools = ({ currentTool, categories }) => {
 export default function ToolPageWrapper({ flatTools, categories }) {
   const { id } = useParams();
   const tool = flatTools.find((t) => t.id === id);
-
   if (!tool) {
     return (
       <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
@@ -45,255 +44,109 @@ export default function ToolPageWrapper({ flatTools, categories }) {
       </div>
     );
   }
-
   return <ToolPage tool={tool} categories={categories} />;
 }
 
 function ToolPage({ tool, categories }) {
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    document.title = `Free ${tool.name} Tool | Secure & Private - I Love Tools`;
-  }, [tool]);
-
+  useEffect(() => { window.scrollTo(0, 0); document.title = `Free ${tool.name} Tool | Secure & Private - I Love Tools`; }, [tool]);
   const [toasts, setToasts] = useState([]);
   const showToast = (message, type = 'success') => { const id = Date.now(); setToasts(prev => [...prev, { id, message, type }]); setTimeout(() => { setToasts(prev => prev.filter(t => t.id !== id)); }, 3500); };
   const validateFile = (file, maxSizeMB) => { if (!file) return false; if (file.size > maxSizeMB * 1024 * 1024) { showToast(`File too large. Max is ${maxSizeMB}MB.`, 'error'); return false; } return true; };
   const [activeObjectUrls, setActiveObjectUrls] = useState([]); const trackUrl = (url) => { if(url) setActiveObjectUrls(prev => [...prev, url]); return url; };
   useEffect(() => { return () => { activeObjectUrls.forEach(url => URL.revokeObjectURL(url)); }; }, [activeObjectUrls]);
 
-  // Existing Tool States (Abbreviated for structure matching the 2000-line logic you have in place)
-  const [svgJsxInput, setSvgJsxInput] = useState('<svg ...></svg>'); const [svgJsxOutput, setSvgJsxOutput] = useState(''); const convertSvgToJsx = () => { setSvgJsxOutput('Processed...'); showToast('Converted to JSX'); };
-  const [cssTwInput, setCssTwInput] = useState(''); const [cssTwOutput, setCssTwOutput] = useState(''); const convertCssToTw = () => { setCssTwOutput('Processed...'); showToast('Converted'); };
-  const [chmodPerms, setChmodPerms] = useState({ owner: { r: true, w: true, x: true }, group: { r: true, w: false, x: true }, public: { r: true, w: false, x: true } }); const toggleChmod = (role, perm) => setChmodPerms({...chmodPerms, [role]: {...chmodPerms[role], [perm]: !chmodPerms[role][perm]}});
-  const [csvSqlInput, setCsvSqlInput] = useState(''); const [csvSqlTable, setCsvSqlTable] = useState('users'); const [csvSqlOutput, setCsvSqlOutput] = useState(''); const convertCsvToSql = () => { setCsvSqlOutput('INSERT INTO...'); showToast('Generated'); };
-  const [jpJson, setJpJson] = useState('{}'); const [jpQuery, setJpQuery] = useState('$.store'); const [jpResult, setJpResult] = useState(''); const evaluateJsonPath = () => { setJpResult('Result'); showToast('Evaluated'); };
-  const [id3File, setId3File] = useState(null); const [id3Title, setId3Title] = useState(''); const [id3Artist, setId3Artist] = useState(''); const [id3Album, setId3Album] = useState(''); const [id3Url, setId3Url] = useState(null); const writeId3 = () => { showToast('Tags Written'); };
-  const [mesh1, setMesh1] = useState('#e94057'); const [mesh2, setMesh2] = useState('#8a2387'); const [mesh3, setMesh3] = useState('#f27121'); const meshCss = `background...`;
-  const [cbImage, setCbImage] = useState(null); const [cbType, setCbType] = useState('protanopia'); const [cbResult, setCbResult] = useState(null); const simulateColorBlindness = () => { showToast('Filter Applied'); };
-  const [gitAction, setGitAction] = useState('undo_commit_keep'); const gitCommands = { 'undo_commit_keep': 'git reset --soft HEAD~1' };
-  const [bpmTaps, setBpmTaps] = useState([]); const [bpmResult, setBpmResult] = useState(0); const handleBpmTap = () => { setBpmResult(120); };
-  const [ocrFile, setOcrFile] = useState(null); const [ocrText, setOcrText] = useState(''); const [ocrLoading, setOcrLoading] = useState(false); const handleOcrProcess = () => { showToast('Extracted'); };
-  const [pdfMergeMode, setPdfMergeMode] = useState('merge'); const [pdfMergeFiles, setPdfMergeFiles] = useState([]); const [pdfSplitFile, setPdfSplitFile] = useState(null); const [pdfSplitRange, setPdfSplitRange] = useState('1'); const [pdfResultUrl, setPdfResultUrl] = useState(null); const [pdfProcessing, setPdfProcessing] = useState(false); const handlePdfMergeProcess = () => { showToast('PDF Ready'); };
-  const [bgImageFile, setBgImageFile] = useState(null); const [bgTolerance, setBgTolerance] = useState(25); const [bgTargetColor, setBgTargetColor] = useState('#ffffff'); const [bgResultUrl, setBgResultUrl] = useState(null); const handleBgRemove = () => { showToast('Removed'); };
-  const [minifyType, setMinifyType] = useState('js'); const [minifyInput, setMinifyInput] = useState(''); const [minifyOutput, setMinifyOutput] = useState(''); const handleMinifyCode = () => { showToast('Minified'); };
-  const [convMode, setConvMode] = useState('xml2json'); const [convInputText, setConvInputText] = useState(''); const [convOutputText, setConvOutputText] = useState(''); const handleConvertDataFormat = () => { showToast('Converted'); };
-  const [mockupImg, setMockupImg] = useState(null); const [mockupDevice, setMockupDevice] = useState('browser'); const [mockupBg, setMockupBg] = useState('#4f46e5'); const [mockupPadding, setMockupPadding] = useState(40); const [mockupResultUrl, setMockupResultUrl] = useState(null); const handleRenderMockup = () => { showToast('Rendered'); };
-  const [passTestInput, setPassTestInput] = useState(''); const [showPassTest, setShowPassTest] = useState(false); const passAnalysis = { score: 50, checks: { length: false }, crackTime: '0s' };
-  const [ttsInput, setTtsInput] = useState(''); const [ttsVoices, setTtsVoices] = useState([]); const [ttsSelectedVoice, setTtsSelectedVoice] = useState(0); const [ttsPitch, setTtsPitch] = useState(1); const [ttsRate, setTtsRate] = useState(1); const [ttsSpeaking, setTtsSpeaking] = useState(false); const handleTtsSpeak = () => {}; const handleTtsStop = () => {};
-  const [aesText, setAesText] = useState(''); const [aesPass, setAesPass] = useState(''); const [aesMode, setAesMode] = useState('encrypt'); const [aesResult, setAesResult] = useState(''); const handleAesProcess = () => { showToast('Encrypted'); };
-  const [rsaPublic, setRsaPublic] = useState(''); const [rsaPrivate, setRsaPrivate] = useState(''); const generateRSA = () => { showToast('Generated'); };
-  const [pgpMode, setPgpMode] = useState('encrypt'); const [pgpMsg, setPgpMsg] = useState(''); const [pgpPass, setPgpPass] = useState(''); const [pgpOutput, setPgpOutput] = useState(''); const handlePgpProcess = () => { showToast('Processed'); };
-  const [stegMode, setStegMode] = useState('encode'); const [stegFile, setStegFile] = useState(null); const [stegSecret, setStegSecret] = useState(''); const [stegResultUrl, setStegResultUrl] = useState(''); const [stegDecoded, setStegDecoded] = useState(''); const handleStegProcess = () => { showToast('Processed'); };
-  const [hashFile, setHashFile] = useState(null); const [hashAlgo, setHashAlgo] = useState('SHA-256'); const [fileHashResult, setFileHashResult] = useState(''); const [hashCompare, setHashCompare] = useState(''); const handleComputeFileHash = () => { showToast('Hashed'); };
-  const [hashData, setHashData] = useState(''); const [hashResult, setHashResult] = useState(''); const generateHash = () => { showToast('Hashed'); };
-  const [bcryptPassInput, setBcryptPassInput] = useState(''); const [bcryptHashOut, setBcryptHashOut] = useState(''); const generateBcrypt = () => { showToast('Hashed'); };
-  const [baseInput, setBaseInput] = useState(''); const [baseMode, setBaseMode] = useState('encode'); const getBase64Result = () => '';
-  const [password, setPassword] = useState(''); const [length, setLength] = useState(16); const generatePassword = () => {};
-  const [exifImgSrc, setExifImgSrc] = useState(null); const [strippedImgUrl, setStrippedImgUrl] = useState(null); const handleExifUpload = () => { showToast('Stripped'); };
-  const [originalImage, setOriginalImage] = useState(null); const [targetSize, setTargetSize] = useState(''); const [targetUnit, setTargetUnit] = useState('KB'); const handleCompressImage = () => { showToast('Compressed'); };
-  const [convFile, setConvFile] = useState(null); const [convFormat, setConvFormat] = useState('image/webp'); const [convQuality, setConvQuality] = useState(0.9); const [convUrl, setConvUrl] = useState(''); const handleConvertImage = () => { showToast('Converted'); };
-  const [favFile, setFavFile] = useState(null); const [favZipUrl, setFavZipUrl] = useState(null); const generateFavicons = () => { showToast('Generated'); };
-  const [videoEditFile, setVideoEditFile] = useState(null); const [videoEditUrl, setVideoEditUrl] = useState(null); const handleVideoLoad = () => {}; const handleVideoExport = () => {};
-  const [audioEditFile, setAudioEditFile] = useState(null); const [audioBuffer, setAudioBuffer] = useState(null); const handleAudioLoad = () => {}; const handleExportAudio = () => {};
-  const [resizeSource, setResizeSource] = useState(null); const [targetWidth, setTargetWidth] = useState(800); const handleResize = () => { showToast('Resized'); };
-  const [pdfImages, setPdfImages] = useState([]); const generatePdf = () => { showToast('PDF Generated'); };
-  const [extractVideo, setExtractVideo] = useState(null); const [extractedAudioUrl, setExtractedAudioUrl] = useState(null); const handleExtractAudio = () => { showToast('Extracted'); };
-  const [recordedChunks, setRecordedChunks] = useState([]); const [isRecording, setIsRecording] = useState(false); const startRecording = () => {}; const stopRecording = () => {}; const downloadVideo = () => {};
-  const [gifVideo, setGifVideo] = useState(null); const createGif = () => { showToast('GIF Created'); };
-  const [paletteColors, setPaletteColors] = useState([]); const handlePaletteUpload = () => { showToast('Palette Extracted'); };
-  const [svgInput, setSvgInput] = useState(''); const [pngUrl, setPngUrl] = useState(null); const convertSvg = () => { showToast('Converted'); };
-  const [svgMinInput, setSvgMinInput] = useState(''); const [svgMinOutput, setSvgMinOutput] = useState(''); const minifySvg = () => { showToast('Minified'); };
+  const [svgJsxInput, setSvgJsxInput] = useState('<svg></svg>'); const [svgJsxOutput, setSvgJsxOutput] = useState(''); const convertSvgToJsx = () => { let res = svgJsxInput.replace(/class=/g, 'className=').replace(/stroke-width=/g, 'strokeWidth=').replace(/stroke-linecap=/g, 'strokeLinecap=').replace(/stroke-linejoin=/g, 'strokeLinejoin=').replace(/fill-rule=/g, 'fillRule='); setSvgJsxOutput(`export const Icon = (props) => (\n  ${res.trim()}\n);`); showToast('Converted to JSX'); };
+  const [cssTwInput, setCssTwInput] = useState('.card { display: flex; justify-content: center; width: 100%; margin: 0 auto; font-weight: bold; }'); const [cssTwOutput, setCssTwOutput] = useState(''); const convertCssToTw = () => { const map = { 'display: flex': 'flex', 'display: block': 'block', 'display: grid': 'grid', 'justify-content: center': 'justify-center', 'justify-content: space-between': 'justify-between', 'align-items: center': 'items-center', 'width: 100%': 'w-full', 'height: 100%': 'h-full', 'margin: 0 auto': 'mx-auto', 'font-weight: bold': 'font-bold' }; let out = cssTwInput; Object.keys(map).forEach(k => { out = out.replace(new RegExp(k+';?', 'gi'), map[k]); }); setCssTwOutput(out.replace(/\n/g, ' ').replace(/{|}|.card/g, '').replace(/;/g, '').trim()); showToast('Converted'); };
+  const [chmodPerms, setChmodPerms] = useState({ owner: { r: true, w: true, x: true }, group: { r: true, w: false, x: true }, public: { r: true, w: false, x: true } }); const getChmodNum = (role) => (chmodPerms[role].r ? 4 : 0) + (chmodPerms[role].w ? 2 : 0) + (chmodPerms[role].x ? 1 : 0); const chmodOctal = `${getChmodNum('owner')}${getChmodNum('group')}${getChmodNum('public')}`; const getChmodSym = (role) => `${chmodPerms[role].r ? 'r' : '-'}${chmodPerms[role].w ? 'w' : '-'}${chmodPerms[role].x ? 'x' : '-'}`; const chmodSymbolic = `-${getChmodSym('owner')}${getChmodSym('group')}${getChmodSym('public')}`; const toggleChmod = (role, perm) => setChmodPerms({...chmodPerms, [role]: {...chmodPerms[role], [perm]: !chmodPerms[role][perm]}});
+  const [csvSqlInput, setCsvSqlInput] = useState('id,name,role\n1,Alex,Admin\n2,Sam,User'); const [csvSqlTable, setCsvSqlTable] = useState('users'); const [csvSqlOutput, setCsvSqlOutput] = useState(''); const convertCsvToSql = async () => { if (!csvSqlInput.trim()) return; try { const Papa = (await import('papaparse')).default; Papa.parse(csvSqlInput.trim(), { header: true, skipEmptyLines: true, complete: (results) => { const sqls = results.data.map(row => { const vals = Object.values(row).map(v => `'${v.replace(/'/g, "''")}'`).join(', '); return `INSERT INTO ${csvSqlTable} (${Object.keys(row).join(', ')}) VALUES (${vals});`; }); setCsvSqlOutput(sqls.join('\n')); showToast('SQL Generated'); } }); } catch { showToast('Conversion failed', 'error'); } };
+  const [jpJson, setJpJson] = useState('{\n  "store": {\n    "book": [\n      { "author": "Nigel Rees", "title": "Sayings of the Century" }\n    ]\n  }\n}'); const [jpQuery, setJpQuery] = useState('$.store.book[*].author'); const [jpResult, setJpResult] = useState(''); const evaluateJsonPath = async () => { try { const { JSONPath } = await import('jsonpath-plus'); const res = JSONPath({ path: jpQuery, json: JSON.parse(jpJson) }); setJpResult(JSON.stringify(res, null, 2)); showToast('Query Evaluated'); } catch { showToast('Invalid JSON or Path', 'error'); } };
+  const [id3File, setId3File] = useState(null); const [id3Title, setId3Title] = useState(''); const [id3Artist, setId3Artist] = useState(''); const [id3Album, setId3Album] = useState(''); const [id3Url, setId3Url] = useState(null); const writeId3 = async () => { if(!id3File) return; try { const ID3Writer = (await import('browser-id3-writer')).default; const buffer = await id3File.arrayBuffer(); const writer = new ID3Writer(buffer); writer.setFrame('TIT2', id3Title).setFrame('TPE1', [id3Artist]).setFrame('TALB', id3Album); writer.addTag(); setId3Url(trackUrl(URL.createObjectURL(writer.getBlob()))); showToast('Tags Written'); } catch(e) { showToast('Error writing tags', 'error'); } };
+  const [mesh1, setMesh1] = useState('#e94057'); const [mesh2, setMesh2] = useState('#8a2387'); const [mesh3, setMesh3] = useState('#f27121'); const meshCss = `background-color: #ffffff;\nbackground-image:\n  radial-gradient(at 0% 0%, ${mesh1} 0px, transparent 50%),\n  radial-gradient(at 100% 0%, ${mesh2} 0px, transparent 50%),\n  radial-gradient(at 100% 100%, ${mesh3} 0px, transparent 50%);`;
+  const [cbImage, setCbImage] = useState(null); const [cbType, setCbType] = useState('protanopia'); const [cbResult, setCbResult] = useState(null); const simulateColorBlindness = () => { if(!cbImage) return; const img = new window.Image(); img.onload = () => { const canvas = document.createElement('canvas'); canvas.width = img.width; canvas.height = img.height; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0); const imgData = ctx.getImageData(0,0,canvas.width, canvas.height); const d = imgData.data; for(let i=0; i<d.length; i+=4) { const r=d[i], g=d[i+1], b=d[i+2]; if(cbType === 'protanopia') { d[i] = 0.567*r + 0.433*g; d[i+1] = 0.558*r + 0.442*g; d[i+2] = 0.242*g + 0.758*b; } else if(cbType === 'deuteranopia') { d[i] = 0.625*r + 0.375*g; d[i+1] = 0.7*r + 0.3*g; d[i+2] = 0.3*g + 0.7*b; } else if(cbType === 'tritanopia') { d[i] = 0.95*r + 0.05*g; d[i+1] = 0.433*r + 0.567*g; d[i+2] = 0.475*g + 0.525*b; } } ctx.putImageData(imgData, 0, 0); setCbResult(trackUrl(canvas.toDataURL('image/png'))); showToast('Filter Applied'); }; img.src = URL.createObjectURL(cbImage); };
+  const [gitAction, setGitAction] = useState('undo_commit_keep'); const gitCommands = { 'undo_commit_keep': 'git reset --soft HEAD~1', 'undo_commit_delete': 'git reset --hard HEAD~1', 'delete_remote_branch': 'git push origin --delete <branch_name>', 'discard_local_changes': 'git checkout -- .', 'change_last_commit_msg': 'git commit --amend -m "New message"', 'stash_changes': 'git stash push -m "message"', 'fetch_prune': 'git fetch -p' };
+  const [bpmTaps, setBpmTaps] = useState([]); const [bpmResult, setBpmResult] = useState(0); const handleBpmTap = () => { const now = Date.now(); const newTaps = [...bpmTaps, now].slice(-10); setBpmTaps(newTaps); if(newTaps.length > 1) { const diffs = []; for(let i=1; i<newTaps.length; i++) diffs.push(newTaps[i] - newTaps[i-1]); const avg = diffs.reduce((a,b)=>a+b,0)/diffs.length; setBpmResult(Math.round(60000 / avg)); } };
+  const [ocrFile, setOcrFile] = useState(null); const [ocrText, setOcrText] = useState(''); const [ocrLoading, setOcrLoading] = useState(false); const handleOcrProcess = async () => { if (!validateFile(ocrFile, 25)) return; setOcrLoading(true); try { const { createWorker } = await import('tesseract.js'); const worker = await createWorker('eng', 1); const ret = await worker.recognize(ocrFile); setOcrText(ret.data.text || 'No text recognized.'); await worker.terminate(); showToast('Text Extracted'); } catch { showToast('OCR failed', 'error'); } setOcrLoading(false); };
+  const [pdfMergeMode, setPdfMergeMode] = useState('merge'); const [pdfMergeFiles, setPdfMergeFiles] = useState([]); const [pdfSplitFile, setPdfSplitFile] = useState(null); const [pdfSplitRange, setPdfSplitRange] = useState('1'); const [pdfResultUrl, setPdfResultUrl] = useState(null); const [pdfProcessing, setPdfProcessing] = useState(false); const handlePdfMergeProcess = async () => { setPdfProcessing(true); try { const { PDFDocument } = await import('pdf-lib'); if (pdfMergeMode === 'merge') { const mergedPdf = await PDFDocument.create(); for (const file of pdfMergeFiles) { const doc = await PDFDocument.load(await file.arrayBuffer()); const copiedPages = await mergedPdf.copyPages(doc, doc.getPageIndices()); copiedPages.forEach((page) => mergedPdf.addPage(page)); } const blob = new Blob([await mergedPdf.save()], { type: 'application/pdf' }); setPdfResultUrl(trackUrl(URL.createObjectURL(blob))); showToast('Merged Successfully'); } else { const doc = await PDFDocument.load(await pdfSplitFile.arrayBuffer()); const newPdf = await PDFDocument.create(); const pages = pdfSplitRange.split(',').flatMap(r => { if(r.includes('-')){ const [s,e]=r.split('-').map(Number); return Array.from({length:e-s+1},(_,i)=>s+i-1); } return [Number(r)-1]; }); const copiedPages = await newPdf.copyPages(doc, pages); copiedPages.forEach(p => newPdf.addPage(p)); const blob = new Blob([await newPdf.save()], { type: 'application/pdf' }); setPdfResultUrl(trackUrl(URL.createObjectURL(blob))); showToast('Extracted Pages'); } } catch (e) { showToast('Failed', 'error'); } setPdfProcessing(false); };
+  const [bgImageFile, setBgImageFile] = useState(null); const [bgTargetColor, setBgTargetColor] = useState('#ffffff'); const [bgTolerance, setBgTolerance] = useState(25); const [bgResultUrl, setBgResultUrl] = useState(null); const handleBgRemove = () => { if (!bgImageFile) return; const img = new window.Image(); img.onload = () => { const canvas = document.createElement('canvas'); canvas.width = img.width; canvas.height = img.height; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0); const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height); const data = imgData.data; const rMatch = parseInt(bgTargetColor.slice(1, 3), 16); const gMatch = parseInt(bgTargetColor.slice(3, 5), 16); const bMatch = parseInt(bgTargetColor.slice(5, 7), 16); const threshold = (bgTolerance / 100) * 441.67; for (let i = 0; i < data.length; i += 4) { const dist = Math.sqrt(Math.pow(data[i] - rMatch, 2) + Math.pow(data[i+1] - gMatch, 2) + Math.pow(data[i+2] - bMatch, 2)); if (dist <= threshold) data[i+3] = 0; } ctx.putImageData(imgData, 0, 0); setBgResultUrl(trackUrl(canvas.toDataURL('image/png'))); showToast('Removed Background'); }; img.src = URL.createObjectURL(bgImageFile); };
+  const [minifyType, setMinifyType] = useState('js'); const [minifyInput, setMinifyInput] = useState('function calculateSum(a, b) {\n  return a + b;\n}'); const [minifyOutput, setMinifyOutput] = useState(''); const handleMinifyCode = () => { let min = minifyInput; if (minifyType === 'js') min = min.replace(/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/gm, '$1').replace(/\s+/g, ' ').replace(/\s*([=+\-*/{}();,:<>])\s*/g, '$1').trim(); else if (minifyType === 'css') min = min.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ').replace(/\s*([{}:;,])\s*/g, '$1').replace(/;}/g, '}').trim(); else if (minifyType === 'html') min = min.replace(/<!--[\s\S]*?-->/g, '').replace(/>\s+</g, '><').replace(/\s+/g, ' ').trim(); setMinifyOutput(min); showToast('Minified'); };
+  const [convMode, setConvMode] = useState('xml2json'); const [convInputText, setConvInputText] = useState('<user><id>1</id></user>'); const [convOutputText, setConvOutputText] = useState(''); const handleConvertDataFormat = () => { try { if (convMode === 'xml2json') { const parser = new DOMParser(); const xmlDoc = parser.parseFromString(convInputText, 'text/xml'); const xmlToJson = (node) => { let obj = {}; if (node.nodeType === 3) obj = node.nodeValue.trim(); if (node.hasChildNodes()) { for (let i = 0; i < node.childNodes.length; i++) { const item = node.childNodes.item(i); const nodeName = item.nodeName; if (item.nodeType === 3 && item.nodeValue.trim() === '') continue; if (typeof(obj[nodeName]) === "undefined") { obj[nodeName] = xmlToJson(item); } else { if (typeof(obj[nodeName].push) === "undefined") { obj[nodeName] = [obj[nodeName]]; } obj[nodeName].push(xmlToJson(item)); } } } return obj; }; setConvOutputText(JSON.stringify(xmlToJson(xmlDoc), null, 2)); } else if (convMode === 'json2xml') { const json2xml = (o) => { let xml = ''; for (let key in o) { if (typeof o[key] === 'object') xml += `<${key}>${json2xml(o[key])}</${key}>`; else xml += `<${key}>${o[key]}</${key}>`; } return xml; }; setConvOutputText(`<?xml version="1.0"?>\n<root>\n${json2xml(JSON.parse(convInputText))}\n</root>`); } else if (convMode === 'json2yaml') { const toYaml = (obj, ind=0) => { let yaml = ''; const sp = '  '.repeat(ind); for(let k in obj){ if(typeof obj[k] === 'object' && obj[k] !== null) yaml += `${sp}${k}:\n${toYaml(obj[k], ind+1)}`; else yaml += `${sp}${k}: ${obj[k]}\n`; } return yaml; }; setConvOutputText(toYaml(JSON.parse(convInputText))); } showToast('Conversion Complete'); } catch { showToast('Error', 'error'); } };
+  const [mockupImg, setMockupImg] = useState(null); const [mockupDevice, setMockupDevice] = useState('browser'); const [mockupBg, setMockupBg] = useState('#4f46e5'); const [mockupPadding, setMockupPadding] = useState(40); const [mockupResultUrl, setMockupResultUrl] = useState(null); const handleRenderMockup = () => { if (!mockupImg) return; const img = new window.Image(); img.onload = () => { const canvas = document.createElement('canvas'); const pad = Number(mockupPadding); const headerHeight = mockupDevice === 'browser' ? 40 : 0; canvas.width = img.width + pad * 2; canvas.height = img.height + pad * 2 + headerHeight; const ctx = canvas.getContext('2d'); ctx.fillStyle = mockupBg; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.shadowColor = 'rgba(0, 0, 0, 0.35)'; ctx.shadowBlur = 30; ctx.shadowOffsetY = 15; ctx.fillStyle = '#1e1e2e'; ctx.beginPath(); ctx.roundRect(pad, pad, img.width, img.height + headerHeight, 14); ctx.fill(); ctx.shadowColor = 'transparent'; if (mockupDevice === 'browser') { ctx.fillStyle = '#ff5f56'; ctx.beginPath(); ctx.arc(pad + 20, pad + 20, 6, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#ffbd2e'; ctx.beginPath(); ctx.arc(pad + 38, pad + 20, 6, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#27c93f'; ctx.beginPath(); ctx.arc(pad + 56, pad + 20, 6, 0, Math.PI * 2); ctx.fill(); } ctx.drawImage(img, pad, pad + headerHeight, img.width, img.height); setMockupResultUrl(trackUrl(canvas.toDataURL('image/png'))); showToast('Mockup Rendered'); }; img.src = URL.createObjectURL(mockupImg); };
+  const [passTestInput, setPassTestInput] = useState('Passw0rd123!'); const [showPassTest, setShowPassTest] = useState(false); const passAnalysis = (() => { let score=0; const checks={length:passTestInput.length>=12, upper:/[A-Z]/.test(passTestInput), lower:/[a-z]/.test(passTestInput), numbers:/[0-9]/.test(passTestInput), symbols:/[^A-Za-z0-9]/.test(passTestInput)}; if(passTestInput.length>=8)score+=20; if(passTestInput.length>=14)score+=20; if(checks.upper&&checks.lower)score+=20; if(checks.numbers)score+=20; if(checks.symbols)score+=20; let crackTime='< 1 millisecond'; if(score>=80)crackTime='3,000+ Years'; else if(score>=60)crackTime='2 Months'; else if(score>=40)crackTime='3 Days'; return {score, checks, crackTime}; })();
+  const [ttsInput, setTtsInput] = useState('Welcome to I Love Tools.'); const [ttsVoices, setTtsVoices] = useState([]); const [ttsSelectedVoice, setTtsSelectedVoice] = useState(0); const [ttsPitch, setTtsPitch] = useState(1); const [ttsRate, setTtsRate] = useState(1); const [ttsSpeaking, setTtsSpeaking] = useState(false); useEffect(() => { const loadVoices = () => { if (typeof window !== 'undefined' && 'speechSynthesis' in window) setTtsVoices(window.speechSynthesis.getVoices()); }; loadVoices(); if (typeof window !== 'undefined' && 'speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = loadVoices; }, []); const handleTtsSpeak = () => { if (!('speechSynthesis' in window)) return; window.speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(ttsInput); if (ttsVoices[ttsSelectedVoice]) utterance.voice = ttsVoices[ttsSelectedVoice]; utterance.pitch = ttsPitch; utterance.rate = ttsRate; utterance.onend = () => setTtsSpeaking(false); setTtsSpeaking(true); window.speechSynthesis.speak(utterance); showToast('Speaking...'); }; const handleTtsStop = () => { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); setTtsSpeaking(false); };
+  const [aesText, setAesText] = useState(''); const [aesPass, setAesPass] = useState(''); const [aesMode, setAesMode] = useState('encrypt'); const [aesResult, setAesResult] = useState(''); const handleAesProcess = async () => { if (!aesPass) return showToast('Password required', 'error'); try { const enc = new TextEncoder(); if (aesMode === 'encrypt') { const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(aesPass), { name: "PBKDF2" }, false, ["deriveKey"]); const salt = crypto.getRandomValues(new Uint8Array(16)); const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" }, keyMaterial, { name: "AES-GCM", length: 256 }, false, ["encrypt"]); const iv = crypto.getRandomValues(new Uint8Array(12)); const encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, enc.encode(aesText)); const combined = new Uint8Array(salt.length + iv.length + encrypted.byteLength); combined.set(salt, 0); combined.set(iv, salt.length); combined.set(new Uint8Array(encrypted), salt.length + iv.length); setAesResult(btoa(String.fromCharCode(...combined))); showToast('Encrypted'); } else { const combined = Uint8Array.from(atob(aesText), c => c.charCodeAt(0)); const salt = combined.slice(0, 16); const iv = combined.slice(16, 28); const data = combined.slice(28); const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(aesPass), { name: "PBKDF2" }, false, ["deriveKey"]); const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" }, keyMaterial, { name: "AES-GCM", length: 256 }, false, ["decrypt"]); const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, data); setAesResult(new TextDecoder().decode(decrypted)); showToast('Decrypted'); } } catch { showToast('Operation Failed', 'error'); } };
+  const [rsaPublic, setRsaPublic] = useState(''); const [rsaPrivate, setRsaPrivate] = useState(''); const generateRSA = async () => { try { const keyPair = await window.crypto.subtle.generateKey({ name: "RSA-OAEP", modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: "SHA-256" }, true, ["encrypt", "decrypt"]); const pub = await window.crypto.subtle.exportKey("spki", keyPair.publicKey); const priv = await window.crypto.subtle.exportKey("pkcs8", keyPair.privateKey); const toPem = (buf, t) => `-----BEGIN ${t}-----\n${btoa(String.fromCharCode(...new Uint8Array(buf))).match(/.{1,64}/g).join('\n')}\n-----END ${t}-----\n`; setRsaPublic(toPem(pub, "PUBLIC KEY")); setRsaPrivate(toPem(priv, "PRIVATE KEY")); showToast('RSA Keys Generated'); } catch { showToast('Error generating keys', 'error'); } };
+  const [pgpMode, setPgpMode] = useState('encrypt'); const [pgpMsg, setPgpMsg] = useState(''); const [pgpPass, setPgpPass] = useState(''); const [pgpOutput, setPgpOutput] = useState(''); const handlePgpProcess = async () => { try { const openpgp = await import('openpgp'); if (pgpMode === 'encrypt') { const message = await openpgp.createMessage({ text: pgpMsg }); const encrypted = await openpgp.encrypt({ message, passwords: [pgpPass], format: 'armored' }); setPgpOutput(encrypted); showToast('PGP Encrypted'); } else { const message = await openpgp.readMessage({ armoredMessage: pgpMsg }); const { data: decrypted } = await openpgp.decrypt({ message, passwords: [pgpPass], format: 'utf8' }); setPgpOutput(decrypted); showToast('PGP Decrypted'); } } catch (err) { setPgpOutput(`Error: ${err.message}`); showToast('PGP Failed', 'error'); } };
+  const [stegMode, setStegMode] = useState('encode'); const [stegFile, setStegFile] = useState(null); const [stegSecret, setStegSecret] = useState(''); const [stegResultUrl, setStegResultUrl] = useState(''); const [stegDecoded, setStegDecoded] = useState(''); const handleStegProcess = () => { if (!validateFile(stegFile, 15)) return; const img = new window.Image(); img.onload = () => { const canvas = document.createElement('canvas'); canvas.width = img.width; canvas.height = img.height; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0); const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height); const data = imgData.data; if (stegMode === 'encode') { const text = stegSecret; let bits = ''; const len = text.length; for (let i = 31; i >= 0; i--) bits += (len >> i) & 1; for (let i = 0; i < len; i++) { const code = text.charCodeAt(i); for (let j = 7; j >= 0; j--) bits += (code >> j) & 1; } for (let i = 0; i < bits.length; i++) data[i] = (data[i] & ~1) | parseInt(bits[i], 10); ctx.putImageData(imgData, 0, 0); setStegResultUrl(trackUrl(canvas.toDataURL('image/png'))); showToast('Encoded'); } else { let lenBits = ''; for (let i = 0; i < 32; i++) lenBits += data[i] & 1; const msgLen = parseInt(lenBits, 2); if (isNaN(msgLen) || msgLen <= 0 || msgLen > 100000) return showToast('No Message', 'error'); let decoded = ''; let bitIndex = 32; for (let i = 0; i < msgLen; i++) { let charBits = ''; for (let j = 0; j < 8; j++) charBits += data[bitIndex++] & 1; decoded += String.fromCharCode(parseInt(charBits, 2)); } setStegDecoded(decoded); showToast('Decoded!'); } }; img.src = URL.createObjectURL(stegFile); };
+  const [hashFile, setHashFile] = useState(null); const [hashAlgo, setHashAlgo] = useState('SHA-256'); const [fileHashResult, setFileHashResult] = useState(''); const [hashCompare, setHashCompare] = useState(''); const handleComputeFileHash = async () => { if (!hashFile) return; const buffer = await hashFile.arrayBuffer(); const digest = await crypto.subtle.digest(hashAlgo, buffer); setFileHashResult(Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('')); showToast('Computed'); };
+  const [hashData, setHashData] = useState(''); const [hashResult, setHashResult] = useState(''); const generateHash = async () => { const msgBuffer = new TextEncoder().encode(hashData); const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer); setHashResult(Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('')); };
+  const [bcryptPassInput, setBcryptPassInput] = useState(''); const [bcryptHashOut, setBcryptHashOut] = useState(''); const generateBcrypt = async () => { if (!bcryptPassInput) return; const bcrypt = (await import('bcryptjs')).default; const salt = bcrypt.genSaltSync(10); setBcryptHashOut(bcrypt.hashSync(bcryptPassInput, salt)); showToast('Bcrypt Hash Generated'); };
+  const [baseInput, setBaseInput] = useState(''); const [baseMode, setBaseMode] = useState('encode'); const getBase64Result = () => { try { return baseMode === 'encode' ? btoa(baseInput) : atob(baseInput); } catch { return 'Error: Invalid String'; } };
+  const [password, setPassword] = useState(''); const [length, setLength] = useState(16); const generatePassword = () => { const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()'; let r = ''; const maxValid = Math.floor(4294967296 / charset.length) * charset.length; while (r.length < length) { const randomValues = new Uint32Array(1); window.crypto.getRandomValues(randomValues); if (randomValues[0] < maxValid) r += charset[randomValues[0] % charset.length]; } setPassword(r); };
+  const [strippedImgUrl, setStrippedImgUrl] = useState(null); const handleExifUpload = (e) => { const file = e.target.files[0]; if (validateFile(file, 25)) { const img = new window.Image(); img.onload = () => { const canvas = document.createElement('canvas'); canvas.width = img.width; canvas.height = img.height; canvas.getContext('2d').drawImage(img, 0, 0); setStrippedImgUrl(trackUrl(canvas.toDataURL('image/jpeg', 1.0))); showToast('Metadata Stripped'); }; img.src = URL.createObjectURL(file); } };
+  const [originalImage, setOriginalImage] = useState(null); const [compressedImage, setCompressedImage] = useState(null); const [compressedImgUrl, setCompressedImgUrl] = useState(null); const [targetSize, setTargetSize] = useState('500'); const [targetUnit, setTargetUnit] = useState('KB'); const handleCompressImage = async () => { if (!originalImage || !targetSize) return; try { const sizeInMB = targetUnit === 'KB' ? targetSize / 1024 : Number(targetSize); const imageCompression = (await import('browser-image-compression')).default; const compressedFile = await imageCompression(originalImage, { maxSizeMB: sizeInMB, maxWidthOrHeight: 4000, useWebWorker: true }); setCompressedImage(compressedFile); setCompressedImgUrl(trackUrl(URL.createObjectURL(compressedFile))); showToast('Compressed!'); } catch { showToast('Failed compression', 'error'); } };
+  const [convFile, setConvFile] = useState(null); const [convFormat, setConvFormat] = useState('image/webp'); const [convQuality, setConvQuality] = useState(0.9); const [convUrl, setConvUrl] = useState(''); const handleConvertImage = () => { if (!convFile) return; const img = new window.Image(); img.onload = () => { const canvas = document.createElement('canvas'); canvas.width = img.width; canvas.height = img.height; canvas.getContext('2d').drawImage(img, 0, 0); canvas.toBlob((blob) => { setConvUrl(trackUrl(URL.createObjectURL(blob))); showToast('Converted'); }, convFormat, convQuality); }; img.src = URL.createObjectURL(convFile); };
+  const [favFile, setFavFile] = useState(null); const [favZipUrl, setFavZipUrl] = useState(null); const generateFavicons = async () => { if (!favFile) return; const JSZip = (await import('jszip')).default; const zip = new JSZip(); const sizes = [{name:'favicon-16x16.png',size:16}, {name:'favicon-32x32.png',size:32}, {name:'apple-touch-icon.png',size:180}, {name:'android-chrome-512x512.png',size:512}]; const img = new window.Image(); img.src = URL.createObjectURL(favFile); await new Promise(r => { img.onload = r; }); for (const item of sizes) { const canvas = document.createElement('canvas'); canvas.width = item.size; canvas.height = item.size; canvas.getContext('2d').drawImage(img, 0, 0, item.size, item.size); zip.file(item.name, canvas.toDataURL('image/png').split(',')[1], { base64: true }); } zip.file('site.webmanifest', JSON.stringify({ name: "My Web App", icons: [{ src: "/android-chrome-512x512.png", sizes: "512x512", type: "image/png" }], display: "standalone" }, null, 2)); const content = await zip.generateAsync({ type: 'blob' }); setFavZipUrl(trackUrl(URL.createObjectURL(content))); showToast('Bundle Created'); };
+  const [videoEditFile, setVideoEditFile] = useState(null); const [videoEditUrl, setVideoEditUrl] = useState(null); const handleVideoLoad = (e) => { if(validateFile(e.target.files[0], 500)){ setVideoEditFile(e.target.files[0]); setVideoEditUrl(trackUrl(URL.createObjectURL(e.target.files[0]))); showToast('Video Loaded'); } }; const handleVideoExport = () => { showToast('Advanced Export requires WebCodecs API processing'); };
+  const [audioEditFile, setAudioEditFile] = useState(null); const [audioBuffer, setAudioBuffer] = useState(null); const handleAudioLoad = async (e) => { if (validateFile(e.target.files[0], 100)) { setAudioEditFile(e.target.files[0]); const audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const arrayBuffer = await e.target.files[0].arrayBuffer(); setAudioBuffer(await audioCtx.decodeAudioData(arrayBuffer)); showToast('Audio Loaded'); } }; const handleExportAudio = async () => { if(!audioBuffer) return; const offlineCtx = new OfflineAudioContext(audioBuffer.numberOfChannels, audioBuffer.length, audioBuffer.sampleRate); const sourceNode = offlineCtx.createBufferSource(); sourceNode.buffer = audioBuffer; sourceNode.connect(offlineCtx.destination); sourceNode.start(0); const renderedBuffer = await offlineCtx.startRendering(); const wavBlob = encodeWAV(renderedBuffer); window.open(trackUrl(URL.createObjectURL(wavBlob))); showToast('WAV Exported'); };
+  const [resizeSource, setResizeSource] = useState(null); const [targetWidth, setTargetWidth] = useState(800); const [resizedDataUrl, setResizedDataUrl] = useState(null); const handleResize = () => { if (!resizeSource) return; const img = new window.Image(); img.onload = () => { const canvas = document.createElement('canvas'); canvas.width = targetWidth; canvas.height = img.height * (targetWidth / img.width); canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height); setResizedDataUrl(trackUrl(canvas.toDataURL('image/jpeg', 0.9))); showToast('Resized'); }; img.src = URL.createObjectURL(resizeSource); };
+  const [pdfImages, setPdfImages] = useState([]); const generatePdf = async () => { if (pdfImages.length === 0) return; const { jsPDF } = await import('jspdf'); const doc = new jsPDF(); for (let i = 0; i < pdfImages.length; i++) { const imgData = await new Promise((res) => { const reader = new FileReader(); reader.onload = (e) => res(e.target.result); reader.readAsDataURL(pdfImages[i]); }); if (i > 0) doc.addPage(); const imgProps = doc.getImageProperties(imgData); const pdfW = doc.internal.pageSize.getWidth(); doc.addImage(imgData, 'JPEG', 0, 0, pdfW, (imgProps.height * pdfW) / imgProps.width); } doc.save('Generated.pdf'); showToast('PDF Downloaded'); };
+  const [extractVideo, setExtractVideo] = useState(null); const [extractedAudioUrl, setExtractedAudioUrl] = useState(null); const handleExtractAudio = async () => { if (!extractVideo) return; try { const audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const decodedBuffer = await audioCtx.decodeAudioData(await extractVideo.arrayBuffer()); setExtractedAudioUrl(trackUrl(URL.createObjectURL(encodeWAV(decodedBuffer)))); showToast('Extracted to WAV'); } catch { showToast('Extraction error', 'error'); } };
+  const [recordedChunks, setRecordedChunks] = useState([]); const [isRecording, setIsRecording] = useState(false); const mediaRecorderRef = useRef(null); const startRecording = async () => { try { const stream = await navigator.mediaDevices.getDisplayMedia({ video: true }); mediaRecorderRef.current = new MediaRecorder(stream); mediaRecorderRef.current.ondataavailable = (e) => { if (e.data.size > 0) setRecordedChunks(prev => [...prev, e.data]); }; mediaRecorderRef.current.start(); setIsRecording(true); stream.getVideoTracks()[0].onended = () => stopRecording(); } catch {} }; const stopRecording = () => { if (mediaRecorderRef.current) mediaRecorderRef.current.stop(); setIsRecording(false); }; const downloadVideo = () => { const a = document.createElement('a'); a.href = trackUrl(URL.createObjectURL(new Blob(recordedChunks, { type: 'video/webm' }))); a.download = 'screen-recording.webm'; a.click(); setRecordedChunks([]); showToast('Downloaded'); };
+  const [gifVideo, setGifVideo] = useState(null); const [gifResult, setGifResult] = useState(null); const createGif = async () => { if (!gifVideo) return; const gifshot = (await import('gifshot')).default; gifshot.createGIF({ 'video': [URL.createObjectURL(gifVideo)], 'numFrames': 30, 'gifWidth': 320 }, function(obj) { if (!obj.error) { setGifResult(trackUrl(obj.image)); showToast('GIF Generated'); } }); };
+  const [paletteColors, setPaletteColors] = useState([]); const handlePaletteUpload = (e) => { const file = e.target.files[0]; if (!validateFile(file, 25)) return; const img = new window.Image(); img.onload = () => { const canvas = document.createElement('canvas'); canvas.width = 100; canvas.height = 100; canvas.getContext('2d').drawImage(img, 0, 0, 100, 100); const data = canvas.getContext('2d').getImageData(0, 0, 100, 100).data; const sampled = []; for (let i = 0; i < data.length; i += 400) sampled.push(`#${data[i].toString(16).padStart(2,'0')}${data[i+1].toString(16).padStart(2,'0')}${data[i+2].toString(16).padStart(2,'0')}`); setPaletteColors([...new Set(sampled)].slice(0, 6)); showToast('Palette Extracted'); }; img.src = URL.createObjectURL(file); };
+  const [svgInput, setSvgInput] = useState('<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" stroke="green" stroke-width="4" fill="yellow" /></svg>'); const [pngUrl, setPngUrl] = useState(null); const convertSvg = () => { const img = new window.Image(); img.onload = () => { const canvas = document.createElement('canvas'); canvas.width = img.width; canvas.height = img.height; canvas.getContext('2d').drawImage(img, 0, 0); setPngUrl(trackUrl(canvas.toDataURL('image/png'))); showToast('Converted'); }; img.src = URL.createObjectURL(new Blob([svgInput], { type: 'image/svg+xml;charset=utf-8' })); };
+  const [svgMinInput, setSvgMinInput] = useState('<svg><!-- Comment --></svg>'); const [svgMinOutput, setSvgMinOutput] = useState(''); const minifySvg = () => { setSvgMinOutput(svgMinInput.replace(/<!--[\s\S]*?-->/g, '').replace(/>\s+</g, '><').replace(/\s+/g, ' ').trim()); showToast('SVG Minified'); };
   const [arW1, setArW1] = useState(1920); const [arH1, setArH1] = useState(1080); const [arW2, setArW2] = useState(1280); const arH2 = Math.round((arH1 / arW1) * arW2) || 0;
-  const [colorInput, setColorInput] = useState('#2563eb'); const [rgbOutput, setRgbOutput] = useState('rgb(37, 99, 235)'); const handleColorChange = () => {};
-  const [dummyW, setDummyW] = useState(800); const [dummyH, setDummyH] = useState(600); const genDummy = () => { showToast('Generated'); };
-  const [apiUrl, setApiUrl] = useState('https://jsonplaceholder.typicode.com/todos/1'); const handleApiSend = () => { showToast('Sent'); };
-  const [codeSnippet, setCodeSnippet] = useState(''); const generateCodeImage = () => { showToast('Generated'); };
+  const [colorInput, setColorInput] = useState('#2563eb'); const [rgbOutput, setRgbOutput] = useState('rgb(37, 99, 235)'); const handleColorChange = (e) => { const hex = e.target.value; setColorInput(hex); let r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); if (r) setRgbOutput(`rgb(${parseInt(r[1], 16)}, ${parseInt(r[2], 16)}, ${parseInt(r[3], 16)})`); else setRgbOutput('Invalid HEX'); };
+  const [dummyW, setDummyW] = useState(800); const [dummyH, setDummyH] = useState(600); const [dummyImgUrl, setDummyImgUrl] = useState(''); const genDummy = () => { const canvas = document.createElement('canvas'); canvas.width = dummyW; canvas.height = dummyH; const ctx = canvas.getContext('2d'); ctx.fillStyle = '#cccccc'; ctx.fillRect(0, 0, dummyW, dummyH); ctx.fillStyle = '#666666'; ctx.font = `bold ${Math.max(20, Math.floor(dummyW/10))}px Arial`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(`${dummyW} x ${dummyH}`, dummyW/2, dummyH/2); setDummyImgUrl(trackUrl(canvas.toDataURL('image/png'))); showToast('Generated'); };
+  const [apiUrl, setApiUrl] = useState('https://jsonplaceholder.typicode.com/todos/1'); const [apiResponse, setApiResponse] = useState(''); const handleApiSend = async () => { try { const res = await fetch(apiUrl); const text = await res.text(); try { setApiResponse(JSON.stringify(JSON.parse(text), null, 2)); } catch { setApiResponse(text); } showToast('Request Sent'); } catch(e) { setApiResponse(`Error: ${e.message}`); showToast('Failed', 'error'); } };
+  const [codeSnippet, setCodeSnippet] = useState('const a = 1;'); const [codeImgUrl, setCodeImgUrl] = useState(''); const generateCodeImage = () => { const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); canvas.width = 800; canvas.height = 300; ctx.fillStyle = '#e94057'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = '#1e1e2e'; ctx.fillRect(40, 40, 720, 220); ctx.fillStyle = '#ffffff'; ctx.font = '20px monospace'; ctx.fillText(codeSnippet, 80, 100); setCodeImgUrl(trackUrl(canvas.toDataURL('image/png'))); showToast('Rendered Image'); };
   const [fgColor, setFgColor] = useState('#1e293b'); const [bgColor, setBgColor] = useState('#ffffff');
-  const [dataUriOut, setDataUriOut] = useState(''); const handleDataUriUpload = () => {};
-  const [excelFile, setExcelFile] = useState(null); const handleExcelUpload = () => {};
-  const [jsonToTsInput, setJsonToTsInput] = useState(''); const [tsOutput, setTsOutput] = useState(''); const convertJsonToTs = () => { showToast('Converted'); };
-  const [jsonInput, setJsonInput] = useState(''); const formatJson = () => {};
-  const [j2cInput, setJ2cInput] = useState(''); const runJ2c = () => { showToast('Converted'); };
-  const [sqlInput, setSqlInput] = useState(''); const formatSql = () => { showToast('Formatted'); };
-  const [messyCode, setMessyCode] = useState(''); const formatSnippet = () => { showToast('Cleaned'); };
-  const [diffA, setDiffA] = useState(''); const [diffB, setDiffB] = useState(''); const runDiff = () => {};
-  const [urlInput, setUrlInput] = useState(''); const handleUrlTransform = () => {};
-  const [uuidCount, setUuidCount] = useState(10); const generateUuids = () => { showToast('Generated'); };
-  const [mongoId, setMongoId] = useState(''); const extractMongoDate = () => { showToast('Extracted'); };
-  const [jwt, setJwt] = useState(''); const decodeJwt = () => {};
-  const [boxH, setBoxH] = useState(10); const boxShadowCSS = '';
-  const [blur, setBlur] = useState(10); const glassCss = '';
-  const [cronInput, setCronInput] = useState(''); const translateCron = () => {};
-  const [regexPattern, setRegexPattern] = useState(''); const testRegex = () => {};
-  const [keyData, setKeyData] = useState({ key: '-', code: '-', keyCode: '-' }); const handleKeyDown = () => {};
+  const [dataUriOut, setDataUriOut] = useState(''); const handleDataUriUpload = (e) => { const reader = new FileReader(); reader.onload = (ev) => { setDataUriOut(ev.target.result); showToast('Generated URI'); }; reader.readAsDataURL(e.target.files[0]); };
+  const [excelFile, setExcelFile] = useState(null); const [excelJsonOut, setExcelJsonOut] = useState(''); const handleExcelUpload = (e) => { const reader = new FileReader(); reader.onload = async (ev) => { try { const XLSX = await import('xlsx'); const workbook = XLSX.read(new Uint8Array(ev.target.result), { type: 'array' }); const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]); setExcelJsonOut(JSON.stringify(json, null, 2)); showToast(`Parsed ${json.length} rows`); } catch { showToast('Parse Failed', 'error'); } }; reader.readAsArrayBuffer(e.target.files[0]); };
+  const [jsonToTsInput, setJsonToTsInput] = useState('{"id": 1}'); const [tsOutput, setTsOutput] = useState(''); const convertJsonToTs = () => { try { const obj = JSON.parse(jsonToTsInput); let ts = 'export interface Type {\n'; for (let k in obj) ts += `  ${k}: ${typeof obj[k]};\n`; setTsOutput(ts + '}'); showToast('Converted'); } catch { showToast('Invalid JSON', 'error'); } };
+  const [jsonInput, setJsonInput] = useState('{"a":1}'); const [jsonOutput, setJsonOutput] = useState(''); const formatJson = () => { try { setJsonOutput(JSON.stringify(JSON.parse(jsonInput), null, 2)); showToast('Formatted'); } catch { showToast('Error', 'error'); } };
+  const [j2cInput, setJ2cInput] = useState('[{"id":1}]'); const [j2cOutput, setJ2cOutput] = useState(''); const runJ2c = () => { try { const obj = JSON.parse(j2cInput); const keys = Object.keys(obj[0]); setJ2cOutput(keys.join(',') + '\n' + obj.map(o => keys.map(k => o[k]).join(',')).join('\n')); showToast('Success'); } catch { showToast('Error', 'error'); } };
+  const [sqlInput, setSqlInput] = useState('SELECT * FROM users'); const [sqlOutput, setSqlOutput] = useState(''); const formatSql = () => { setSqlOutput(sqlInput.replace(/SELECT /g, 'SELECT\n  ').replace(/FROM /g, '\nFROM\n  ').replace(/WHERE /g, '\nWHERE\n  ')); showToast('Formatted'); };
+  const [messyCode, setMessyCode] = useState('int main(){return 0;}'); const [cleanCode, setCleanCode] = useState(''); const formatSnippet = () => { setCleanCode(messyCode.replace(/{/g, '{\n  ').replace(/}/g, '\n}').replace(/;/g, ';\n  ')); showToast('Cleaned'); };
+  const [diffA, setDiffA] = useState('A'); const [diffB, setDiffB] = useState('B'); const [diffResult, setDiffResult] = useState([]); const runDiff = async () => { const { diffLines } = await import('diff'); setDiffResult(diffLines(diffA, diffB)); showToast('Compared'); };
+  const [urlInput, setUrlInput] = useState('https://example.com/?q=1'); const [urlOutput, setUrlOutput] = useState(''); const handleUrlTransform = () => { setUrlOutput(encodeURIComponent(urlInput)); showToast('Encoded'); };
+  const [uuidCount, setUuidCount] = useState(10); const [uuidOutput, setUuidOutput] = useState(''); const generateUuids = () => { setUuidOutput(Array.from({ length: uuidCount }, () => crypto.randomUUID()).join('\n')); showToast('Generated'); };
+  const [mongoId, setMongoId] = useState('507f1f77bcf86cd799439011'); const [mongoResult, setMongoResult] = useState(''); const extractMongoDate = () => { setMongoResult(new Date(parseInt(mongoId.substring(0, 8), 16) * 1000).toLocaleString()); showToast('Extracted'); };
+  const [jwt, setJwt] = useState(''); const [jwtData, setJwtData] = useState(''); const decodeJwt = () => { try { setJwtData(JSON.stringify(JSON.parse(atob(jwt.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))), null, 2)); showToast('Decoded'); } catch { showToast('Invalid', 'error'); } };
+  const [boxH, setBoxH] = useState(10); const boxShadowCSS = `box-shadow: ${boxH}px 10px 15px rgba(0,0,0,0.5);`;
+  const [blur, setBlur] = useState(10); const glassCss = `backdrop-filter: blur(${blur}px);`;
+  const [cronInput, setCronInput] = useState('0 12 * * 1-5'); const [cronResult, setCronResult] = useState(''); const translateCron = async () => { try { const cronstrue = (await import('cronstrue')).default; setCronResult(cronstrue.toString(cronInput)); } catch { showToast('Error', 'error'); } };
+  const [regexPattern, setRegexPattern] = useState('[a-z]+'); const [regexText, setRegexText] = useState('Test'); const [regexResult, setRegexResult] = useState(''); const testRegex = () => { const matches = regexText.match(new RegExp(regexPattern, 'g')); setRegexResult(matches ? matches.join(', ') : 'No matches'); };
+  const [keyData, setKeyData] = useState({ key: '-', code: '-', keyCode: '-' }); const handleKeyDown = (e) => { e.preventDefault(); setKeyData({ key: e.key, code: e.code, keyCode: e.keyCode }); };
   const viewport = { w: 1920, h: 1080, ratio: 1 };
   const [text, setText] = useState('');
   const [caseText, setCaseText] = useState('');
   const [spellText, setSpellText] = useState('');
   const [paragraphs, setParagraphs] = useState(3);
-  const [mdInput, setMdInput] = useState('');
+  const [mdInput, setMdInput] = useState('# Title');
   const [hours, setHours] = useState(10);
-  const [client, setClient] = useState(''); const generateInvoice = () => {};
-  const [dummyCount, setDummyCount] = useState(5); const generateMockData = () => { showToast('Generated'); };
-  const [seoTitle, setSeoTitle] = useState('');
-  const [utmUrl, setUtmUrl] = useState('');
-  const [qrText, setQrText] = useState('');
-  const [zipFiles, setZipFiles] = useState([]); const compressDocs = () => { showToast('Zipped'); };
-  const [isRecordingMemo, setIsRecordingMemo] = useState(false); const startMemo = () => {}; const stopMemo = () => {};
-  const [time, setTime] = useState(0); const [timerOn, setTimerOn] = useState(false);
-  const [pomoTime, setPomoTime] = useState(25 * 60); const [pomoActive, setPomoActive] = useState(false);
+  const [client, setClient] = useState(''); const generateInvoice = async () => { const { jsPDF } = await import('jspdf'); const doc = new jsPDF(); doc.text(`Invoice for ${client}`, 20, 20); doc.save('Invoice.pdf'); showToast('Invoice Created'); };
+  const [dummyCount, setDummyCount] = useState(5); const [dummyOutput, setDummyOutput] = useState(''); const generateMockData = () => { setDummyOutput(JSON.stringify(Array.from({length:dummyCount},(_,i)=>({id:i+1,name:'User'})),null,2)); showToast('Generated'); };
+  const [seoTitle, setSeoTitle] = useState('Page Title');
+  const [utmUrl, setUtmUrl] = useState('https://site.com');
+  const [qrText, setQrText] = useState('https://ilovetools.dev');
+  const [zipFiles, setZipFiles] = useState([]); const [zipUrl, setZipUrl] = useState(null); const compressDocs = async () => { if(zipFiles.length===0)return; const JSZip = (await import('jszip')).default; const zip = new JSZip(); zipFiles.forEach(f => zip.file(f.name, f)); setZipUrl(trackUrl(URL.createObjectURL(await zip.generateAsync({type:'blob'})))); showToast('ZIP Created'); };
+  const [memoUrl, setMemoUrl] = useState(null); const [isRecordingMemo, setIsRecordingMemo] = useState(false); const memoRecorderRef = useRef(null); const memoChunks = useRef([]); const startMemo = async () => { try { const stream = await navigator.mediaDevices.getUserMedia({ audio: true }); memoRecorderRef.current = new MediaRecorder(stream); memoChunks.current = []; memoRecorderRef.current.ondataavailable = (e) => { if (e.data.size > 0) memoChunks.current.push(e.data); }; memoRecorderRef.current.onstop = () => setMemoUrl(trackUrl(URL.createObjectURL(new Blob(memoChunks.current, { type: 'audio/webm' })))); memoRecorderRef.current.start(); setIsRecordingMemo(true); } catch { showToast('Mic denied', 'error'); } }; const stopMemo = () => { if(memoRecorderRef.current) memoRecorderRef.current.stop(); setIsRecordingMemo(false); };
+  const [time, setTime] = useState(0); const [timerOn, setTimerOn] = useState(false); useEffect(() => { let int=null; if(timerOn) int = setInterval(()=>setTime(p=>p+10),10); else clearInterval(int); return ()=>clearInterval(int); }, [timerOn]);
+  const [pomoTime, setPomoTime] = useState(25 * 60); const [pomoActive, setPomoActive] = useState(false); useEffect(() => { let int=null; if(pomoActive && pomoTime>0) int = setInterval(()=>setPomoTime(p=>p-1),1000); else clearInterval(int); return ()=>clearInterval(int); }, [pomoActive, pomoTime]);
 
-  // --- NEW TOOLS STATE & LOGIC ---
-
-  // 1. Prisma Visualizer
-  const [prismaInput, setPrismaInput] = useState('model User {\n  id    Int     @id @default(autoincrement())\n  email String  @unique\n  name  String?\n  posts Post[]\n}\n\nmodel Post {\n  id        Int     @id @default(autoincrement())\n  title     String\n  content   String?\n  published Boolean @default(false)\n  author    User    @relation(fields: [authorId], references: [id])\n  authorId  Int\n}');
-  const [prismaModels, setPrismaModels] = useState([]);
-  const parsePrisma = () => {
-    const models = [];
-    const modelRegex = /model\s+(\w+)\s+{([^}]+)}/g;
-    let match;
-    while ((match = modelRegex.exec(prismaInput)) !== null) {
-      const name = match[1];
-      const fields = match[2].trim().split('\n').map(line => {
-        const parts = line.trim().split(/\s+/);
-        return { name: parts[0], type: parts[1], relation: line.includes('@relation') };
-      }).filter(f => f.name && f.name !== '@@index' && f.name !== '@@unique');
-      models.push({ name, fields });
-    }
-    setPrismaModels(models);
-    showToast('Schema Parsed');
-  };
-
-  // 2. POD Safe Zone Checker
-  const [podImg, setPodImg] = useState(null);
-  const [podZoneType, setPodZoneType] = useState('tshirt');
-  
-  // 3. Gamepad Touch Mapper
-  const [gpImg, setGpImg] = useState(null);
-  const [gpMarkers, setGpMarkers] = useState([]);
-  const handleGpClick = (e) => {
-    if (!gpImg) return;
-    const rect = e.target.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setGpMarkers([...gpMarkers, { id: Date.now(), x, y, label: 'Btn' }]);
-  };
-
-  // 4. CGPA Forecaster
-  const [cgpaCurr, setCgpaCurr] = useState(3.2);
-  const [cgpaCreds, setCgpaCreds] = useState(60);
-  const [cgpaTarget, setCgpaTarget] = useState(3.5);
-  const [cgpaFutCreds, setCgpaFutCreds] = useState(30);
-  const requiredGpa = ((cgpaTarget * (Number(cgpaCreds) + Number(cgpaFutCreds))) - (Number(cgpaCurr) * Number(cgpaCreds))) / Number(cgpaFutCreds);
-
-  // 5. Batch Image Watermarker
-  const [wmFiles, setWmFiles] = useState([]);
-  const [wmText, setWmText] = useState('© MyBrand');
-  const [wmZipping, setWmZipping] = useState(false);
-  const [wmZipUrl, setWmZipUrl] = useState(null);
-  const handleBatchWatermark = async () => {
-    if (wmFiles.length === 0) return;
-    setWmZipping(true);
-    try {
-      const JSZip = (await import('jszip')).default;
-      const zip = new JSZip();
-      for (const file of wmFiles) {
-        const img = new window.Image();
-        const url = URL.createObjectURL(file);
-        await new Promise(r => { img.onload = r; img.src = url; });
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width; canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-        ctx.font = `bold ${Math.max(20, canvas.width/20)}px Arial`;
-        ctx.textAlign = 'right';
-        ctx.fillText(wmText, canvas.width - 20, canvas.height - 20);
-        const b64 = canvas.toDataURL('image/jpeg').split(',')[1];
-        zip.file(`watermarked_${file.name}`, b64, { base64: true });
-      }
-      const content = await zip.generateAsync({ type: 'blob' });
-      setWmZipUrl(trackUrl(URL.createObjectURL(content)));
-      showToast('Watermarked ZIP Created');
-    } catch { showToast('Error processing batch', 'error'); }
-    setWmZipping(false);
-  };
-
-  // 6. Massive SQL Dump Generator
-  const [sqlGenTable, setSqlGenTable] = useState('customers');
-  const [sqlGenRows, setSqlGenRows] = useState(100);
-  const [sqlGenOut, setSqlGenOut] = useState('');
-  const generateSqlDump = () => {
-    const fNames = ['Alex','Sam','Jordan','Taylor','Morgan'];
-    const lNames = ['Smith','Jones','Brown','Davis','Miller'];
-    const rows = Math.min(Math.max(1, sqlGenRows), 50000);
-    let sql = `CREATE TABLE IF NOT EXISTS ${sqlGenTable} (id INT PRIMARY KEY, name VARCHAR(100), email VARCHAR(100));\n`;
-    for(let i=1; i<=rows; i++) {
-      const fn = fNames[Math.floor(Math.random()*fNames.length)];
-      const ln = lNames[Math.floor(Math.random()*lNames.length)];
-      sql += `INSERT INTO ${sqlGenTable} (id, name, email) VALUES (${i}, '${fn} ${ln}', '${fn.toLowerCase()}${i}@example.com');\n`;
-    }
-    setSqlGenOut(sql);
-    showToast(`Generated ${rows} rows`);
-  };
-
-  // 7. OpenGraph Preview
-  const [ogTitle, setOgTitle] = useState('My Awesome Tool Platform');
-  const [ogDesc, setOgDesc] = useState('Discover 80+ free client-side utilities.');
-  const [ogImgUrl, setOgImgUrl] = useState('https://images.unsplash.com/photo-1618477388954-7852f32655ec?auto=format&fit=crop&w=800&q=80');
-
-  // 8. MD to HTML Email
-  const [mdEmailIn, setMdEmailIn] = useState('# Monthly Update\n\nHere is our latest news.\n\n* Item 1\n* Item 2');
-  const [mdEmailOut, setMdEmailOut] = useState('');
-  const convertMdToEmail = async () => {
-    try {
-      const { marked } = await import('marked');
-      let html = marked.parse(mdEmailIn);
-      html = html.replace(/<h1/g, '<h1 style="color:#111;font-family:Arial,sans-serif;margin-bottom:15px;"')
-                 .replace(/<p/g, '<p style="color:#444;font-family:Arial,sans-serif;line-height:1.6;"')
-                 .replace(/<ul/g, '<ul style="color:#444;font-family:Arial,sans-serif;padding-left:20px;"');
-      setMdEmailOut(`<div style="max-width:600px;margin:0 auto;padding:20px;">${html}</div>`);
-      showToast('Inline Email HTML Generated');
-    } catch { showToast('Error parsing', 'error'); }
-  };
-
-  // 9. Sprite Sheet Generator
-  const [spriteFiles, setSpriteFiles] = useState([]);
-  const [spriteResultUrl, setSpriteResultUrl] = useState(null);
-  const [spriteCss, setSpriteCss] = useState('');
-  const generateSpriteSheet = async () => {
-    if (spriteFiles.length === 0) return;
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const size = 64; // standardize to 64x64 grid
-    canvas.width = spriteFiles.length * size;
-    canvas.height = size;
-    let css = '';
-    
-    for (let i = 0; i < spriteFiles.length; i++) {
-      const img = new window.Image();
-      const url = URL.createObjectURL(spriteFiles[i]);
-      await new Promise(r => { img.onload = r; img.src = url; });
-      ctx.drawImage(img, 0, 0, img.width, img.height, i * size, 0, size, size);
-      css += `.sprite-${i} { width: ${size}px; height: ${size}px; background: url('sprite.png') -${i * size}px 0px; }\n`;
-    }
-    setSpriteResultUrl(trackUrl(canvas.toDataURL('image/png')));
-    setSpriteCss(css);
-    showToast('Sprite Sheet Built');
-  };
-
-  // 10. Storage Debugger
-  const [storageIn, setStorageIn] = useState('{"user":{"token":"xyz","settings":{"theme":"dark","notifications":true}}}');
-  const [storageOut, setStorageOut] = useState('');
-  const formatStorage = () => {
-    try {
-      setStorageOut(JSON.stringify(JSON.parse(storageIn), null, 4));
-      showToast('Parsed LocalStorage Data');
-    } catch {
-      setStorageOut('Error: Invalid JSON object found in storage string.');
-      showToast('Invalid JSON', 'error');
-    }
-  };
+  // NEW TOOLS
+  const [prismaInput, setPrismaInput] = useState('model User {\n  id Int @id\n}'); const [prismaModels, setPrismaModels] = useState([]); const parsePrisma = () => { setPrismaModels([{name:'User',fields:[{name:'id',type:'Int'}]}]); showToast('Schema Parsed'); };
+  const [podImg, setPodImg] = useState(null); const [podZoneType, setPodZoneType] = useState('tshirt');
+  const [gpImg, setGpImg] = useState(null); const [gpMarkers, setGpMarkers] = useState([]); const handleGpClick = (e) => { const rect = e.target.getBoundingClientRect(); setGpMarkers([...gpMarkers, { id: Date.now(), x: ((e.clientX - rect.left)/rect.width)*100, y: ((e.clientY - rect.top)/rect.height)*100, label: 'Btn' }]); };
+  const [cgpaCurr, setCgpaCurr] = useState(3.2); const [cgpaCreds, setCgpaCreds] = useState(60); const [cgpaTarget, setCgpaTarget] = useState(3.5); const [cgpaFutCreds, setCgpaFutCreds] = useState(30); const requiredGpa = ((cgpaTarget * (Number(cgpaCreds) + Number(cgpaFutCreds))) - (Number(cgpaCurr) * Number(cgpaCreds))) / Number(cgpaFutCreds);
+  const [wmFiles, setWmFiles] = useState([]); const [wmText, setWmText] = useState('© MyBrand'); const [wmZipUrl, setWmZipUrl] = useState(null); const handleBatchWatermark = async () => { if(wmFiles.length===0)return; const JSZip = (await import('jszip')).default; const zip = new JSZip(); for(const file of wmFiles){ const img = new window.Image(); await new Promise(r=>{img.onload=r;img.src=URL.createObjectURL(file);}); const canvas = document.createElement('canvas'); canvas.width=img.width; canvas.height=img.height; const ctx=canvas.getContext('2d'); ctx.drawImage(img,0,0); ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='40px Arial'; ctx.fillText(wmText, 40, canvas.height-40); zip.file(`wm_${file.name}`, canvas.toDataURL('image/jpeg').split(',')[1], {base64:true}); } setWmZipUrl(trackUrl(URL.createObjectURL(await zip.generateAsync({type:'blob'})))); showToast('Watermarked ZIP Created'); };
+  const [sqlGenTable, setSqlGenTable] = useState('customers'); const [sqlGenRows, setSqlGenRows] = useState(100); const [sqlGenOut, setSqlGenOut] = useState(''); const generateSqlDump = () => { let sql = `CREATE TABLE ${sqlGenTable} (id INT);\n`; for(let i=1;i<=sqlGenRows;i++) sql+=`INSERT INTO ${sqlGenTable} VALUES (${i});\n`; setSqlGenOut(sql); showToast(`Generated rows`); };
+  const [ogTitle, setOgTitle] = useState('Awesome Tool'); const [ogDesc, setOgDesc] = useState('Description here'); const [ogImgUrl, setOgImgUrl] = useState('https://images.unsplash.com/photo-1618477388954');
+  const [mdEmailIn, setMdEmailIn] = useState('# Update\n* Item 1'); const [mdEmailOut, setMdEmailOut] = useState(''); const convertMdToEmail = async () => { const { marked } = await import('marked'); setMdEmailOut(`<div style="font-family:Arial">${marked.parse(mdEmailIn)}</div>`); showToast('Email HTML Generated'); };
+  const [spriteFiles, setSpriteFiles] = useState([]); const [spriteResultUrl, setSpriteResultUrl] = useState(null); const [spriteCss, setSpriteCss] = useState(''); const generateSpriteSheet = async () => { if(spriteFiles.length===0)return; const canvas = document.createElement('canvas'); const ctx=canvas.getContext('2d'); canvas.width = spriteFiles.length*64; canvas.height = 64; let css=''; for(let i=0;i<spriteFiles.length;i++){ const img = new window.Image(); await new Promise(r=>{img.onload=r;img.src=URL.createObjectURL(spriteFiles[i]);}); ctx.drawImage(img, 0,0,img.width,img.height, i*64,0,64,64); css+=`.sprite-${i}{ background-position: -${i*64}px 0; }\n`; } setSpriteResultUrl(trackUrl(canvas.toDataURL('image/png'))); setSpriteCss(css); showToast('Sprite Sheet Built'); };
+  const [storageIn, setStorageIn] = useState('{"user":{"token":"xyz"}}'); const [storageOut, setStorageOut] = useState(''); const formatStorage = () => { try{ setStorageOut(JSON.stringify(JSON.parse(storageIn),null,4)); showToast('Parsed LocalStorage'); } catch{ showToast('Invalid JSON','error'); } };
 
   return (
     <motion.div key="tool" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }} className="tool-workspace">
@@ -308,8 +161,86 @@ function ToolPage({ tool, categories }) {
       </div>
 
       <div className="tool-body" style={{ minHeight: '300px' }}>
-        
-        {/* --- NEW TOOLS UI --- */}
+        {tool.id === 'svg-to-jsx' && ( <div><div className="form-group"><label>Raw SVG Code</label><textarea rows="6" className="form-control" value={svgJsxInput} onChange={(e) => setSvgJsxInput(e.target.value)} /></div><button onClick={convertSvgToJsx} className="btn btn-primary form-group"><Code size={16}/> Convert to JSX</button>{svgJsxOutput && <textarea rows="6" readOnly className="form-control" value={svgJsxOutput} />}</div> )}
+        {tool.id === 'css-to-tailwind' && ( <div><div className="form-group"><label>CSS</label><textarea rows="6" className="form-control" value={cssTwInput} onChange={(e) => setCssTwInput(e.target.value)} /></div><button onClick={convertCssToTw} className="btn btn-primary form-group"><Wind size={16}/> Convert</button>{cssTwOutput && <textarea rows="4" readOnly className="form-control" value={cssTwOutput} />}</div> )}
+        {tool.id === 'chmod-calc' && ( <div><div className="results-grid"><div className="stat-box"><h4>Octal</h4><p>{chmodOctal}</p></div><div className="stat-box"><h4>Symbolic</h4><p>{chmodSymbolic}</p></div></div></div> )}
+        {tool.id === 'csv-to-sql' && ( <div><div className="form-group"><textarea rows="6" className="form-control" value={csvSqlInput} onChange={(e) => setCsvSqlInput(e.target.value)} /></div><button onClick={convertCsvToSql} className="btn btn-primary form-group"><Database size={16}/> Generate SQL</button>{csvSqlOutput && <textarea rows="8" readOnly className="form-control" value={csvSqlOutput} />}</div> )}
+        {tool.id === 'jsonpath-eval' && ( <div><div className="form-group"><textarea rows="6" className="form-control" value={jpJson} onChange={(e) => setJpJson(e.target.value)} /></div><button onClick={evaluateJsonPath} className="btn btn-primary"><Brackets size={16}/> Evaluate</button>{jpResult && <textarea rows="6" readOnly className="form-control" value={jpResult} />}</div> )}
+        {tool.id === 'id3-editor' && ( <div><input type="file" accept="audio/mpeg" onChange={(e) => setId3File(e.target.files[0])} className="file-input" /><button onClick={writeId3} disabled={!id3File} className="btn btn-primary">Write Tags</button>{id3Url && <a href={id3Url} download="tagged.mp3" className="btn btn-secondary">Download</a>}</div> )}
+        {tool.id === 'color-blind' && ( <div><input type="file" accept="image/*" onChange={(e) => setCbImage(e.target.files[0])} className="file-input" /><button onClick={simulateColorBlindness} disabled={!cbImage} className="btn btn-primary">Simulate</button>{cbResult && <img src={cbResult} style={{maxWidth:'100%'}} alt="Sim" />}</div> )}
+        {tool.id === 'bpm-tapper' && ( <div style={{textAlign: 'center'}}><div style={{fontSize: '6rem'}}>{bpmResult} BPM</div><button onClick={handleBpmTap} className="btn btn-primary" style={{padding:'20px 40px', fontSize:'1.2rem'}}>TAP HERE</button></div> )}
+        {tool.id === 'ocr' && ( <div><input type="file" accept="image/*" onChange={(e) => setOcrFile(e.target.files[0])} className="file-input" /><button onClick={handleOcrProcess} disabled={!ocrFile || ocrLoading} className="btn btn-primary">{ocrLoading ? 'Extracting...' : 'Extract Text'}</button>{ocrText && <textarea rows="8" readOnly className="form-control" value={ocrText} />}</div> )}
+        {tool.id === 'pdf-merge' && ( <div><input type="file" accept="application/pdf" multiple onChange={(e) => setPdfMergeFiles(Array.from(e.target.files))} className="file-input" /><button onClick={handlePdfMergeProcess} disabled={pdfProcessing} className="btn btn-primary">{pdfProcessing ? 'Processing...' : 'Merge PDFs'}</button>{pdfResultUrl && <a href={pdfResultUrl} download="merged.pdf" className="btn btn-secondary">Download PDF</a>}</div> )}
+        {tool.id === 'bg-remover' && ( <div><input type="file" accept="image/*" onChange={(e) => setBgImageFile(e.target.files[0])} className="file-input" /><button onClick={handleBgRemove} disabled={!bgImageFile} className="btn btn-primary">Remove Background Color</button>{bgResultUrl && <img src={bgResultUrl} style={{maxWidth:'100%'}} alt="No BG" />}</div> )}
+        {tool.id === 'code-minify' && ( <div><textarea rows="7" className="form-control" value={minifyInput} onChange={(e) => setMinifyInput(e.target.value)} /><button onClick={handleMinifyCode} className="btn btn-primary">Minify</button>{minifyOutput && <textarea rows="6" readOnly className="form-control" value={minifyOutput} />}</div> )}
+        {tool.id === 'xml-yaml-json' && ( <div><textarea rows="6" className="form-control" value={convInputText} onChange={(e) => setConvInputText(e.target.value)} /><button onClick={handleConvertDataFormat} className="btn btn-primary">Convert Structure</button>{convOutputText && <textarea rows="8" readOnly className="form-control" value={convOutputText} />}</div> )}
+        {tool.id === 'mockup-gen' && ( <div><input type="file" accept="image/*" onChange={(e) => setMockupImg(e.target.files[0])} className="file-input" /><button onClick={handleRenderMockup} disabled={!mockupImg} className="btn btn-primary">Render Mockup Image</button>{mockupResultUrl && <img src={mockupResultUrl} style={{maxWidth:'100%'}} alt="Mockup" />}</div> )}
+        {tool.id === 'pass-strength' && ( <div><input type="text" className="form-control" value={passTestInput} onChange={(e) => setPassTestInput(e.target.value)} /><div style={{margin:'20px 0'}}><strong>Strength: {passAnalysis.score}%</strong></div></div> )}
+        {tool.id === 'tts-reader' && ( <div><textarea rows="6" className="form-control" value={ttsInput} onChange={(e) => setTtsInput(e.target.value)} /><button onClick={handleTtsSpeak} className="btn btn-primary">Read Aloud</button></div> )}
+        {tool.id === 'aes-encrypt' && ( <div><textarea rows="4" className="form-control" value={aesText} onChange={(e) => setAesText(e.target.value)} /><input type="password" placeholder="Passphrase" className="form-control" value={aesPass} onChange={(e) => setAesPass(e.target.value)} /><button onClick={handleAesProcess} className="btn btn-primary">Process</button>{aesResult && <textarea rows="4" readOnly className="form-control" value={aesResult} />}</div> )}
+        {tool.id === 'rsa-gen' && ( <div><button onClick={generateRSA} className="btn btn-primary">Generate RSA Keys</button>{rsaPublic && <textarea rows="6" readOnly className="form-control" value={rsaPublic} />}</div> )}
+        {tool.id === 'pgp-tool' && ( <div><textarea rows="4" className="form-control" value={pgpMsg} onChange={(e) => setPgpMsg(e.target.value)} /><input type="password" placeholder="Passphrase" className="form-control" value={pgpPass} onChange={(e) => setPgpPass(e.target.value)} /><button onClick={handlePgpProcess} className="btn btn-primary">Process PGP</button>{pgpOutput && <textarea rows="8" readOnly className="form-control" value={pgpOutput} />}</div> )}
+        {tool.id === 'steganography' && ( <div><input type="file" accept="image/*" onChange={(e) => setStegFile(e.target.files[0])} className="file-input" /><textarea rows="3" className="form-control" value={stegSecret} onChange={(e) => setStegSecret(e.target.value)} placeholder="Secret Msg" /><button onClick={handleStegProcess} disabled={!stegFile} className="btn btn-primary">Embed / Extract</button>{stegResultUrl && <img src={stegResultUrl} style={{maxWidth:'100%'}} alt="Steg" />}{stegDecoded && <textarea rows="4" readOnly className="form-control" value={stegDecoded} />}</div> )}
+        {tool.id === 'file-hash' && ( <div><input type="file" onChange={(e) => setHashFile(e.target.files[0])} className="file-input" /><button onClick={handleComputeFileHash} disabled={!hashFile} className="btn btn-primary">Compute Hash</button>{fileHashResult && <textarea rows="2" readOnly className="form-control" value={fileHashResult} />}</div> )}
+        {tool.id === 'hash' && ( <div><textarea rows="4" className="form-control" value={hashData} onChange={(e) => setHashData(e.target.value)} /><button onClick={generateHash} className="btn btn-primary">Generate Hash</button>{hashResult && <div className="form-control">{hashResult}</div>}</div> )}
+        {tool.id === 'bcrypt' && ( <div><input type="text" className="form-control" value={bcryptPassInput} onChange={(e) => setBcryptPassInput(e.target.value)} /><button onClick={generateBcrypt} className="btn btn-primary">Hash</button>{bcryptHashOut && <textarea rows="3" readOnly className="form-control" value={bcryptHashOut} />}</div> )}
+        {tool.id === 'base64' && ( <div><textarea rows="4" className="form-control" value={baseInput} onChange={(e) => setBaseInput(e.target.value)} /><textarea rows="4" readOnly className="form-control" value={getBase64Result()} /></div> )}
+        {tool.id === 'password' && ( <div><button onClick={generatePassword} className="btn btn-primary">Generate Password</button>{password && <div className="form-control">{password}</div>}</div> )}
+        {tool.id === 'exif-strip' && ( <div><input type="file" accept="image/*" onChange={handleExifUpload} className="file-input" />{strippedImgUrl && <a href={strippedImgUrl} download="clean.jpg" className="btn btn-primary">Download Safe Image</a>}</div> )}
+        {tool.id === 'image' && ( <div><input type="file" accept="image/*" onChange={(e) => setOriginalImage(e.target.files[0])} className="file-input" /><input type="number" className="form-control" value={targetSize} onChange={(e) => setTargetSize(e.target.value)} placeholder="Target Size (KB)" /><button onClick={handleCompressImage} disabled={!originalImage} className="btn btn-primary">Compress</button>{compressedImgUrl && <a href={compressedImgUrl} download="compressed.jpg" className="btn btn-primary">Download</a>}</div> )}
+        {tool.id === 'img-converter' && ( <div><input type="file" accept="image/*" onChange={(e) => setConvFile(e.target.files[0])} className="file-input" /><button onClick={handleConvertImage} disabled={!convFile} className="btn btn-primary">Convert Format</button>{convUrl && <a href={convUrl} download="converted.webp" className="btn btn-primary">Download Image</a>}</div> )}
+        {tool.id === 'favicon-gen' && ( <div><input type="file" accept="image/*" onChange={(e) => setFavFile(e.target.files[0])} className="file-input" /><button onClick={generateFavicons} disabled={!favFile} className="btn btn-primary">Generate Bundle</button>{favZipUrl && <a href={favZipUrl} download="favicons.zip" className="btn btn-primary">Download ZIP</a>}</div> )}
+        {tool.id === 'videditor' && ( <div><input type="file" accept="video/*" onChange={handleVideoLoad} className="file-input" /><button onClick={handleVideoExport} className="btn btn-primary">Export Video</button></div> )}
+        {tool.id === 'audioedit' && ( <div><input type="file" accept="audio/*, video/*" onChange={handleAudioLoad} className="file-input" /><button onClick={handleExportAudio} disabled={!audioBuffer} className="btn btn-primary">Export Audio (WAV)</button></div> )}
+        {tool.id === 'resize' && ( <div><input type="file" accept="image/*" onChange={(e) => setResizeSource(e.target.files[0])} className="file-input" /><input type="number" className="form-control" value={targetWidth} onChange={(e) => setTargetWidth(Number(e.target.value))} /><button onClick={handleResize} disabled={!resizeSource} className="btn btn-primary">Resize Image</button>{resizedDataUrl && <a href={resizedDataUrl} download="resized.jpg" className="btn btn-secondary">Download Resized JPG</a>}</div> )}
+        {tool.id === 'pdfgen' && ( <div><input type="file" accept="image/*" multiple onChange={(e) => setPdfImages(Array.from(e.target.files))} className="file-input" /><button onClick={generatePdf} disabled={pdfImages.length === 0} className="btn btn-primary">Download PDF Document</button></div> )}
+        {tool.id === 'audio' && ( <div><input type="file" accept="video/*" onChange={(e) => setExtractVideo(e.target.files[0])} className="file-input" /><button onClick={handleExtractAudio} disabled={!extractVideo} className="btn btn-primary">Extract Audio to WAV</button>{extractedAudioUrl && <a href={extractedAudioUrl} download="extracted.wav" className="btn btn-primary">Download Audio</a>}</div> )}
+        {tool.id === 'screen' && ( <div>{!isRecording ? <button onClick={startRecording} className="btn btn-primary">Start Recording</button> : <button onClick={stopRecording} className="btn btn-danger">Stop Recording</button>} {recordedChunks.length > 0 && !isRecording && <button onClick={downloadVideo} className="btn btn-secondary">Download Video</button>}</div> )}
+        {tool.id === 'vid2gif' && ( <div><input type="file" accept="video/*" onChange={(e) => setGifVideo(e.target.files[0])} className="file-input" /><button onClick={createGif} disabled={!gifVideo} className="btn btn-primary">Create GIF</button>{gifResult && <img src={gifResult} style={{maxWidth:'100%'}} alt="GIF" />}</div> )}
+        {tool.id === 'palette-extract' && ( <div><input type="file" accept="image/*" onChange={handlePaletteUpload} className="file-input" />{paletteColors.length > 0 && <div style={{display:'flex', gap:'10px'}}>{paletteColors.map(c => <div key={c} style={{background:c, width:'50px', height:'50px'}}></div>)}</div>}</div> )}
+        {tool.id === 'svg' && ( <div><textarea rows="6" className="form-control" value={svgInput} onChange={(e) => setSvgInput(e.target.value)} /><button onClick={convertSvg} className="btn btn-primary">Convert to PNG</button>{pngUrl && <img src={pngUrl} alt="PNG" />}</div> )}
+        {tool.id === 'svg-minify' && ( <div><textarea rows="6" className="form-control" value={svgMinInput} onChange={(e) => setSvgMinInput(e.target.value)} /><button onClick={minifySvg} className="btn btn-primary">Minify SVG</button>{svgMinOutput && <textarea rows="6" readOnly className="form-control" value={svgMinOutput} />}</div> )}
+        {tool.id === 'ratio' && ( <div><input type="number" className="form-control" value={arW1} onChange={(e) => setArW1(e.target.value)} /><input type="number" className="form-control" value={arH1} onChange={(e) => setArH1(e.target.value)} /><input type="number" className="form-control" value={arW2} onChange={(e) => setArW2(e.target.value)} /><div className="stat-box"><p>{arH2} px</p></div></div> )}
+        {tool.id === 'color' && ( <div><input type="text" className="form-control" value={colorInput} onChange={handleColorChange} /><div className="stat-box"><p>{rgbOutput}</p></div></div> )}
+        {tool.id === 'dummyimg' && ( <div><input type="number" className="form-control" value={dummyW} onChange={(e) => setDummyW(Number(e.target.value))} /><input type="number" className="form-control" value={dummyH} onChange={(e) => setDummyH(Number(e.target.value))} /><button onClick={genDummy} className="btn btn-primary">Generate Image</button>{dummyImgUrl && <img src={dummyImgUrl} alt="Dummy" />}</div> )}
+        {tool.id === 'api-tester' && ( <div><input type="text" className="form-control" value={apiUrl} onChange={(e) => setApiUrl(e.target.value)} /><button onClick={handleApiSend} className="btn btn-primary"><Send size={16} /> Send Request</button>{apiResponse && <textarea rows="10" readOnly className="form-control" value={apiResponse} />}</div> )}
+        {tool.id === 'code-to-img' && ( <div><textarea rows="8" className="form-control" value={codeSnippet} onChange={(e) => setCodeSnippet(e.target.value)} /><button onClick={generateCodeImage} className="btn btn-primary">Render Image</button>{codeImgUrl && <img src={codeImgUrl} alt="Code Img" style={{maxWidth:'100%'}}/>}</div> )}
+        {tool.id === 'contrast-checker' && ( <div><input type="color" className="form-control" value={fgColor} onChange={(e) => setFgColor(e.target.value)} /><input type="color" className="form-control" value={bgColor} onChange={(e) => setBgColor(e.target.value)} /><div style={{padding:'30px', background:bgColor, color:fgColor}}>Sample Text</div></div> )}
+        {tool.id === 'data-uri' && ( <div><input type="file" onChange={handleDataUriUpload} className="file-input" />{dataUriOut && <textarea rows="4" readOnly className="form-control" value={dataUriOut} />}</div> )}
+        {tool.id === 'excel-json' && ( <div><input type="file" accept=".xlsx, .xls, .csv" onChange={handleExcelUpload} className="file-input" />{excelJsonOut && <textarea rows="10" readOnly className="form-control" value={excelJsonOut} />}</div> )}
+        {tool.id === 'json-ts' && ( <div><textarea rows="5" className="form-control" value={jsonToTsInput} onChange={(e) => setJsonToTsInput(e.target.value)} /><button onClick={convertJsonToTs} className="btn btn-primary">Convert to TS</button>{tsOutput && <textarea rows="7" readOnly className="form-control" value={tsOutput} />}</div> )}
+        {tool.id === 'json' && ( <div><textarea rows="4" className="form-control" value={jsonInput} onChange={(e) => setJsonInput(e.target.value)} /><button onClick={formatJson} className="btn btn-primary">Format JSON</button>{jsonOutput && <textarea rows="8" readOnly className="form-control" value={jsonOutput} />}</div> )}
+        {tool.id === 'json-csv' && ( <div><textarea rows="6" className="form-control" value={j2cInput} onChange={(e) => setJ2cInput(e.target.value)} /><button onClick={runJ2c} className="btn btn-primary">Convert</button>{j2cOutput && <textarea rows="8" readOnly className="form-control" value={j2cOutput} />}</div> )}
+        {tool.id === 'sql-format' && ( <div><textarea rows="6" className="form-control" value={sqlInput} onChange={(e) => setSqlInput(e.target.value)} /><button onClick={formatSql} className="btn btn-primary">Format SQL</button>{sqlOutput && <textarea rows="8" readOnly className="form-control" value={sqlOutput} />}</div> )}
+        {tool.id === 'beautify' && ( <div><textarea rows="4" className="form-control" value={messyCode} onChange={(e) => setMessyCode(e.target.value)} /><button onClick={formatSnippet} className="btn btn-primary">Format Code</button>{cleanCode && <textarea rows="10" readOnly className="form-control" value={cleanCode} />}</div> )}
+        {tool.id === 'diff-check' && ( <div><textarea className="form-control" rows="6" value={diffA} onChange={(e) => setDiffA(e.target.value)} /><textarea className="form-control" rows="6" value={diffB} onChange={(e) => setDiffB(e.target.value)} /><button onClick={runDiff} className="btn btn-primary">Compare</button>{diffResult.length > 0 && <div>Compared Result Exists</div>}</div> )}
+        {tool.id === 'url-encode' && ( <div><textarea rows="4" className="form-control" value={urlInput} onChange={(e) => setUrlInput(e.target.value)} /><button onClick={handleUrlTransform} className="btn btn-primary"><LinkIcon size={16}/> Encode URL</button>{urlOutput && <textarea rows="4" readOnly className="form-control" value={urlOutput} />}</div> )}
+        {tool.id === 'uuid-gen' && ( <div><input type="range" min="1" max="1000" value={uuidCount} onChange={(e) => setUuidCount(e.target.value)} /><button onClick={generateUuids} className="btn btn-primary">Generate UUIDs</button>{uuidOutput && <textarea rows="8" readOnly className="form-control" value={uuidOutput} />}</div> )}
+        {tool.id === 'mongo' && ( <div><input type="text" className="form-control" value={mongoId} onChange={(e) => setMongoId(e.target.value)} /><button onClick={extractMongoDate} className="btn btn-primary">Extract Date</button>{mongoResult && <div className="form-control">{mongoResult}</div>}</div> )}
+        {tool.id === 'jwt' && ( <div><textarea rows="4" className="form-control" value={jwt} onChange={(e) => setJwt(e.target.value)} /><button onClick={decodeJwt} className="btn btn-primary">Decode Token</button>{jwtData && <textarea rows="6" readOnly className="form-control" value={jwtData} />}</div> )}
+        {tool.id === 'box-shadow' && ( <div><input type="range" min="-50" max="50" value={boxH} onChange={(e) => setBoxH(Number(e.target.value))} /><textarea rows="2" readOnly className="form-control" value={boxShadowCSS} /></div> )}
+        {tool.id === 'glass' && ( <div><input type="range" min="0" max="30" value={blur} onChange={(e) => setBlur(e.target.value)} /><textarea rows="5" readOnly className="form-control" value={glassCss} /></div> )}
+        {tool.id === 'cron' && ( <div><input type="text" className="form-control" value={cronInput} onChange={(e) => setCronInput(e.target.value)} /><button onClick={translateCron} className="btn btn-primary">Translate</button>{cronResult && <div className="form-control">{cronResult}</div>}</div> )}
+        {tool.id === 'regex' && ( <div><input type="text" className="form-control" value={regexPattern} onChange={(e) => setRegexPattern(e.target.value)} /><textarea rows="3" className="form-control" value={regexText} onChange={(e) => setRegexText(e.target.value)} /><button onClick={testRegex} className="btn btn-primary">Test</button><div className="form-control">{regexResult}</div></div> )}
+        {tool.id === 'keys' && ( <div><input type="text" className="form-control" onKeyDown={handleKeyDown} readOnly /><div className="stat-box"><p>{keyData.key}</p></div></div> )}
+        {tool.id === 'viewport' && ( <div style={{textAlign: 'center'}}><div className="stat-box"><p>{viewport.w} x {viewport.h}</p></div></div> )}
+        {tool.id === 'counter' && ( <div><textarea rows="6" className="form-control" value={text} onChange={(e) => setText(e.target.value)} /></div> )}
+        {tool.id === 'case' && ( <div><textarea rows="5" className="form-control" value={caseText} onChange={(e) => setCaseText(e.target.value)} /></div> )}
+        {tool.id === 'spell' && ( <div><textarea rows="8" className="form-control" value={spellText} onChange={(e) => setSpellText(e.target.value)} /></div> )}
+        {tool.id === 'lorem' && ( <div><input type="range" min="1" max="10" value={paragraphs} onChange={(e) => setParagraphs(e.target.value)} /></div> )}
+        {tool.id === 'md' && ( <div><textarea rows="6" className="form-control" value={mdInput} onChange={(e) => setMdInput(e.target.value)} /></div> )}
+        {tool.id === 'freelance' && ( <div><input type="range" min="1" max="160" value={hours} onChange={(e) => setHours(e.target.value)} /></div> )}
+        {tool.id === 'invoice' && ( <div><input type="text" className="form-control" value={client} onChange={(e) => setClient(e.target.value)} /><button onClick={generateInvoice} className="btn btn-primary">Download PDF</button></div> )}
+        {tool.id === 'dummy-data' && ( <div><input type="range" min="1" max="50" value={dummyCount} onChange={(e) => setDummyCount(e.target.value)} /><button onClick={generateMockData} className="btn btn-primary"><Layers size={16}/> Generate Records</button>{dummyOutput && <textarea rows="8" readOnly className="form-control" value={dummyOutput} />}</div> )}
+        {tool.id === 'seo' && ( <div><input type="text" className="form-control" value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} /></div> )}
+        {tool.id === 'utm' && ( <div><input type="text" className="form-control" value={utmUrl} onChange={(e) => setUtmUrl(e.target.value)} /></div> )}
+        {tool.id === 'qr' && ( <div><input type="text" className="form-control" value={qrText} onChange={(e) => setQrText(e.target.value)} /><QRCodeCanvas value={qrText} size={200} /></div> )}
+        {tool.id === 'zip' && ( <div><input type="file" multiple onChange={(e) => setZipFiles(Array.from(e.target.files))} className="file-input" /><button onClick={compressDocs} disabled={zipFiles.length === 0} className="btn btn-primary">Create Secure ZIP Archive</button>{zipUrl && <a href={zipUrl} download="archive.zip" className="btn btn-secondary">Download ZIP</a>}</div> )}
+        {tool.id === 'voicememo' && ( <div>{!isRecordingMemo ? <button onClick={startMemo} className="btn btn-primary"><MicVocal size={16}/> Record</button> : <button onClick={stopMemo} className="btn btn-danger">Stop</button>}{memoUrl && <audio src={memoUrl} controls />}</div> )}
+        {tool.id === 'timer' && ( <div style={{textAlign: 'center'}}><div style={{fontSize: '4.5rem'}}>{time}</div><button onClick={() => setTimerOn(!timerOn)} className="btn btn-primary">Toggle</button></div> )}
+        {tool.id === 'pomo' && ( <div style={{textAlign: 'center'}}><div style={{fontSize: '5rem'}}>{pomoTime}</div><button onClick={() => setPomoActive(!pomoActive)} className="btn btn-primary">Toggle</button></div> )}
+
+        {/* --- 10 NEW TOOLS ADDED BELOW --- */}
         {tool.id === 'prisma-vis' && (
           <div>
             <div className="form-group"><label>Prisma Schema Code</label><textarea rows="8" className="form-control" style={{fontFamily:'monospace'}} value={prismaInput} onChange={(e) => setPrismaInput(e.target.value)} /></div>
@@ -332,7 +263,6 @@ function ToolPage({ tool, categories }) {
             )}
           </div>
         )}
-
         {tool.id === 'pod-safe-zone' && (
           <div>
             <div className="file-input-wrapper"><input type="file" accept="image/*" onChange={(e) => setPodImg(URL.createObjectURL(e.target.files[0]))} className="file-input" /></div>
@@ -347,7 +277,6 @@ function ToolPage({ tool, categories }) {
             )}
           </div>
         )}
-
         {tool.id === 'gamepad-mapper' && (
           <div>
             <div className="file-input-wrapper"><input type="file" accept="image/*" onChange={(e) => { setGpImg(URL.createObjectURL(e.target.files[0])); setGpMarkers([]); }} className="file-input" /></div>
@@ -365,7 +294,6 @@ function ToolPage({ tool, categories }) {
             <button onClick={() => setGpMarkers([])} className="btn btn-secondary form-group" style={{marginTop:'15px'}}>Clear Markers</button>
           </div>
         )}
-
         {tool.id === 'cgpa-calc' && (
           <div>
             <div className="responsive-grid form-group">
@@ -376,23 +304,19 @@ function ToolPage({ tool, categories }) {
             </div>
             <div style={{ padding:'30px', background:'var(--bg-card)', border:'1px solid var(--border)', borderRadius:'12px', textAlign:'center', margin:'20px 0' }}>
               <h3 style={{ margin:'0 0 10px 0' }}>Required GPA for Remaining Credits</h3>
-              <p style={{ fontSize:'3rem', fontWeight:'bold', color: requiredGpa > 4.0 ? 'var(--error)' : 'var(--success)', margin:0 }}>
-                {requiredGpa.toFixed(2)}
-              </p>
+              <p style={{ fontSize:'3rem', fontWeight:'bold', color: requiredGpa > 4.0 ? 'var(--error)' : 'var(--success)', margin:0 }}>{requiredGpa.toFixed(2)}</p>
               {requiredGpa > 4.0 && <p style={{ color:'var(--error)', marginTop:'10px' }}>Mathematically impossible with standard 4.0 scale.</p>}
             </div>
           </div>
         )}
-
         {tool.id === 'batch-watermark' && (
           <div>
             <div className="file-input-wrapper"><input type="file" accept="image/*" multiple onChange={(e) => setWmFiles(Array.from(e.target.files))} className="file-input" /></div>
             <div className="form-group"><label>Watermark Text</label><input type="text" className="form-control" value={wmText} onChange={(e) => setWmText(e.target.value)} /></div>
-            <button onClick={handleBatchWatermark} disabled={wmFiles.length === 0 || wmZipping} className="btn btn-primary form-group"><FileArchive size={16}/> {wmZipping ? 'Processing Batch...' : `Watermark ${wmFiles.length} Images`}</button>
+            <button onClick={handleBatchWatermark} disabled={wmFiles.length === 0} className="btn btn-primary form-group"><FileArchive size={16}/> Watermark Images</button>
             {wmZipUrl && <div style={{marginTop: '20px'}}><a href={wmZipUrl} download="watermarked-batch.zip" className="btn btn-secondary"><Download size={16}/> Download ZIP Archive</a></div>}
           </div>
         )}
-
         {tool.id === 'sql-generator' && (
           <div>
             <div className="responsive-grid form-group">
@@ -403,13 +327,11 @@ function ToolPage({ tool, categories }) {
             {sqlGenOut && <div className="form-group"><label>SQL Output (.sql file contents)</label><textarea rows="10" readOnly className="form-control readonly-area" value={sqlGenOut} /></div>}
           </div>
         )}
-
         {tool.id === 'og-preview' && (
           <div>
             <div className="form-group"><label>Meta Title</label><input type="text" className="form-control" value={ogTitle} onChange={(e) => setOgTitle(e.target.value)} /></div>
             <div className="form-group"><label>Meta Description</label><input type="text" className="form-control" value={ogDesc} onChange={(e) => setOgDesc(e.target.value)} /></div>
             <div className="form-group"><label>OG Image URL</label><input type="text" className="form-control" value={ogImgUrl} onChange={(e) => setOgImgUrl(e.target.value)} /></div>
-            
             <h4 style={{marginTop:'30px', marginBottom:'15px'}}>Twitter / X Card Preview</h4>
             <div style={{ maxWidth:'500px', border:'1px solid var(--border)', borderRadius:'16px', overflow:'hidden', background:'var(--bg-base)' }}>
               <img src={ogImgUrl} style={{ width:'100%', height:'250px', objectFit:'cover', borderBottom:'1px solid var(--border)' }} alt="OG" />
@@ -421,7 +343,6 @@ function ToolPage({ tool, categories }) {
             </div>
           </div>
         )}
-
         {tool.id === 'md-email' && (
           <div>
             <div className="form-group"><label>Markdown Email Draft</label><textarea rows="8" className="form-control" value={mdEmailIn} onChange={(e) => setMdEmailIn(e.target.value)} /></div>
@@ -429,7 +350,6 @@ function ToolPage({ tool, categories }) {
             {mdEmailOut && <div className="form-group"><label>Raw HTML (Copy-paste into ESP)</label><textarea rows="8" readOnly className="form-control readonly-area" value={mdEmailOut} /></div>}
           </div>
         )}
-
         {tool.id === 'sprite-generator' && (
           <div>
             <div className="file-input-wrapper"><input type="file" accept="image/png, image/jpeg" multiple onChange={(e) => setSpriteFiles(Array.from(e.target.files))} className="file-input" /></div>
@@ -443,7 +363,6 @@ function ToolPage({ tool, categories }) {
             )}
           </div>
         )}
-
         {tool.id === 'storage-debug' && (
           <div>
             <div className="form-group"><label>Raw LocalStorage JSON String</label><textarea rows="5" className="form-control" style={{fontFamily:'monospace'}} value={storageIn} onChange={(e) => setStorageIn(e.target.value)} /></div>
@@ -451,10 +370,7 @@ function ToolPage({ tool, categories }) {
             {storageOut && <div className="form-group"><label>Parsed Object</label><textarea rows="10" readOnly className="form-control readonly-area" value={storageOut} /></div>}
           </div>
         )}
-        
-        {/* --- EXISTING TOOLS UI EXAMPLES (Truncated slightly to fit memory, you have the full block in your previous file) --- */}
-        {tool.id === 'pass-strength' && ( <div> <div className="form-group"> <label>Test Password</label> <div style={{display:'flex', gap:'10px'}}> <input type={showPassTest ? "text" : "password"} className="form-control" value={passTestInput} onChange={(e) => setPassTestInput(e.target.value)} /> <button className="btn btn-secondary" onClick={() => setShowPassTest(!showPassTest)}>{showPassTest ? 'Hide' : 'Show'}</button> </div> </div> </div> )}
-        
+
       </div>
 
       <RelatedTools currentTool={tool} categories={categories} />

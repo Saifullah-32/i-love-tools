@@ -3,7 +3,7 @@ import {
   Image, Scissors, ImagePlus, Maximize, Crop, Video, FileUp, Music, Mic, Clapperboard, 
   Code2, FileCode2, Code, Brackets, Wind, Database, FileJson, GitCompare, BoxSelect, 
   Tags, FileText, Type, ListTree, Regex, Keyboard, Layout, Activity, Clock, Timer, 
-  Calculator, Receipt, Link, QrCode, Mail, Share2, GraduationCap, Gamepad2, LayoutGrid, Bug
+  Calculator, Receipt, Link, QrCode, Mail, Share2, GraduationCap, Gamepad2, LayoutGrid, Bug, FileStack
 } from 'lucide-react';
 
 export const categories = {
