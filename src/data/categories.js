@@ -4,7 +4,7 @@ import {
   Code2, FileCode2, Code, Brackets, Wind, Database, FileJson, GitCompare, BoxSelect, 
   Tags, FileText, Type, ListTree, Regex, Keyboard, Layout, Activity, Clock, Timer, 
   Calculator, Receipt, Link, QrCode, Mail, Share2, GraduationCap, Gamepad2, LayoutGrid, Bug, FileStack,
-  FileSpreadsheet, BookOpen, FolderOpen, RefreshCcw, FileOutput, FileMinus, Stamp, ListOrdered
+  FileSpreadsheet, BookOpen, FolderOpen, RefreshCcw, FileOutput, FileMinus, Stamp, ListOrdered, RotateCw, Smile, Wand2
 } from 'lucide-react';
 
 export const categories = {
@@ -23,6 +23,11 @@ export const categories = {
     { id: 'storage-debug', name: 'Storage Debugger', description: 'Secure sandbox to parse, validate, and format heavily nested LocalStorage JSON strings.', icon: Bug }
   ],
   "Media & Graphics": [
+    { id: 'img-crop', name: 'Crop Image', description: 'Crop pixels from JPG, PNG, or GIF images natively in your browser.', icon: Crop },
+    { id: 'img-rotate', name: 'Rotate Image', description: 'Instantly rotate your images 90, 180, or 270 degrees.', icon: RotateCw },
+    { id: 'img-watermark-overlay', name: 'Watermark Image', description: 'Stamp a text watermark securely over your images.', icon: Stamp },
+    { id: 'meme-gen', name: 'Meme Generator', description: 'Create custom memes by overlaying top and bottom impact text on images.', icon: Smile },
+    { id: 'photo-filters', name: 'Photo Editor', description: 'Apply beautiful CSS-based filters (sepia, grayscale, blur) to your photos.', icon: Wand2 },
     { id: 'ocr', name: 'Image to Text (OCR)', description: 'Extract text and characters directly from screenshots, photos, and scanned documents.', icon: FileText },
     { id: 'bg-remover', name: 'Background Remover', description: 'Remove or key-out backgrounds from images locally to create transparent PNGs.', icon: Scissors },
     { id: 'mockup-gen', name: 'Device Mockup Gen', description: 'Wrap screenshots in beautiful, customizable device frames (Browser, iPhone, etc.)', icon: Layout },
