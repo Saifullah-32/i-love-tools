@@ -196,14 +196,17 @@ function ToolPage({ tool, categories }) {
   const handleBgRemove = async () => { 
     if (!bgImageFile) return; 
     setIsRemovingBg(true); 
-    showToast('Loading AI Model... (This takes a few seconds)'); 
+    showToast('Downloading AI Model... (May take 10-20s on first run)'); 
     try { 
-      const imglyRemoveBackground = (await import('@imgly/background-removal')).default; 
-      const blob = await imglyRemoveBackground(bgImageFile); 
+      const imgly = await import('@imgly/background-removal'); 
+      const removeBackground = imgly.default || imgly.removeBackground;
+      const config = { publicPath: "https://unpkg.com/@imgly/background-removal/dist/" };
+      const blob = await removeBackground(bgImageFile, config); 
       setBgResultUrl(trackUrl(URL.createObjectURL(blob))); 
       showToast('Background Erased via AI!'); 
     } catch (e) { 
-      showToast('AI Processing Error.', 'error'); 
+      console.error("AI Background Removal Error:", e);
+      showToast('AI Processing Error. Check Console (F12).', 'error'); 
     } 
     setIsRemovingBg(false); 
   };
