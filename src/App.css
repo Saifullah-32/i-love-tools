@@ -82,8 +82,14 @@ a {
 
 /* BOLD HEADER LINKS FIX */
 .header a {
-  font-weight: 600;
-  color: var(--text-main);
+  font-weight: 700 !important; /* Forced to thick Bold */
+  color: var(--text-main) !important; /* Forced solid dark slate color */
+  opacity: 0.85; /* Slight opacity so the hover effect pops */
+  transition: opacity 0.2s ease;
+}
+
+.header a:hover {
+  opacity: 1; /* Fully solid on hover */
 }
 
 .header-nav {
@@ -97,7 +103,7 @@ a {
   border: none;
   color: var(--text-main);
   font-size: 0.95rem;
-  font-weight: 600; /* BOLD CATEGORY FONT FIX */
+  font-weight: 700 !important; /* BOLD CATEGORY FONT FIX */
   cursor: pointer;
   padding: 8px 12px;
   display: flex;
@@ -144,12 +150,12 @@ a {
   align-items: center; 
   gap: 10px; 
   padding: 10px 12px; 
-  color: var(--text-muted); 
+  color: var(--text-muted) !important; /* Keep dropdown items slightly muted */
   border-radius: var(--radius-md); 
   font-size: 0.95rem; 
-  font-weight: 600; /* BOLD DROPDOWN LINKS FIX */
+  font-weight: 600 !important;
 }
-.nav-link:hover { background: var(--bg-surface); color: var(--text-main); }
+.nav-link:hover { background: var(--bg-surface); color: var(--text-main) !important; }
 
 /* SEARCH BAR OUTLINE FIX */
 .search-container {
@@ -180,7 +186,7 @@ a {
 .search-bar:focus {
   border-color: var(--border-hover);
   background: var(--bg-card);
-  box-shadow: 0 0 0 3px rgba(0,0,0,0.05) !important; /* Soft light theme shadow instead of stark black */
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.05) !important;
 }
 
 /* Tool Directory Cards */
@@ -240,7 +246,7 @@ a {
 
 .tool-header .back-btn {
   margin-bottom: 20px;
-  color: var(--text-muted);
+  color: var(--text-muted) !important;
   font-weight: 600;
   font-size: 1.1rem;
   display: inline-flex;
@@ -250,7 +256,7 @@ a {
 }
 
 .tool-header .back-btn:hover {
-  color: var(--text-main);
+  color: var(--text-main) !important;
 }
 
 .tool-header h1 {
