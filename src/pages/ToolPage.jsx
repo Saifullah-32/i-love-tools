@@ -196,17 +196,26 @@ function ToolPage({ tool, categories }) {
   const handleBgRemove = async () => { 
     if (!bgImageFile) return; 
     setIsRemovingBg(true); 
-    showToast('Downloading AI Model... (May take 10-20s on first run)'); 
+    showToast('Initializing AI Engine... (May take a moment)'); 
     try { 
+      // Safely dynamically import the library
       const imgly = await import('@imgly/background-removal'); 
       const removeBackground = imgly.default || imgly.removeBackground;
-      const config = { publicPath: "https://unpkg.com/@imgly/background-removal/dist/" };
-      const blob = await removeBackground(bgImageFile, config); 
+      
+      // Use imgly's official static CDN, which is highly optimized and rarely blocked
+      const config = {
+        publicPath: "https://static.imgly.com/@imgly/background-removal/1.5.5/dist/"
+      };
+      
+      // Create a temporary object URL to prevent File Object read errors
+      const imageSrc = URL.createObjectURL(bgImageFile);
+      
+      const blob = await removeBackground(imageSrc, config); 
       setBgResultUrl(trackUrl(URL.createObjectURL(blob))); 
       showToast('Background Erased via AI!'); 
     } catch (e) { 
-      console.error("AI Background Removal Error:", e);
-      showToast('AI Processing Error. Check Console (F12).', 'error'); 
+      console.error("CRITICAL AI ERROR: ", e);
+      showToast('AI Error! Check the "Console" tab in F12.', 'error'); 
     } 
     setIsRemovingBg(false); 
   };
@@ -249,6 +258,7 @@ function ToolPage({ tool, categories }) {
         {tool.id === 'meme-gen' && ( <div><div className="form-group"><label>Background Image</label><input type="file" accept="image/*" onChange={(e) => setMemeFile(e.target.files[0])} className="file-input" /></div><div className="form-group"><label>Top Text</label><input type="text" className="form-control" value={memeTop} onChange={(e) => setMemeTop(e.target.value)} /></div><div className="form-group"><label>Bottom Text</label><input type="text" className="form-control" value={memeBottom} onChange={(e) => setMemeBottom(e.target.value)} /></div><button onClick={handleMemeGen} disabled={!memeFile} className="btn btn-primary">Generate Meme</button>{memeUrl && <div style={{marginTop:'30px'}}><img src={memeUrl} alt="Meme" style={{maxWidth:'100%', borderRadius:'12px', marginBottom:'15px'}}/><br/><a href={memeUrl} download="meme.jpg" className="btn btn-secondary">Download Output</a></div>}</div> )}
         {tool.id === 'photo-filters' && ( <div><div className="form-group"><label>Upload Photo</label><input type="file" accept="image/*" onChange={(e) => setFilterFile(e.target.files[0])} className="file-input" /></div><div className="form-group"><label>Select CSS Filter</label><select className="form-control" value={filterType} onChange={(e) => setFilterType(e.target.value)}><option value="grayscale">Grayscale / B&W</option><option value="sepia">Vintage Sepia</option><option value="blur">Gaussian Blur</option><option value="invert">Color Invert</option></select></div><button onClick={handlePhotoFilter} disabled={!filterFile} className="btn btn-primary">Apply Filter</button>{filterUrl && <div style={{marginTop:'30px'}}><img src={filterUrl} alt="Filtered" style={{maxWidth:'100%', borderRadius:'12px', marginBottom:'15px'}}/><br/><a href={filterUrl} download="filtered.jpg" className="btn btn-secondary">Download Output</a></div>}</div> )}
 
+        {/* --- UPGRADED AI BACKGROUND REMOVER --- */}
         {tool.id === 'bg-remover' && ( 
           <div>
             <div className="form-group">
