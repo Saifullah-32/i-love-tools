@@ -196,26 +196,24 @@ function ToolPage({ tool, categories }) {
   const handleBgRemove = async () => { 
     if (!bgImageFile) return; 
     setIsRemovingBg(true); 
-    showToast('Initializing AI Engine... (May take a moment)'); 
+    showToast('Initializing AI Engine... (May take 10-20s)'); 
     try { 
-      // Safely dynamically import the library
       const imgly = await import('@imgly/background-removal'); 
       const removeBackground = imgly.default || imgly.removeBackground;
       
-      // Use imgly's official static CDN, which is highly optimized and rarely blocked
       const config = {
-        publicPath: "https://static.imgly.com/@imgly/background-removal/1.5.5/dist/"
+        publicPath: "https://unpkg.com/@imgly/background-removal@1.5.5/dist/"
       };
       
-      // Create a temporary object URL to prevent File Object read errors
-      const imageSrc = URL.createObjectURL(bgImageFile);
+      // FIX: Pass the native bgImageFile directly instead of a temporary URL.
+      // This prevents cross-origin and WebWorker memory access errors.
+      const blob = await removeBackground(bgImageFile, config); 
       
-      const blob = await removeBackground(imageSrc, config); 
       setBgResultUrl(trackUrl(URL.createObjectURL(blob))); 
       showToast('Background Erased via AI!'); 
     } catch (e) { 
       console.error("CRITICAL AI ERROR: ", e);
-      showToast('AI Error! Check the "Console" tab in F12.', 'error'); 
+      showToast('AI Error! Please open F12 Console and show me the red text.', 'error'); 
     } 
     setIsRemovingBg(false); 
   };
