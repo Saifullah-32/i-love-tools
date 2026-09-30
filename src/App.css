@@ -2,15 +2,15 @@
 
 :root {
   /* Clean Light Theme */
-  --bg-base: #f8fafc;       /* Light grey-blue background */
-  --bg-surface: #f1f5f9;    /* Slightly darker surface for inputs */
-  --bg-card: #ffffff;       /* Pure white cards */
-  --border: #e2e8f0;        /* Light border */
+  --bg-base: #f8fafc;
+  --bg-surface: #f1f5f9;
+  --bg-card: #ffffff;
+  --border: #e2e8f0;
   --border-hover: #cbd5e1;
-  --text-main: #0f172a;     /* Dark slate text */
-  --text-muted: #64748b;    /* Grey muted text */
+  --text-main: #0f172a;
+  --text-muted: #64748b;
   
-  /* Primary Button (Black with White Text) */
+  /* Primary Button */
   --primary: #0f172a;
   --primary-fg: #ffffff;
   
@@ -77,7 +77,13 @@ a {
   z-index: 100;
   background-color: var(--bg-card);
   border-bottom: 1px solid var(--border);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.03); /* Soft shadow for light theme */
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+}
+
+/* BOLD HEADER LINKS FIX */
+.header a {
+  font-weight: 600;
+  color: var(--text-main);
 }
 
 .header-nav {
@@ -89,9 +95,9 @@ a {
 .nav-category-btn {
   background: transparent;
   border: none;
-  color: var(--text-muted);
+  color: var(--text-main);
   font-size: 0.95rem;
-  font-weight: 500;
+  font-weight: 600; /* BOLD CATEGORY FONT FIX */
   cursor: pointer;
   padding: 8px 12px;
   display: flex;
@@ -102,7 +108,6 @@ a {
 }
 
 .nav-category-btn:hover {
-  color: var(--text-main);
   background: var(--bg-surface);
 }
 
@@ -133,8 +138,50 @@ a {
 .header-dropdown::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
 .header-dropdown.show { opacity: 1; visibility: visible; transform: translateY(5px); }
-.nav-link { display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: var(--text-muted); border-radius: var(--radius-md); font-size: 0.95rem; font-weight: 500; }
+
+.nav-link { 
+  display: flex; 
+  align-items: center; 
+  gap: 10px; 
+  padding: 10px 12px; 
+  color: var(--text-muted); 
+  border-radius: var(--radius-md); 
+  font-size: 0.95rem; 
+  font-weight: 600; /* BOLD DROPDOWN LINKS FIX */
+}
 .nav-link:hover { background: var(--bg-surface); color: var(--text-main); }
+
+/* SEARCH BAR OUTLINE FIX */
+.search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--text-muted);
+}
+
+.search-bar {
+  width: 100%;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  padding: 10px 10px 10px 40px;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  outline: none !important; /* Force remove browser outline */
+  box-shadow: none !important; /* Force remove browser shadow */
+  transition: all 0.2s ease;
+}
+
+.search-bar:focus {
+  border-color: var(--border-hover);
+  background: var(--bg-card);
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.05) !important; /* Soft light theme shadow instead of stark black */
+}
 
 /* Tool Directory Cards */
 .responsive-grid {
@@ -194,7 +241,7 @@ a {
 .tool-header .back-btn {
   margin-bottom: 20px;
   color: var(--text-muted);
-  font-weight: 500;
+  font-weight: 600;
   font-size: 1.1rem;
   display: inline-flex;
   align-items: center;
@@ -230,7 +277,7 @@ a {
   border: 1px solid var(--border);
   border-radius: 24px;
   padding: 50px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.05); /* Softer shadow */
+  box-shadow: 0 20px 50px rgba(0,0,0,0.05);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -300,7 +347,7 @@ a {
 }
 
 .btn-primary:hover {
-  background-color: #334155; /* Dark grey hover state */
+  background-color: #334155;
   transform: translateY(-3px);
   box-shadow: 0 15px 35px rgba(0,0,0,0.15);
 }
@@ -358,7 +405,7 @@ a {
   border-radius: var(--radius-md);
   font-weight: 500;
   color: white;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15); /* Softer shadow */
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
 
 .toast.success { background-color: #10b981; }
