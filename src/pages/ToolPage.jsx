@@ -196,24 +196,23 @@ function ToolPage({ tool, categories }) {
   const handleBgRemove = async () => { 
     if (!bgImageFile) return; 
     setIsRemovingBg(true); 
-    showToast('Downloading AI Model... (May take 10-20s on first run)'); 
+    showToast('Initializing AI Engine... (May take 10-20s)'); 
     try { 
-      // 1. Safely import the library
       const imgly = await import('@imgly/background-removal'); 
       const removeBackground = imgly.default || imgly.removeBackground;
       
-      // 2. Force the AI to fetch its models from the global CDN to bypass Vite 404 errors
+      // FIX: Added "-data" to the package name. This is where the .wasm files actually live!
       const config = {
-        publicPath: "https://unpkg.com/@imgly/background-removal/dist/"
+        publicPath: "https://unpkg.com/@imgly/background-removal-data@1.5.5/dist/"
       };
       
-      // 3. Process the image
       const blob = await removeBackground(bgImageFile, config); 
+      
       setBgResultUrl(trackUrl(URL.createObjectURL(blob))); 
       showToast('Background Erased via AI!'); 
     } catch (e) { 
-      console.error("AI Background Removal Error:", e);
-      showToast('AI Processing Error. Check Console (F12).', 'error'); 
+      console.error("CRITICAL AI ERROR: ", e);
+      showToast('AI Error! Please click the "Console" tab in F12.', 'error'); 
     } 
     setIsRemovingBg(false); 
   };
