@@ -201,12 +201,12 @@ function ToolPage({ tool, categories }) {
       const imgly = await import('@imgly/background-removal'); 
       const removeBackground = imgly.default || imgly.removeBackground;
       
+      // FIX: Explicitly point the engine to the precise static asset folder
+      // instead of relying on Vite to guess the module resolution path.
       const config = {
-        publicPath: "https://unpkg.com/@imgly/background-removal@1.5.5/dist/"
+        publicPath: "https://static.imgly.com/@imgly/background-removal-data/1.5.5/dist/"
       };
       
-      // FIX: Pass the native bgImageFile directly instead of a temporary URL.
-      // This prevents cross-origin and WebWorker memory access errors.
       const blob = await removeBackground(bgImageFile, config); 
       
       setBgResultUrl(trackUrl(URL.createObjectURL(blob))); 
