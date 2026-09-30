@@ -4,7 +4,7 @@ import {
   Code2, FileCode2, Code, Brackets, Wind, Database, FileJson, GitCompare, BoxSelect, 
   Tags, FileText, Type, ListTree, Regex, Keyboard, Layout, Activity, Clock, Timer, 
   Calculator, Receipt, Link, QrCode, Mail, Share2, GraduationCap, Gamepad2, LayoutGrid, Bug, FileStack,
-  FileSpreadsheet, BookOpen, FolderOpen
+  FileSpreadsheet, BookOpen, FolderOpen, RefreshCcw, FileOutput, FileMinus, Stamp, ListOrdered
 } from 'lucide-react';
 
 export const categories = {
@@ -93,7 +93,12 @@ export const categories = {
   ],
   "Business & Utilities": [
     { id: 'bpm-tapper', name: 'BPM Tapper', description: 'Tap a button to calculate the exact Beats Per Minute (BPM) of a song or heartbeat.', icon: Activity },
-    { id: 'pdf-merge', name: 'Merge & Split PDF', description: 'Merge multiple PDF documents into one or split specific page ranges locally.', icon: FileStack },
+    { id: 'pdf-merge', name: 'Merge PDF', description: 'Merge multiple PDF documents into one single file locally.', icon: FileStack },
+    { id: 'pdf-rotate', name: 'Rotate PDF', description: 'Rotate all pages in a PDF document by 90, 180, or 270 degrees.', icon: RefreshCcw },
+    { id: 'pdf-extract', name: 'Extract PDF Pages', description: 'Extract specific pages from a PDF to create a new document.', icon: FileOutput },
+    { id: 'pdf-remove', name: 'Remove PDF Pages', description: 'Delete unwanted pages from a PDF document instantly.', icon: FileMinus },
+    { id: 'pdf-watermark', name: 'Add Watermark to PDF', description: 'Stamp custom text watermarks across every page of your PDF.', icon: Stamp },
+    { id: 'pdf-page-numbers', name: 'Add PDF Page Numbers', description: 'Automatically append sequential page numbers to your PDF files.', icon: ListOrdered },
     { id: 'freelance', name: 'Freelance Calc', description: 'Calculate gross total and net earnings after taxes for hourly freelance contracts.', icon: Calculator },
     { id: 'dummy-data', name: 'Mock Data Gen', description: 'Generate up to 1,000 rows of fake user names and emails as JSON or CSV for testing.', icon: Database },
     { id: 'seo', name: 'SEO Meta', description: 'Preview how your website looks on Google and generate HTML meta tags.', icon: Share2 },
@@ -111,4 +116,4 @@ export const categories = {
 };
 
 export const flatTools = Object.values(categories).flat();
-export const popularToolIds = ['svg-to-jsx', 'css-to-tailwind', 'csv-to-sql', 'pdf-merge', 'csv-to-excel', 'bg-remover', 'pass-strength', 'id3-editor'];
+export const popularToolIds = ['svg-to-jsx', 'css-to-tailwind', 'csv-to-sql', 'pdf-merge', 'pdf-extract', 'bg-remover', 'pass-strength', 'id3-editor'];
