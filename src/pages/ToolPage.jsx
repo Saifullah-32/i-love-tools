@@ -196,24 +196,24 @@ function ToolPage({ tool, categories }) {
   const handleBgRemove = async () => { 
     if (!bgImageFile) return; 
     setIsRemovingBg(true); 
-    showToast('Initializing AI Engine... (May take 10-20s)'); 
+    showToast('Downloading AI Model... (May take 10-20s on first run)'); 
     try { 
+      // 1. Safely import the library
       const imgly = await import('@imgly/background-removal'); 
       const removeBackground = imgly.default || imgly.removeBackground;
       
-      // FIX: Explicitly point the engine to the precise static asset folder
-      // instead of relying on Vite to guess the module resolution path.
+      // 2. Force the AI to fetch its models from the global CDN to bypass Vite 404 errors
       const config = {
-        publicPath: "https://static.imgly.com/@imgly/background-removal-data/1.5.5/dist/"
+        publicPath: "https://unpkg.com/@imgly/background-removal/dist/"
       };
       
+      // 3. Process the image
       const blob = await removeBackground(bgImageFile, config); 
-      
       setBgResultUrl(trackUrl(URL.createObjectURL(blob))); 
       showToast('Background Erased via AI!'); 
     } catch (e) { 
-      console.error("CRITICAL AI ERROR: ", e);
-      showToast('AI Error! Please open F12 Console and show me the red text.', 'error'); 
+      console.error("AI Background Removal Error:", e);
+      showToast('AI Processing Error. Check Console (F12).', 'error'); 
     } 
     setIsRemovingBg(false); 
   };
