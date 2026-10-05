@@ -37,10 +37,10 @@ function AppContent() {
         
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '20px' }}>
           
-          {/* Left: Logo */}
+          {/* Left: Logo - SEO FIX: Changed from h1 to span to prevent duplicate H1 tags */}
           <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }} onClick={() => setSearchQuery('')}>
-            <img src="/favicon.png" alt="1T Logo" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
-            <h1 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--text-main)' }}>I Love Tools</h1>
+            <img src="/favicon.png" alt="1T Logo" width="36" height="36" style={{ borderRadius: '8px' }} />
+            <span style={{ margin: 0, fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--text-main)' }}>I Love Tools</span>
           </Link>
 
           {/* Center: Main Navigation */}

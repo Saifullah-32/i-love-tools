@@ -8,7 +8,9 @@
   --border: #e2e8f0;
   --border-hover: #cbd5e1;
   --text-main: #0f172a;
-  --text-muted: #64748b;
+  
+  /* ACCESSIBILITY FIX: Darkened from #64748b to #334155 to meet WCAG AAA 7:1 Contrast Ratio */
+  --text-muted: #334155; 
   
   /* Primary Button */
   --primary: #0f172a;
@@ -80,16 +82,15 @@ a {
   box-shadow: 0 4px 20px rgba(0,0,0,0.03);
 }
 
-/* BOLD HEADER LINKS FIX */
 .header a {
-  font-weight: 700 !important; /* Forced to thick Bold */
-  color: var(--text-main) !important; /* Forced solid dark slate color */
-  opacity: 0.85; /* Slight opacity so the hover effect pops */
+  font-weight: 700 !important; 
+  color: var(--text-main) !important; 
+  opacity: 0.85; 
   transition: opacity 0.2s ease;
 }
 
 .header a:hover {
-  opacity: 1; /* Fully solid on hover */
+  opacity: 1; 
 }
 
 .header-nav {
@@ -103,7 +104,7 @@ a {
   border: none;
   color: var(--text-main);
   font-size: 0.95rem;
-  font-weight: 700 !important; /* BOLD CATEGORY FONT FIX */
+  font-weight: 700 !important; 
   cursor: pointer;
   padding: 8px 12px;
   display: flex;
@@ -150,14 +151,13 @@ a {
   align-items: center; 
   gap: 10px; 
   padding: 10px 12px; 
-  color: var(--text-muted) !important; /* Keep dropdown items slightly muted */
+  color: var(--text-muted) !important; 
   border-radius: var(--radius-md); 
   font-size: 0.95rem; 
   font-weight: 600 !important;
 }
 .nav-link:hover { background: var(--bg-surface); color: var(--text-main) !important; }
 
-/* SEARCH BAR OUTLINE FIX */
 .search-container {
   position: relative;
   display: flex;
@@ -178,8 +178,8 @@ a {
   padding: 10px 10px 10px 40px;
   border-radius: var(--radius-md);
   font-size: 0.9rem;
-  outline: none !important; /* Force remove browser outline */
-  box-shadow: none !important; /* Force remove browser shadow */
+  outline: none !important; 
+  box-shadow: none !important; 
   transition: all 0.2s ease;
 }
 
@@ -189,7 +189,6 @@ a {
   box-shadow: 0 0 0 3px rgba(0,0,0,0.05) !important;
 }
 
-/* Tool Directory Cards */
 .responsive-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -221,10 +220,6 @@ a {
 }
 .tool-card h3 { font-size: 1.1rem; margin: 0; color: var(--text-main); }
 .tool-card p { color: var(--text-muted); font-size: 0.9rem; margin: 0; line-height: 1.6; }
-
-/* =========================================
-   TOOL WORKSPACE OVERHAUL (iLovePDF Style)
-   ========================================= */
 
 .tool-workspace {
   width: 100%;
@@ -275,7 +270,6 @@ a {
   line-height: 1.6;
 }
 
-/* Tool Action Box */
 .tool-body {
   width: 100%;
   max-width: 800px;
@@ -293,7 +287,6 @@ a {
   width: 100%;
 }
 
-/* Massive Forms & Textareas */
 .form-group {
   width: 100%;
   margin-bottom: 25px;
@@ -328,7 +321,6 @@ a {
   box-shadow: 0 0 0 4px rgba(0,0,0,0.05);
 }
 
-/* Giant Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -392,7 +384,6 @@ a {
   margin: 15px 0;
 }
 
-/* Toasts / Notifications */
 .toast-container {
   position: fixed;
   bottom: 24px;
