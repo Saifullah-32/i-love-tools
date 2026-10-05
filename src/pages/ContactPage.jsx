@@ -19,7 +19,7 @@ export default function ContactPage() {
           <Mail size={40} color="var(--primary)" style={{ marginBottom: '20px' }} />
           <h3 style={{ marginBottom: '10px', color: 'var(--text-main)' }}>Email Us</h3>
           <p style={{ color: 'var(--text-muted)', marginBottom: '20px' }}>For support, feature requests, or business inquiries, reach out via email.</p>
-          <a href="mailto:software.index.si@gmail.com" className="btn btn-primary" style={{ display: 'inline-block' }}>software.index.si@gmail.com</a>
+          <a href="mailto:software.index.si@gmail.com" className="btn btn-primary" style={{ width: '100%', wordBreak: 'break-all', padding: '16px', fontSize: '1.1rem', minWidth: 'auto' }}>software.index.si@gmail.com</a>
         </div>
 
         <div style={{ background: 'var(--bg-surface)', padding: '40px', borderRadius: '16px', border: '1px solid var(--border)' }}>

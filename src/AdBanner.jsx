@@ -12,11 +12,11 @@ const AdBanner = () => {
   }, []);
 
   return (
-    <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '20px 0' }} aria-label="Advertisement">
+    <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '10px', minHeight: '1px' }} aria-label="Advertisement">
       <ins
         className="adsbygoogle"
         title="Advertisement"
-        style={{ display: 'block', minWidth: '300px', minHeight: '90px' }}
+        style={{ display: 'block', width: '100%' }}
         data-ad-client="ca-pub-1371188797226014"
         data-ad-slot="9342551609"
         data-ad-format="auto"
