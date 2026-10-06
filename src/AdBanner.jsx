@@ -4,7 +4,11 @@ const AdBanner = () => {
   useEffect(() => {
     try {
       if (window.adsbygoogle && typeof window !== 'undefined') {
-        window.adsbygoogle.push({});
+        // Prevent duplicate pushes if AdSense has already populated the slot in this lifecycle
+        const adElement = document.querySelector('.adsbygoogle');
+        if (adElement && !adElement.getAttribute('data-adsbygoogle-status')) {
+          window.adsbygoogle.push({});
+        }
       }
     } catch (e) {
       console.error('AdSense Error:', e);

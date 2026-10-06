@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Layers, Sparkles } from 'lucide-react';
@@ -20,17 +20,19 @@ export default function ToolsPage({ searchQuery, categories }) {
     document.title = 'All Tools | I Love Tools';
   }, []);
 
-  const visibleCategories = Object.keys(categories).filter(cat => 
-    !searchQuery || categories[cat].some(t => 
-      t.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      t.description.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  );
+  // Performance Fix: Memoize the search filter iteration
+  const visibleCategories = useMemo(() => {
+    return Object.keys(categories).filter(cat => 
+      !searchQuery || categories[cat].some(t => 
+        t.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        t.description.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    );
+  }, [searchQuery, categories]);
 
   return (
     <motion.div key="tools" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }} className="home-dashboard">
       
-      {/* Show Popular Tools only when the user is NOT actively searching */}
       {!searchQuery && (
         <>
           <div className="section-heading" style={{marginTop: '1rem'}}>

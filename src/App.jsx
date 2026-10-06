@@ -1,17 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ChevronDown } from 'lucide-react';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import AdBanner from './AdBanner';
-import HomePage from './pages/HomePage';
-import ToolsDirectory from './pages/ToolsDirectory';
-import ToolPageWrapper from './pages/ToolPage';
-import AboutPage from './pages/AboutPage';
-import ContactPage from './pages/ContactPage';
 import { categories, flatTools, popularToolIds } from './data/categories';
 import './App.css';
+
+// Lazy load pages to split code by route
+const HomePage = lazy(() => import('./pages/HomePage'));
+const ToolsDirectory = lazy(() => import('./pages/ToolsDirectory'));
+const ToolPageWrapper = lazy(() => import('./pages/ToolPage'));
+const AboutPage = lazy(() => import('./pages/AboutPage'));
+const ContactPage = lazy(() => import('./pages/ContactPage'));
 
 function AppContent() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -19,9 +21,17 @@ function AppContent() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleMouseEnter = (category) => { if (window.innerWidth > 900) setActiveDropdown(category); };
-  const handleMouseLeave = () => { if (window.innerWidth > 900) setActiveDropdown(null); };
-  const handleMobileClick = (category) => { if (window.innerWidth <= 900) setActiveDropdown(activeDropdown === category ? null : category); };
+  const handleMouseEnter = (category) => { 
+    if (typeof window !== 'undefined' && window.innerWidth > 900) setActiveDropdown(category); 
+  };
+  const handleMouseLeave = () => { 
+    if (typeof window !== 'undefined' && window.innerWidth > 900) setActiveDropdown(null); 
+  };
+  const handleMobileClick = (category) => { 
+    if (typeof window !== 'undefined' && window.innerWidth <= 900) {
+      setActiveDropdown(activeDropdown === category ? null : category); 
+    }
+  };
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
@@ -34,10 +44,9 @@ function AppContent() {
     <div className="container">
       {/* Minimalist Top Header */}
       <header className="header" style={{ padding: '16px 32px' }}>
-        
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '20px' }}>
           
-          {/* Left: Logo - SEO FIX: Changed from h1 to span to prevent duplicate H1 tags */}
+          {/* Left: Logo */}
           <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }} onClick={() => setSearchQuery('')}>
             <img src="/favicon.png" alt="1T Logo" width="36" height="36" style={{ borderRadius: '8px' }} />
             <span style={{ margin: 0, fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--text-main)' }}>I Love Tools</span>
@@ -83,15 +92,18 @@ function AppContent() {
       <div className="app-layout">
         <main className="main-content">
           <AdBanner />
-          <AnimatePresence mode="wait">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/tools" element={<ToolsDirectory searchQuery={searchQuery} categories={categories} />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/tool/:id" element={<ToolPageWrapper flatTools={flatTools} categories={categories} />} />
-            </Routes>
-          </AnimatePresence>
+          {/* Suspense boundary for lazy-loaded routes */}
+          <Suspense fallback={<div style={{ padding: '50px', textAlign: 'center', color: 'var(--text-muted)' }}>Loading...</div>}>
+            <AnimatePresence mode="wait">
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/tools" element={<ToolsDirectory searchQuery={searchQuery} categories={categories} />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/tool/:id" element={<ToolPageWrapper flatTools={flatTools} categories={categories} />} />
+              </Routes>
+            </AnimatePresence>
+          </Suspense>
         </main>
       </div>
 
